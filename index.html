@@ -40,27 +40,32 @@
             padding: 30px;
             margin-bottom: 30px;
             box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
-            position: relative;
-            overflow: hidden;
             border: 5px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            overflow: hidden;
         }
 
-        .header::before {
-            content: '🦁\A🐘\A🦒\A🐼\A🦊\A🐝\A🦎\A🐻\A🦅\A🐟';
-            white-space: pre;
-            position: absolute;
-            top: 20px;
-            right: 30px;
-            font-size: 2.5rem;
-            opacity: 0.4;
-            line-height: 1.2;
+        .header-content {
+            z-index: 2;
+        }
+
+        .header-emojis {
+            font-size: 3rem;
+            opacity: 0.3;
+            line-height: 1.4;
+            text-align: right;
+            max-width: 50%;
+            letter-spacing: 15px;
         }
 
         .header h1 {
             font-size: 3.5rem;
             color: white;
             text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.2);
-            margin-bottom: 10px;
+            margin-bottom: 5px;
+            line-height: 1.1;
         }
 
         .header p {
@@ -311,6 +316,42 @@
 
         .info-item strong {
             color: #667eea;
+        }
+
+        /* Sliders */
+        .slider-container {
+            margin-bottom: 20px;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .slider-track {
+            height: 15px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .slider-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #FFD93D, #FF6B6B);
+            border-radius: 10px;
+            transition: width 1s ease-out;
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 0.9rem;
+            color: #888;
         }
 
         /* Special Cards */
@@ -576,6 +617,93 @@
 
                 setMode('loading');
 
+                // MOCK DATA FOR LOCALHOST
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    console.log("Using Mock Data");
+                    setTimeout(async () => {
+                        const mockData = {
+                            name_deutsch: tierName || "Löwe",
+                            name_wissenschaftlich: "Panthera leo",
+                            name_englisch: "Lion",
+                            level_system: { seltenheit: "Häufig" },
+                            aussehen: {
+                                farben: ["Goldgelb", "Braun"],
+                                besonderheiten: ["Mähne", "Große Pfoten"],
+                                anzahl_augen: 2,
+                                anzahl_beine: 4,
+                                skelett_typ: "Wirbeltier",
+                                biolumineszenz: false,
+                                anzahl_zaehne: 30,
+                                art_zaehne: "Reißzähne",
+                                groesse_cm: "170-250",
+                                gewicht_g: 190000,
+                                wichtige_masse: "Schulterhöhe: 120 cm"
+                            },
+                            rekorde: {
+                                hoechstgeschwindigkeit_kmh: 80,
+                                schnellste_beschleunigung: "0-50 in 4s",
+                                weitester_sprung_m: 12,
+                                tauchrekord_m: 0,
+                                laengster_winterschlaf_monate: 0,
+                                lautstaerke_dezibel: 114,
+                                staerke_verhaeltnis: "Sehr stark",
+                                besondere_faehigkeiten: ["Nachtsicht", "Brüllen"],
+                                herzschlag_pro_minute: 60,
+                                lebenserwartung_jahre: "10-14"
+                            },
+                            krasse_facts: ["Ein Löwenbrüllen ist 8km weit zu hören!", "Schlafen 20 Stunden am Tag"],
+                            fun_vergleiche: {
+                                groesse_wie: "So lang wie ein Kleinwagen",
+                                gewicht_wie: "So schwer wie 3 erwachsene Männer",
+                                geschwindigkeit_wie: "Schneller als dein Schulbus",
+                                staerke_wie: "Bärenstark",
+                                anzahl_weltweit: "20.000",
+                                anzahl_vergleich: "Weniger als Einwohner in einer Kleinstadt"
+                            },
+                            wusstest_du: ["Löwen sind die einzigen Katzen, die im Rudel leben"],
+                            charakter_stats: {
+                                freundlichkeit: { wert: 3, label_links: "Vorsichtig", label_rechts: "Super Freundlich" },
+                                lautstaerke: { wert: 10, label_links: "Leise", label_rechts: "Sehr Laut" },
+                                gefaehrlichkeit: { wert: 9, label_links: "Harmlos", label_rechts: "Gefährlich" },
+                                niedlichkeit: { wert: 6, label_links: "Okay", label_rechts: "Super Süß" },
+                                intelligenz: { wert: 7, label_links: "Instinktiv", label_rechts: "Genie" },
+                                coolness: { wert: 10, label_links: "Normal", label_rechts: "Mega Cool" },
+                                geschwindigkeit: { wert: 8, label_links: "Gemütlich", label_rechts: "Blitzschnell" }
+                            },
+                            lebenszyklus: { stufen: ["Baby", "Jungtier", "Erwachsen"], gesamtdauer: "15 Jahre" },
+                            nahrungskette: { position: "Fleischfresser", frisst: ["Zebras", "Antilopen"], wird_gefressen_von: [], kette_emoji: "🦓 → 🦁" },
+                            verbreitung_karte: { kontinente: ["Afrika"], klima: "Heiß", hoehe: "Savanne" },
+                            population_trend: { aktuell: "Abnehmend", anzahl_weltweit: "20.000", vor_50_jahren: "Es gab viel mehr Löwen als heute.", heute: "Der Lebensraum wird kleiner.", prognose: "Gefährdet" },
+                            beruehmt: { filme: ["König der Löwen"], buecher: [], videospiele: [], maskottchen: "" },
+                            helfen: { was_kann_ich_tun: ["Spenden"], im_garten: "", apps: [] },
+                            basis_info: { lebensraum: ["Savanne"], ernaehrung: "Fleisch", gefaehrdung: "Gefährdet", sozialverhalten: "Rudel", aktivitaet: "Dämmerung" },
+                            geschichte_kurz: "Es war einmal ein Löwe, der brüllte sehr laut.",
+                            geschichte_lang: "Es war einmal ein Löwe, der brüllte sehr laut und alle Tiere hörten ihn...",
+                            bild: null // Will be filled by wiki or placeholder
+                        };
+
+                        // Try Wiki Image even in mock mode
+                        let wikiImage = null;
+                        try {
+                            const wikiResponse = await fetch(`https://de.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(mockData.name_deutsch)}&prop=pageimages&format=json&pithumbsize=1000&origin=*`);
+                            const wikiData = await wikiResponse.json();
+                            const pages = wikiData.query.pages;
+                            const pageId = Object.keys(pages)[0];
+                            if (pageId !== '-1' && pages[pageId].thumbnail) {
+                                wikiImage = pages[pageId].thumbnail.source;
+                            }
+                        } catch (e) {
+                            console.log("Wikipedia Bild Fehler:", e);
+                        }
+
+                        mockData.bild = wikiImage; // Fallback handled later if null
+
+                        setResult(mockData);
+                        setMode('result');
+                    }, 1500);
+                    return;
+                }
+
                 try {
                     let detectedAnimal = tierName;
 
@@ -613,6 +741,20 @@
                         }
                     }
 
+                    // Schritt 1.5: Wikipedia Bild laden
+                    let wikiImage = null;
+                    try {
+                        const wikiResponse = await fetch(`https://de.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(detectedAnimal)}&prop=pageimages&format=json&pithumbsize=1000&origin=*`);
+                        const wikiData = await wikiResponse.json();
+                        const pages = wikiData.query.pages;
+                        const pageId = Object.keys(pages)[0];
+                        if (pageId !== '-1' && pages[pageId].thumbnail) {
+                            wikiImage = pages[pageId].thumbnail.source;
+                        }
+                    } catch (e) {
+                        console.log("Wikipedia Bild Fehler:", e);
+                    }
+
                     // Schritt 2: ALLE Infos sammeln (KOMPLETT!)
                     const infoPrompt = `Du bist ein super cooler Tier-Experte für KINDER (8-12 Jahre)! Sammle ALLE Informationen über "${detectedAnimal}" und gib sie als JSON zurück.
 
@@ -627,15 +769,11 @@ JSON-STRUKTUR (ALLE Felder ausfüllen!):
   "name_deutsch": "${detectedAnimal}",
   "name_wissenschaftlich": "...",
   "name_englisch": "...",
-  
+
   "level_system": {
-    "seltenheit": "Häufig/Selten/Legendär",
-    "gefaehrlichkeit": 2,
-    "niedlichkeit": 9,
-    "intelligenz": 8,
-    "coolness": 10
+    "seltenheit": "Häufig/Selten/Legendär"
   },
-  
+
   "aussehen": {
     "farben": ["Farbe 1", "Farbe 2"],
     "besonderheiten": ["Merkmal 1", "Merkmal 2"],
@@ -646,9 +784,10 @@ JSON-STRUKTUR (ALLE Felder ausfüllen!):
     "anzahl_zaehne": 32,
     "art_zaehne": "Schneidezähne/Reißzähne/Keine",
     "groesse_cm": "10-50",
-    "gewicht_g": 1000
+    "gewicht_g": 1000,
+    "wichtige_masse": "Spannweite: 2m (bei Vögeln) oder Schulterhöhe: 1m (kontextabhängig!)"
   },
-  
+
   "rekorde": {
     "hoechstgeschwindigkeit_kmh": 50,
     "schnellste_beschleunigung": "0-50 km/h in 2 Sekunden",
@@ -661,7 +800,7 @@ JSON-STRUKTUR (ALLE Felder ausfüllen!):
     "herzschlag_pro_minute": 120,
     "lebenserwartung_jahre": "5-10"
   },
-  
+
   "krasse_facts": [
     "🤯 Unglaublicher Fakt mit Zahlen!",
     "💥 Überraschender Fakt!",
@@ -669,16 +808,16 @@ JSON-STRUKTUR (ALLE Felder ausfüllen!):
     "🦾 Extreme Anpassung!",
     "😱 Mind-blowing Fakt!"
   ],
-  
+
   "fun_vergleiche": {
     "groesse_wie": "So groß wie 10 Gummibärchen übereinander!",
     "gewicht_wie": "So schwer wie 50 Tafeln Schokolade!",
     "geschwindigkeit_wie": "So schnell wie ein Rennrad!",
     "staerke_wie": "Kann so viel tragen wie wenn DU 20 Schulranzen trägst!",
-    "anzahl_weltweit": "2000000000000",
-    "anzahl_vergleich": "So viele wie in Wien, Graz UND Linz zusammen! (oder: 250.000x alle Menschen in Österreich!)"
+    "anzahl_weltweit": "20.000 (Zahl)",
+    "anzahl_vergleich": "Weniger als Einwohner in einer Kleinstadt"
   },
-  
+
   "wusstest_du": [
     "💡 Fakt 1 mit Zahlen!",
     "🤓 Fakt 2!",
@@ -686,16 +825,17 @@ JSON-STRUKTUR (ALLE Felder ausfüllen!):
     "🎯 Fakt 4!",
     "✨ Fakt 5!"
   ],
-  
-  "emoji_stimmung": {
-    "freundlichkeit": "😊",
-    "aktivitaet": "☀️",
-    "winterschlaf": false,
-    "lautstaerke": "🔊",
-    "geschwindigkeit": "🏃",
-    "intelligenz_emoji": "🧠"
+
+  "charakter_stats": {
+    "freundlichkeit": { "wert": 8, "label_links": "Vorsichtig", "label_rechts": "Super Freundlich" },
+    "lautstaerke": { "wert": 2, "label_links": "Leise", "label_rechts": "Sehr Laut" },
+    "gefaehrlichkeit": { "wert": 5, "label_links": "Harmlos", "label_rechts": "Gefährlich" },
+    "niedlichkeit": { "wert": 9, "label_links": "Okay", "label_rechts": "Super Süß" },
+    "intelligenz": { "wert": 7, "label_links": "Instinktiv", "label_rechts": "Genie" },
+    "coolness": { "wert": 10, "label_links": "Normal", "label_rechts": "Mega Cool" },
+    "geschwindigkeit": { "wert": 6, "label_links": "Gemütlich", "label_rechts": "Blitzschnell" }
   },
-  
+
   "lebenszyklus": {
     "stufen": [
       "🥚 Ei (3 Tage)",
@@ -705,35 +845,35 @@ JSON-STRUKTUR (ALLE Felder ausfüllen!):
     ],
     "gesamtdauer": "21 Tage"
   },
-  
+
   "nahrungskette": {
     "position": "Pflanzenfresser/Fleischfresser/Allesfresser",
     "frisst": ["🌸 Nektar", "🌼 Pollen"],
     "wird_gefressen_von": ["🦅 Vögel", "🕷️ Spinnen"],
     "kette_emoji": "🌸 → 🐝 → 🦅"
   },
-  
+
   "verbreitung_karte": {
     "kontinente": ["🌍 Europa", "🌏 Asien"],
     "klima": "☀️ Warm/🥶 Kalt/🌡️ Gemäßigt",
     "hoehe": "0-3000m"
   },
-  
+
   "population_trend": {
     "aktuell": "📉 Abnehmend/📈 Zunehmend/➡️ Stabil",
-    "anzahl_weltweit": "2000000000",
-    "vor_50_jahren": "100%",
-    "heute": "50%",
+    "anzahl_weltweit": "20.000 (Zahl)",
+    "vor_50_jahren": "Erklärender Satz (z.B. Es gab viel mehr...)",
+    "heute": "Erklärender Satz",
     "prognose": "⚠️ Gefährdet/✅ Sicher"
   },
-  
+
   "beruehmt": {
     "filme": ["Film 1", "Film 2"],
     "buecher": ["Buch 1"],
     "videospiele": ["Spiel 1"],
     "maskottchen": "Firma/Team"
   },
-  
+
   "helfen": {
     "was_kann_ich_tun": [
       "🌻 Aktion 1!",
@@ -743,11 +883,11 @@ JSON-STRUKTUR (ALLE Felder ausfüllen!):
     "im_garten": "Konkrete Tipps",
     "apps": ["App 1", "App 2"]
   },
-  
+
   "basis_info": {
     "lebensraum": ["Habitat 1", "Habitat 2"],
     "ernaehrung": "Pflanzenfresser/Fleischfresser/Allesfresser",
-    "gefaehrdung": "LC/NT/VU/EN/CR",
+    "gefaehrdung": "Nicht gefährdet / Stark gefährdet (KEINE ABKÜRZUNGEN!)",
     "sozialverhalten": "Einzelgänger/Rudel/Schwarm",
     "aktivitaet": "tagaktiv/nachtaktiv"
   }
@@ -775,7 +915,6 @@ ANFORDERUNGEN:
 - Ein kleines Abenteuer
 - Happy End
 - Keine Moral!
-
 Schreibe NUR die Geschichte!`;
 
                     const shortStoryResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
@@ -814,8 +953,8 @@ Schreibe NUR die Geschichte!`;
                     const longStory = longStoryData.candidates[0].content.parts[0].text.trim();
 
                     // Schritt 5: Bild generieren (falls keins hochgeladen wurde)
-                    let tierBild = image;
-                    if (!image) {
+                    let tierBild = image || wikiImage;
+                    if (!tierBild) {
                         // Nutze Lorem Picsum mit Blur-Effekt als Platzhalter
                         // Oder generiere ein einfaches Platzhalter-Bild
                         const animalEmoji = {
@@ -865,9 +1004,14 @@ Schreibe NUR die Geschichte!`;
                 <div className="container">
                     {/* Header */}
                     <div className="header">
-                        <h1>🦁 TierWissen für Kids</h1>
-                        <p>Entdecke die coolsten Tiere der Welt!</p>
-                        <div style={{ position: 'absolute', bottom: '10px', left: '30px', fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)' }}>v1.3</div>
+                        <div className="header-content">
+                            <h1>🦁 TierWissen<br />für Kids</h1>
+                            <p>Entdecke die coolsten Tiere der Welt!</p>
+                            <div style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)', marginTop: '10px' }}>v1.4</div>
+                        </div>
+                        <div className="header-emojis">
+                            🦁🐘🦒🐼🦊🐝🦎🐻🦅🐟
+                        </div>
                     </div>
 
                     {/* Input Section */}
@@ -974,7 +1118,7 @@ Schreibe NUR die Geschichte!`;
                                 <div className="loading-text">
                                     🔍 Ich sammle coole Infos über dein Tier...<br />
                                     <span style={{ fontSize: '1.2rem', color: '#666' }}>
-                                        (Das dauert 30-60 Sekunden - gleich geht's los!)
+                                        (Das dauert 60-90 Sekunden - gleich geht's los!)
                                     </span>
                                 </div>
                             </div>
@@ -1011,39 +1155,41 @@ Schreibe NUR die Geschichte!`;
 
                                     <div className="level-badges">
                                         <div className="badge">⭐ {result.level_system.seltenheit}</div>
-                                        <div className="badge">🎯 Gefahr: {result.level_system.gefaehrlichkeit}/10</div>
-                                        <div className="badge">😊 Süß: {result.level_system.niedlichkeit}/10</div>
-                                        <div className="badge">🧠 Schlau: {result.level_system.intelligenz}/10</div>
-                                        <div className="badge">🎨 Cool: {result.level_system.coolness}/10</div>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Emoji-Stimmungen */}
+                            {/* Charakter & Stimmung (Sliders) */}
                             <div className="special-card">
                                 <h2>🎭 Charakter & Stimmung</h2>
                                 <div className="content">
-                                    <div className="info-grid" style={{ gap: '15px' }}>
-                                        <div className="info-item">
-                                            <strong>Freundlichkeit:</strong> {result.emoji_stimmung.freundlichkeit} {result.emoji_stimmung.freundlichkeit === '😊' ? 'Freundlich' : 'Vorsichtig'}
-                                        </div>
-                                        <div className="info-item">
-                                            <strong>Aktivität:</strong> {result.emoji_stimmung.aktivitaet} {result.emoji_stimmung.aktivitaet === '☀️' ? 'Tagaktiv' : result.emoji_stimmung.aktivitaet === '😴' ? 'Nachtaktiv' : 'Dämmerungsaktiv'}
-                                        </div>
-                                        <div className="info-item">
-                                            <strong>Lautstärke:</strong> {result.emoji_stimmung.lautstaerke} {result.emoji_stimmung.lautstaerke === '🔊' ? 'Laut' : 'Leise'}
-                                        </div>
-                                        <div className="info-item">
-                                            <strong>Geschwindigkeit:</strong> {result.emoji_stimmung.geschwindigkeit} {result.emoji_stimmung.geschwindigkeit === '🏃' ? 'Schnell' : 'Langsam'}
-                                        </div>
-                                        <div className="info-item">
-                                            <strong>Intelligenz:</strong> {result.emoji_stimmung.intelligenz_emoji} {result.emoji_stimmung.intelligenz_emoji === '🧠' ? 'Intelligent' : 'Instinktiv'}
-                                        </div>
-                                        {result.emoji_stimmung.winterschlaf && (
-                                            <div className="info-item">
-                                                <strong>Winterschlaf:</strong> 🥶 Ja, hält Winterschlaf!
-                                            </div>
-                                        )}
+                                    <div className="info-grid" style={{ gap: '25px', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
+                                        {[
+                                            { key: 'freundlichkeit', emoji: '😊', label: 'Freundlichkeit' },
+                                            { key: 'lautstaerke', emoji: '🔊', label: 'Lautstärke' },
+                                            { key: 'gefaehrlichkeit', emoji: '🎯', label: 'Gefahr' },
+                                            { key: 'niedlichkeit', emoji: '😍', label: 'Süß-Faktor' },
+                                            { key: 'intelligenz', emoji: '🧠', label: 'Schlauheit' },
+                                            { key: 'coolness', emoji: '😎', label: 'Coolness' },
+                                            { key: 'geschwindigkeit', emoji: '🏃', label: 'Geschwindigkeit' }
+                                        ].map(stat => {
+                                            const data = result.charakter_stats[stat.key];
+                                            return (
+                                                <div key={stat.key} className="slider-container">
+                                                    <div className="slider-header">
+                                                        <span>{stat.emoji} {stat.label}</span>
+                                                        <span>{data.wert}/10</span>
+                                                    </div>
+                                                    <div className="slider-track">
+                                                        <div className="slider-fill" style={{ width: `${data.wert * 10}%` }}></div>
+                                                    </div>
+                                                    <div className="slider-labels">
+                                                        <span>{data.label_links}</span>
+                                                        <span>{data.label_rechts}</span>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             </div>
@@ -1057,7 +1203,11 @@ Schreibe NUR die Geschichte!`;
                                 <div className="info-item">🦴 <strong>Skelett:</strong> {result.aussehen.skelett_typ}</div>
                                 <div className="info-item">✨ <strong>Leuchtet im Dunkeln:</strong> {result.aussehen.biolumineszenz ? 'Ja! 🌟' : 'Nein'}</div>
                                 <div className="info-item">🦷 <strong>Zähne:</strong> {result.aussehen.anzahl_zaehne} ({result.aussehen.art_zaehne})</div>
+                                <div className="info-item">🦷 <strong>Zähne:</strong> {result.aussehen.anzahl_zaehne} ({result.aussehen.art_zaehne})</div>
                                 <div className="info-item">📏 <strong>Größe:</strong> {result.aussehen.groesse_cm} cm</div>
+                                {result.aussehen.wichtige_masse && (
+                                    <div className="info-item">📏 <strong>Maße:</strong> {result.aussehen.wichtige_masse}</div>
+                                )}
                                 <div className="info-item">
                                     ⚖️ <strong>Gewicht:</strong> {(() => {
                                         const g = result.aussehen.gewicht_g;
