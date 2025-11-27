@@ -776,10 +776,32 @@ Schreibe NUR die Geschichte!`;
                     // Schritt 5: Bild generieren (falls keins hochgeladen wurde)
                     let tierBild = image;
                     if (!image) {
-                        // Nutze eine kostenlose Tier-Bild API (Unsplash)
-                        // Format: https://source.unsplash.com/800x800/?{animal}
-                        const searchTerm = encodeURIComponent(tierInfo.name_englisch || detectedAnimal);
-                        tierBild = `https://source.unsplash.com/800x800/?${searchTerm},animal,wildlife`;
+                        // Nutze Lorem Picsum mit Blur-Effekt als Platzhalter
+                        // Oder generiere ein einfaches Platzhalter-Bild
+                        const animalEmoji = {
+                            'lion': '🦁', 'bee': '🐝', 'elephant': '🐘', 'dog': '🐕',
+                            'cat': '🐱', 'bird': '🐦', 'fish': '🐟', 'snake': '🐍',
+                            'lizard': '🦎', 'frog': '🐸', 'bear': '🐻', 'wolf': '🐺',
+                            'fox': '🦊', 'tiger': '🐯', 'horse': '🐴', 'cow': '🐄'
+                        };
+
+                        const englishName = (tierInfo.name_englisch || '').toLowerCase();
+                        const emoji = animalEmoji[englishName] || '🦁';
+
+                        // Erstelle ein SVG-Platzhalter mit Emoji
+                        const svg = `<svg width="800" height="800" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                            <rect width="800" height="800" fill="url(#grad)"/>
+                            <text x="400" y="450" font-size="300" text-anchor="middle">${emoji}</text>
+                            <text x="400" y="650" font-size="60" text-anchor="middle" fill="white" font-family="Arial">${tierInfo.name_deutsch}</text>
+                        </svg>`;
+
+                        tierBild = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
                     }
 
                     setResult({
@@ -981,31 +1003,6 @@ Schreibe NUR die Geschichte!`;
                                                 <strong>Winterschlaf:</strong> 🥶 Ja, hält Winterschlaf!
                                             </div>
                                         )}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Level-System Detail */}
-                            <div className="special-card">
-                                <h2>🎮 Level & Stats</h2>
-                                <div className="content">
-                                    <div className="info-grid" style={{ gap: '15px' }}>
-                                        <div>
-                                            <strong style={{ fontSize: '1.3rem', color: '#667eea' }}>🎯 Gefährlichkeit</strong>
-                                            <RatingStars rating={result.level_system.gefaehrlichkeit} />
-                                        </div>
-                                        <div>
-                                            <strong style={{ fontSize: '1.3rem', color: '#667eea' }}>😊 Niedlichkeit</strong>
-                                            <RatingStars rating={result.level_system.niedlichkeit} />
-                                        </div>
-                                        <div>
-                                            <strong style={{ fontSize: '1.3rem', color: '#667eea' }}>🧠 Intelligenz</strong>
-                                            <RatingStars rating={result.level_system.intelligenz} />
-                                        </div>
-                                        <div>
-                                            <strong style={{ fontSize: '1.3rem', color: '#667eea' }}>🎨 Coolness</strong>
-                                            <RatingStars rating={result.level_system.coolness} />
-                                        </div>
                                     </div>
                                 </div>
                             </div>
