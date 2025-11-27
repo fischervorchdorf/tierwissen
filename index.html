@@ -641,13 +641,31 @@
                 return <div className="rating">{stars}</div>;
             };
 
-            const analyzeTier = async () => {
+            const analyzeTier = async (forceRefresh = false) => {
                 if (!tierName && !image) {
                     alert('🦁 Bitte gib einen Tiernamen ein oder lade ein Foto hoch!');
                     return;
                 }
 
                 setMode('loading');
+
+                // CACHE-SYSTEM: Prüfe ob Daten bereits gespeichert sind
+                if (!forceRefresh && tierName && !image) {
+                    const cacheKey = `tier_${tierName.toLowerCase().trim()}`;
+                    const cachedData = localStorage.getItem(cacheKey);
+
+                    if (cachedData) {
+                        try {
+                            const parsed = JSON.parse(cachedData);
+                            console.log("📦 Daten aus Cache geladen:", tierName);
+                            setResult(parsed);
+                            setMode('result');
+                            return;
+                        } catch (e) {
+                            console.log("Cache-Fehler, lade neu");
+                        }
+                    }
+                }
 
                 // MOCK DATA FOR LOCALHOST
                 if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
@@ -788,12 +806,15 @@
                     }
 
                     // Schritt 2: ALLE Infos sammeln (KOMPLETT!)
-                    const infoPrompt = `Du bist ein super cooler Tier-Experte für KINDER (8-12 Jahre)! Sammle ALLE Informationen über "${detectedAnimal}" und gib sie als JSON zurück.
+                    const infoPrompt = `Du bist ein wissenschaftlicher Tier-Experte für KINDER (8-12 Jahre)! Sammle ALLE Informationen über "${detectedAnimal}" und gib sie als JSON zurück.
 
-WICHTIG: 
+⚠️ KRITISCHE ANFORDERUNGEN:
 - Antworte NUR mit validem JSON! Kein anderer Text!
-- Sei GENAU und KONSISTENT bei den Zahlen!
-- Mache es LUSTIG und KINDGERECHT!
+- ALLE Zahlen müssen REALISTISCH und GUT RECHERCHIERT sein!
+- Populationszahlen: Nutze ECHTE wissenschaftliche Schätzungen (z.B. IUCN, WWF, Fachliteratur)
+- Bei gefährdeten Arten: Unterscheide "in Freiheit" und "in Gefangenschaft"
+- KEINE Fantasy-Zahlen! Lieber "Unbekannt" als falsche Daten!
+- Kindgerecht aber WISSENSCHAFTLICH KORREKT!
 
 JSON-STRUKTUR (ALLE Felder ausfüllen!):
 
@@ -801,6 +822,11 @@ JSON-STRUKTUR (ALLE Felder ausfüllen!):
   "name_deutsch": "${detectedAnimal}",
   "name_wissenschaftlich": "...",
   "name_englisch": "...",
+  
+  "taxonomie": {
+    "arten_anzahl": "Anzahl bekannter Unterarten/Arten dieser Gattung (z.B. '24 Makakenarten')",
+    "beispiel_arten": ["Art 1", "Art 2", "Art 3"]
+  },
 
   "level_system": {
     "seltenheit": "Häufig/Selten/Legendär"
@@ -817,12 +843,12 @@ JSON-STRUKTUR (ALLE Felder ausfüllen!):
     "art_zaehne": "Schneidezähne/Reißzähne/Keine",
     "groesse_cm": "10-50",
     "gewicht_g": 1000,
-    "wichtige_masse": "Spannweite: 2m (bei Vögeln) oder Schulterhöhe: 1m (kontextabhängig!)"
+    "wichtige_masse": "Spannweite: 2m (Vögel) ODER Schulterhöhe: 1m (Säuger) ODER Panzerlänge (Schildkröten) - kontextabhängig!"
   },
 
   "rekorde": {
     "hoechstgeschwindigkeit_kmh": 50,
-    "schnellste_beschleunigung": "0-50 km/h in 2 Sekunden",
+    "schnellste_beschleunigung": "0-50 km/h in 2 Sek (oder null falls nicht relevant)",
     "weitester_sprung_m": 3,
     "tauchrekord_m": 100,
     "laengster_winterschlaf_monate": 6,
@@ -834,28 +860,28 @@ JSON-STRUKTUR (ALLE Felder ausfüllen!):
   },
 
   "krasse_facts": [
-    "🤯 Unglaublicher Fakt mit Zahlen!",
-    "💥 Überraschender Fakt!",
-    "🎪 Verrücktes Verhalten!",
-    "🦾 Extreme Anpassung!",
+    "🤯 Unglaublicher Fakt mit ECHTEN Zahlen!",
+    "💥 Überraschender wissenschaftlicher Fakt!",
+    "🎪 Dokumentiertes Verhalten!",
+    "🦾 Evolutionäre Anpassung!",
     "😱 Mind-blowing Fakt!"
   ],
 
   "fun_vergleiche": {
-    "groesse_wie": "So groß wie 10 Gummibärchen übereinander!",
-    "gewicht_wie": "So schwer wie 50 Tafeln Schokolade!",
-    "geschwindigkeit_wie": "So schnell wie ein Rennrad!",
-    "staerke_wie": "Kann so viel tragen wie wenn DU 20 Schulranzen trägst!",
-    "anzahl_weltweit": "20.000 (Zahl)",
-    "anzahl_vergleich": "Weniger als Einwohner in einer Kleinstadt"
+    "groesse_wie": "So groß wie...",
+    "gewicht_wie": "So schwer wie...",
+    "geschwindigkeit_wie": "So schnell wie...",
+    "staerke_wie": "Kann so viel tragen wie...",
+    "anzahl_weltweit": "ECHTE Zahl basierend auf wissenschaftlichen Schätzungen (z.B. 500000 für häufige Arten, 5000 für seltene)",
+    "anzahl_vergleich": "Vergleich zu bekannten Größen (z.B. 'So viele wie Einwohner von Berlin')"
   },
 
   "wusstest_du": [
-    "💡 Fakt 1 mit Zahlen!",
-    "🤓 Fakt 2!",
-    "😮 Fakt 3!",
-    "🎯 Fakt 4!",
-    "✨ Fakt 5!"
+    "💡 Wissenschaftlicher Fakt 1 mit Quelle!",
+    "🤓 Erstaunliche Tatsache!",
+    "😮 Überraschende Forschung!",
+    "🎯 Interessanter Punkt!",
+    "✨ Cooles Detail!"
   ],
 
   "charakter_stats": {
@@ -870,32 +896,34 @@ JSON-STRUKTUR (ALLE Felder ausfüllen!):
 
   "lebenszyklus": {
     "stufen": [
-      "🥚 Ei (3 Tage)",
-      "🐛 Larve (6 Tage)",
-      "🛏️ Puppe (12 Tage)",
+      "🥚 Phase 1 (Dauer)",
+      "🐛 Phase 2 (Dauer)",
+      "🛏️ Phase 3 (Dauer)",
       "🦋 Erwachsen"
     ],
-    "gesamtdauer": "21 Tage"
+    "gesamtdauer": "Realistische Zeitangabe"
   },
 
   "nahrungskette": {
     "position": "Pflanzenfresser/Fleischfresser/Allesfresser",
-    "frisst": ["🌸 Nektar", "🌼 Pollen"],
-    "wird_gefressen_von": ["🦅 Vögel", "🕷️ Spinnen"],
+    "frisst": ["🌸 Item 1", "🌼 Item 2"],
+    "wird_gefressen_von": ["🦅 Predator 1", "🕷️ Predator 2"],
     "kette_emoji": "🌸 → 🐝 → 🦅"
   },
 
   "verbreitung_karte": {
     "kontinente": ["🌍 Europa", "🌏 Asien"],
     "klima": "☀️ Warm/🥶 Kalt/🌡️ Gemäßigt",
-    "hoehe": "0-3000m"
+    "hoehe": "0-3000m über Meer"
   },
 
   "population_trend": {
     "aktuell": "📉 Abnehmend/📈 Zunehmend/➡️ Stabil",
-    "anzahl_weltweit": "20.000 (Zahl)",
-    "vor_50_jahren": "Erklärender Satz (z.B. Es gab viel mehr...)",
-    "heute": "Erklärender Satz",
+    "anzahl_weltweit": "REALISTISCHE ZAHL aus wissenschaftlichen Quellen! Wenn Unterarten: Gesamtzahl aller Unterarten. Beispiel Makaken: mehrere Millionen",
+    "anzahl_in_freiheit": "Nur bei gefährdeten Arten angeben",
+    "anzahl_in_gefangenschaft": "Nur bei gefährdeten Arten angeben",
+    "vor_50_jahren": "Erklärender Satz über historische Population",
+    "heute": "Erklärender Satz über aktuelle Situation",
     "prognose": "⚠️ Gefährdet/✅ Sicher"
   },
 
@@ -908,20 +936,20 @@ JSON-STRUKTUR (ALLE Felder ausfüllen!):
 
   "helfen": {
     "was_kann_ich_tun": [
-      "🌻 Aktion 1!",
-      "🏠 Aktion 2!",
-      "🚫 Aktion 3!"
+      "🌻 Konkrete Aktion 1!",
+      "🏠 Konkrete Aktion 2!",
+      "🚫 Was vermeiden!"
     ],
-    "im_garten": "Konkrete Tipps",
+    "im_garten": "Konkrete kindgerechte Tipps",
     "apps": ["App 1", "App 2"]
   },
 
   "basis_info": {
     "lebensraum": ["Habitat 1", "Habitat 2"],
     "ernaehrung": "Pflanzenfresser/Fleischfresser/Allesfresser",
-    "gefaehrdung": "Nicht gefährdet / Stark gefährdet (KEINE ABKÜRZUNGEN!)",
-    "sozialverhalten": "Einzelgänger/Rudel/Schwarm",
-    "aktivitaet": "tagaktiv/nachtaktiv"
+    "gefaehrdung": "Nicht gefährdet / Gefährdet / Stark gefährdet / Vom Aussterben bedroht (VOLLES WORT, KEINE ABKÜRZUNGEN!)",
+    "sozialverhalten": "Einzelgänger/Rudel/Schwarm/Familiengruppen",
+    "aktivitaet": "tagaktiv/nachtaktiv/dämmerungsaktiv"
   }
 }`;
 
@@ -1021,12 +1049,25 @@ Schreibe NUR die Geschichte!`;
                         tierBild = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
                     }
 
-                    setResult({
+                    const finalResult = {
                         ...tierInfo,
                         geschichte_kurz: shortStory,
                         geschichte_lang: longStory,
                         bild: tierBild
-                    });
+                    };
+
+                    // CACHE SPEICHERN für Konsistenz
+                    if (detectedAnimal) {
+                        const cacheKey = `tier_${detectedAnimal.toLowerCase().trim()}`;
+                        try {
+                            localStorage.setItem(cacheKey, JSON.stringify(finalResult));
+                            console.log("💾 Daten im Cache gespeichert:", detectedAnimal);
+                        } catch (e) {
+                            console.log("Cache-Speicher voll oder Fehler");
+                        }
+                    }
+
+                    setResult(finalResult);
 
                     setMode('result');
 
@@ -1168,18 +1209,28 @@ Schreibe NUR die Geschichte!`;
                     {/* Results */}
                     {mode === 'result' && result && (
                         <div className="result-section">
-                            <button
-                                onClick={() => {
-                                    setMode('input');
-                                    setTierName('');
-                                    setImage(null);
-                                    setResult(null);
-                                }}
-                                className="btn btn-secondary"
-                                style={{ marginBottom: '20px' }}
-                            >
-                                ← Anderes Tier suchen
-                            </button>
+                            <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
+                                <button
+                                    onClick={() => {
+                                        setMode('input');
+                                        setTierName('');
+                                        setImage(null);
+                                        setResult(null);
+                                    }}
+                                    className="btn btn-secondary"
+                                >
+                                    ← Anderes Tier suchen
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        analyzeTier(true);
+                                    }}
+                                    className="btn btn-secondary"
+                                    style={{ background: 'linear-gradient(135deg, #FFD93D 0%, #FF6B6B 100%)', color: 'white', borderColor: 'white' }}
+                                >
+                                    🔄 Daten aktualisieren
+                                </button>
+                            </div>
 
                             {/* Header mit Bild */}
                             <div className="tier-header">
@@ -1188,11 +1239,13 @@ Schreibe NUR die Geschichte!`;
                                 )}
                                 <div className="tier-title">
                                     <h1>{result.name_deutsch}</h1>
-                                    <div className="scientific-name">{result.name_wissenschaftlich}</div>
-                                    <div className="scientific-name" style={{ fontStyle: 'normal' }}>
-                                        🌍 {result.name_englisch}
-                                    </div>
-
+                                    <p className="scientific-name">{result.name_wissenschaftlich}</p>
+                                    <p className="english-name">🌍 {result.name_englisch}</p>
+                                    {result.taxonomie && (
+                                        <p className="subspecies-info" style={{ fontSize: '0.95rem', marginTop: '8px', color: '#666' }}>
+                                            🧲 {result.taxonomie.arten_anzahl}
+                                        </p>
+                                    )}
                                     <div className="level-badges">
                                         <div className="badge">⭐ {result.level_system.seltenheit}</div>
                                     </div>
@@ -1357,16 +1410,44 @@ Schreibe NUR die Geschichte!`;
                                 <div className="info-item">⛰️ <strong>Höhe:</strong> {result.verbreitung_karte.hoehe}</div>
                             </div>
 
-                            {/* Population */}
+                            {/* Taxonomie & Unterarten */}
+                            {result.taxonomie && result.taxonomie.beispiel_arten && result.taxonomie.beispiel_arten.length > 0 && (
+                                <div className="info-card">
+                                    <h3>🧲 Arten & Unterarten</h3>
+                                    <div className="info-item">
+                                        <strong>Anzahl:</strong> {result.taxonomie.arten_anzahl}
+                                    </div>
+                                    <div className="info-item">
+                                        <strong>Beispiele:</strong>
+                                        <ul style={{ marginTop: '10px', paddingLeft: '20px' }}>
+                                            {result.taxonomie.beispiel_arten.map((art, i) => (
+                                                <li key={i}>{art}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Population & Trend */}
                             <div className="special-card" style={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' }}>
                                 <h2>📊 Population & Trend</h2>
                                 <div className="content">
                                     <div className="fact-item">
                                         🌍 <strong>Anzahl weltweit:</strong> {(() => {
                                             const num = parseInt(result.population_trend.anzahl_weltweit);
-                                            return !isNaN(num) ? num.toLocaleString('de-DE') : 'Unbekannt';
+                                            return !isNaN(num) ? num.toLocaleString('de-DE') : result.population_trend.anzahl_weltweit;
                                         })()}
                                     </div>
+                                    {result.population_trend.anzahl_in_freiheit && (
+                                        <div className="fact-item">
+                                            🌳 <strong>In Freiheit:</strong> {result.population_trend.anzahl_in_freiheit}
+                                        </div>
+                                    )}
+                                    {result.population_trend.anzahl_in_gefangenschaft && (
+                                        <div className="fact-item">
+                                            🏠 <strong>In Gefangenschaft:</strong> {result.population_trend.anzahl_in_gefangenschaft}
+                                        </div>
+                                    )}
                                     <div className="fact-item">📈 <strong>Aktueller Trend:</strong> {result.population_trend.aktuell}</div>
                                     <div className="fact-item">🕐 <strong>Vor 50 Jahren:</strong> {result.population_trend.vor_50_jahren}</div>
                                     <div className="fact-item">📅 <strong>Heute:</strong> {result.population_trend.heute}</div>
