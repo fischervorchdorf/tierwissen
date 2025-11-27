@@ -37,41 +37,73 @@
         .header {
             background: linear-gradient(135deg, #FFD93D 0%, #FF6B6B 100%);
             border-radius: 30px;
-            padding: 30px;
+            padding: 50px 40px;
             margin-bottom: 30px;
             box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
             border: 5px solid white;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            position: relative;
             overflow: hidden;
+            text-align: center;
         }
 
         .header-content {
+            position: relative;
             z-index: 2;
         }
 
         .header-emojis {
-            font-size: 3rem;
-            opacity: 0.3;
-            line-height: 1.4;
-            text-align: right;
-            max-width: 50%;
-            letter-spacing: 15px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            font-size: 4rem;
+            opacity: 0.15;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            z-index: 1;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
         }
 
         .header h1 {
-            font-size: 3.5rem;
+            font-size: 4rem;
             color: white;
-            text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.2);
-            margin-bottom: 5px;
+            text-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
+            margin: 0;
             line-height: 1.1;
+            font-weight: 700;
         }
 
         .header p {
-            font-size: 1.4rem;
+            font-size: 1.6rem;
             color: white;
             font-weight: 600;
+            margin: 15px 0 10px 0;
+            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .header small {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
         }
 
         /* Input Section */
@@ -961,7 +993,13 @@ Schreibe NUR die Geschichte!`;
                             'lion': '🦁', 'bee': '🐝', 'elephant': '🐘', 'dog': '🐕',
                             'cat': '🐱', 'bird': '🐦', 'fish': '🐟', 'snake': '🐍',
                             'lizard': '🦎', 'frog': '🐸', 'bear': '🐻', 'wolf': '🐺',
-                            'fox': '🦊', 'tiger': '🐯', 'horse': '🐴', 'cow': '🐄'
+                            'fox': '🦊', 'tiger': '🐯', 'horse': '🐴', 'cow': '🐄',
+                            'monkey': '🐵', 'macaque': '🐵', 'gorilla': '🦍', 'panda': '🐼',
+                            'penguin': '🐧', 'owl': '🦉', 'eagle': '🦅', 'parrot': '🦜',
+                            'dolphin': '🐬', 'whale': '🐋', 'shark': '🦈', 'octopus': '🐙',
+                            'butterfly': '🦋', 'ladybug': '🐞', 'ant': '🐜', 'spider': '🕷️',
+                            'rabbit': '🐰', 'squirrel': '🐿️', 'hedgehog': '🦔', 'bat': '🦇',
+                            'turtle': '🐢', 'crocodile': '🐊', 'deer': '🦌', 'giraffe': '🦒'
                         };
 
                         const englishName = (tierInfo.name_englisch || '').toLowerCase();
@@ -1004,13 +1042,15 @@ Schreibe NUR die Geschichte!`;
                 <div className="container">
                     {/* Header */}
                     <div className="header">
-                        <div className="header-content">
-                            <h1>🦁 TierWissen<br />für Kids</h1>
-                            <p>Entdecke die coolsten Tiere der Welt!</p>
-                            <div style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)', marginTop: '10px' }}>v1.4</div>
-                        </div>
                         <div className="header-emojis">
-                            🦁🐘🦒🐼🦊🐝🦎🐻🦅🐟
+                            {['🦁', '🐘', '🦒', '🐼', '🦊', '🐝', '🦎', '🐻', '🦅', '🐟', '🐬', '🦋', '🐵', '🦉', '🐍'].map((emoji, i) => (
+                                <span key={i}>{emoji}</span>
+                            ))}
+                        </div>
+                        <div className="header-content">
+                            <h1>🦁 TierWissen für Kids</h1>
+                            <p>Entdecke die coolsten Tiere der Welt!</p>
+                            <small>v1.5</small>
                         </div>
                     </div>
 
@@ -1203,7 +1243,6 @@ Schreibe NUR die Geschichte!`;
                                 <div className="info-item">🦴 <strong>Skelett:</strong> {result.aussehen.skelett_typ}</div>
                                 <div className="info-item">✨ <strong>Leuchtet im Dunkeln:</strong> {result.aussehen.biolumineszenz ? 'Ja! 🌟' : 'Nein'}</div>
                                 <div className="info-item">🦷 <strong>Zähne:</strong> {result.aussehen.anzahl_zaehne} ({result.aussehen.art_zaehne})</div>
-                                <div className="info-item">🦷 <strong>Zähne:</strong> {result.aussehen.anzahl_zaehne} ({result.aussehen.art_zaehne})</div>
                                 <div className="info-item">📏 <strong>Größe:</strong> {result.aussehen.groesse_cm} cm</div>
                                 {result.aussehen.wichtige_masse && (
                                     <div className="info-item">📏 <strong>Maße:</strong> {result.aussehen.wichtige_masse}</div>
@@ -1230,7 +1269,9 @@ Schreibe NUR die Geschichte!`;
                                 <h2>🏆 Rekorde & Superkräfte</h2>
                                 <div className="content">
                                     <div className="fact-item">🏃 <strong>Höchstgeschwindigkeit:</strong> {result.rekorde.hoechstgeschwindigkeit_kmh} km/h</div>
-                                    <div className="fact-item">⚡ <strong>Beschleunigung:</strong> {result.rekorde.schnellste_beschleunigung}</div>
+                                    {result.rekorde.schnellste_beschleunigung && result.rekorde.schnellste_beschleunigung !== 'N/A' && (
+                                        <div className="fact-item">⚡ <strong>Beschleunigung:</strong> {result.rekorde.schnellste_beschleunigung}</div>
+                                    )}
                                     <div className="fact-item">🎯 <strong>Weitester Sprung:</strong> {result.rekorde.weitester_sprung_m} Meter</div>
                                     {result.rekorde.tauchrekord_m > 0 && (
                                         <div className="fact-item">🏊 <strong>Tauchrekord:</strong> {result.rekorde.tauchrekord_m} Meter tief!</div>
@@ -1298,9 +1339,13 @@ Schreibe NUR die Geschichte!`;
                                 <div className="info-item">🏃 <strong>Geschwindigkeit:</strong> {result.fun_vergleiche.geschwindigkeit_wie}</div>
                                 <div className="info-item">💪 <strong>Stärke:</strong> {result.fun_vergleiche.staerke_wie}</div>
                                 <div className="info-item">
-                                    🌍 <strong>Anzahl weltweit:</strong> {parseInt(result.fun_vergleiche.anzahl_weltweit).toLocaleString('de-DE')}
-                                    <br />
-                                    <span style={{ fontSize: '0.9rem', color: '#666' }}>{result.fun_vergleiche.anzahl_vergleich}</span>
+                                    🌍 <strong>Anzahl weltweit:</strong> {(() => {
+                                        const num = parseInt(result.fun_vergleiche.anzahl_weltweit);
+                                        return !isNaN(num) ? num.toLocaleString('de-DE') : 'Unbekannt';
+                                    })()}
+                                    {result.fun_vergleiche.anzahl_vergleich && (
+                                        <><br /><span style={{ fontSize: '0.9rem', color: '#666' }}>{result.fun_vergleiche.anzahl_vergleich}</span></>
+                                    )}
                                 </div>
                             </div>
 
@@ -1317,7 +1362,10 @@ Schreibe NUR die Geschichte!`;
                                 <h2>📊 Population & Trend</h2>
                                 <div className="content">
                                     <div className="fact-item">
-                                        🌍 <strong>Anzahl weltweit:</strong> {parseInt(result.population_trend.anzahl_weltweit).toLocaleString('de-DE')}
+                                        🌍 <strong>Anzahl weltweit:</strong> {(() => {
+                                            const num = parseInt(result.population_trend.anzahl_weltweit);
+                                            return !isNaN(num) ? num.toLocaleString('de-DE') : 'Unbekannt';
+                                        })()}
                                     </div>
                                     <div className="fact-item">📈 <strong>Aktueller Trend:</strong> {result.population_trend.aktuell}</div>
                                     <div className="fact-item">🕐 <strong>Vor 50 Jahren:</strong> {result.population_trend.vor_50_jahren}</div>
