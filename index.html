@@ -46,12 +46,14 @@
         }
 
         .header::before {
-            content: '🦁🐘🦒🐼🦊';
+            content: '🦁\A🐘\A🦒\A🐼\A🦊\A🐝\A🦎\A🐻\A🦅\A🐟';
+            white-space: pre;
             position: absolute;
-            top: 10px;
-            right: 20px;
-            font-size: 2rem;
-            opacity: 0.3;
+            top: 20px;
+            right: 30px;
+            font-size: 2.5rem;
+            opacity: 0.4;
+            line-height: 1.2;
         }
 
         .header h1 {
@@ -420,6 +422,12 @@
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2rem;
+                padding-right: 80px;
+            }
+
+            .header::before {
+                font-size: 1.8rem;
+                right: 10px;
             }
 
             .tier-header {
@@ -434,6 +442,37 @@
 
             .info-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .input-methods {
+                grid-template-columns: 1fr;
+            }
+
+            .story-tabs {
+                flex-direction: column;
+            }
+
+            .lifecycle {
+                flex-direction: column;
+            }
+
+            .lifecycle-arrow {
+                transform: rotate(90deg);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .header p {
+                font-size: 1rem;
+            }
+
+            .btn {
+                padding: 15px 30px;
+                font-size: 1.2rem;
             }
         }
 
@@ -682,6 +721,7 @@ JSON-STRUKTUR (ALLE Felder ausfüllen!):
   
   "population_trend": {
     "aktuell": "📉 Abnehmend/📈 Zunehmend/➡️ Stabil",
+    "anzahl_weltweit": "2000000000",
     "vor_50_jahren": "100%",
     "heute": "50%",
     "prognose": "⚠️ Gefährdet/✅ Sicher"
@@ -1114,6 +1154,9 @@ Schreibe NUR die Geschichte!`;
                             <div className="special-card" style={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' }}>
                                 <h2>📊 Population & Trend</h2>
                                 <div className="content">
+                                    <div className="fact-item">
+                                        🌍 <strong>Anzahl weltweit:</strong> {parseInt(result.population_trend.anzahl_weltweit).toLocaleString('de-DE')}
+                                    </div>
                                     <div className="fact-item">📈 <strong>Aktueller Trend:</strong> {result.population_trend.aktuell}</div>
                                     <div className="fact-item">🕐 <strong>Vor 50 Jahren:</strong> {result.population_trend.vor_50_jahren}</div>
                                     <div className="fact-item">📅 <strong>Heute:</strong> {result.population_trend.heute}</div>
