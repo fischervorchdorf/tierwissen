@@ -676,7 +676,7 @@ JSON-STRUKTUR (ALLE Felder ausfüllen!):
     "geschwindigkeit_wie": "So schnell wie ein Rennrad!",
     "staerke_wie": "Kann so viel tragen wie wenn DU 20 Schulranzen trägst!",
     "anzahl_weltweit": "2000000000000",
-    "anzahl_vergleich": "So viele wie 250.000x alle Menschen auf der Erde!"
+    "anzahl_vergleich": "So viele wie in Wien, Graz UND Linz zusammen! (oder: 250.000x alle Menschen in Österreich!)"
   },
   
   "wusstest_du": [
@@ -841,7 +841,7 @@ Schreibe NUR die Geschichte!`;
                             <text x="400" y="650" font-size="60" text-anchor="middle" fill="white" font-family="Arial">${tierInfo.name_deutsch}</text>
                         </svg>`;
 
-                        tierBild = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
+                        tierBild = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
                     }
 
                     setResult({
@@ -867,6 +867,7 @@ Schreibe NUR die Geschichte!`;
                     <div className="header">
                         <h1>🦁 TierWissen für Kids</h1>
                         <p>Entdecke die coolsten Tiere der Welt!</p>
+                        <div style={{ position: 'absolute', bottom: '10px', left: '30px', fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)' }}>v1.3</div>
                     </div>
 
                     {/* Input Section */}
@@ -1057,7 +1058,18 @@ Schreibe NUR die Geschichte!`;
                                 <div className="info-item">✨ <strong>Leuchtet im Dunkeln:</strong> {result.aussehen.biolumineszenz ? 'Ja! 🌟' : 'Nein'}</div>
                                 <div className="info-item">🦷 <strong>Zähne:</strong> {result.aussehen.anzahl_zaehne} ({result.aussehen.art_zaehne})</div>
                                 <div className="info-item">📏 <strong>Größe:</strong> {result.aussehen.groesse_cm} cm</div>
-                                <div className="info-item">⚖️ <strong>Gewicht:</strong> {result.aussehen.gewicht_g} g</div>
+                                <div className="info-item">
+                                    ⚖️ <strong>Gewicht:</strong> {(() => {
+                                        const g = result.aussehen.gewicht_g;
+                                        if (g >= 1000000) {
+                                            return `${(g / 1000000).toLocaleString('de-DE')} Tonnen`;
+                                        } else if (g >= 1000) {
+                                            return `${(g / 1000).toLocaleString('de-DE')} kg`;
+                                        } else {
+                                            return `${g.toLocaleString('de-DE')} g`;
+                                        }
+                                    })()}
+                                </div>
                                 {result.aussehen.besonderheiten?.map((b, i) => (
                                     <div key={i} className="info-item">✨ {b}</div>
                                 ))}
