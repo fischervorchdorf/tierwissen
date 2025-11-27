@@ -602,7 +602,7 @@ Das JSON muss GENAU diese Struktur haben:
 TIER: ${tierInfo.name_deutsch}
 WISSENSCHAFTLICHER NAME: ${tierInfo.name_wissenschaftlich}
 CHARAKTERZÜGE: ${trait}
-LEBENSRAUM: ${tierInfo.population.lebensraum.join(', ')}
+LEBENSRAUM: ${tierInfo.population.lebensraum?.join(', ') || 'Unbekannt'}
 AUSGESTORBEN: ${tierInfo.ausgestorben ? 'Ja - lebte ' + tierInfo.lebte_von_bis : 'Nein'}
 
 AUFGABE:
@@ -882,8 +882,8 @@ Schreibe NUR die Geschichte, keine Einleitung oder Erklärung!`;
                                         <div className="info-item"><strong>Weltweite Schätzung:</strong> {result.population.schaetzung}</div>
                                     )}
                                     <div className="info-item"><strong>Trend:</strong> {result.population.trend}</div>
-                                    <div className="info-item"><strong>Verbreitung:</strong> {result.population.verbreitung.join(', ')}</div>
-                                    <div className="info-item"><strong>Lebensraum:</strong> {result.population.lebensraum.join(', ')}</div>
+                                    <div className="info-item"><strong>Verbreitung:</strong> {result.population.verbreitung?.join(', ') || 'Unbekannt'}</div>
+                                    <div className="info-item"><strong>Lebensraum:</strong> {result.population.lebensraum?.join(', ') || 'Unbekannt'}</div>
                                 </div>
 
                                 {/* Biologie */}
@@ -920,9 +920,9 @@ Schreibe NUR die Geschichte, keine Einleitung oder Erklärung!`;
                                     <h3>🍃 Ökologie</h3>
                                     <div className="info-item"><strong>Ernährung:</strong> {result.oekologie.ernaehrung}</div>
                                     {result.oekologie.beute && (
-                                        <div className="info-item"><strong>Beute:</strong> {result.oekologie.beute.join(', ')}</div>
+                                        <div className="info-item"><strong>Beute:</strong> {result.oekologie.beute?.join(', ') || 'Keine'}</div>
                                     )}
-                                    <div className="info-item"><strong>Feinde:</strong> {result.oekologie.feinde.join(', ')}</div>
+                                    <div className="info-item"><strong>Feinde:</strong> {result.oekologie.feinde?.join(', ') || 'Keine bekannt'}</div>
                                     <div className="info-item"><strong>Sozialstruktur:</strong> {result.oekologie.sozialstruktur}</div>
                                     <div className="info-item"><strong>Aktivität:</strong> {result.oekologie.aktivitaetszeit}</div>
                                 </div>
