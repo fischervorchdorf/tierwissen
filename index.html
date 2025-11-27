@@ -408,9 +408,12 @@
         .loading-text {
             margin-top: 30px;
             font-size: 1.8rem;
-            color: white;
+            color: #2a2a2a;
             font-weight: 700;
-            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 20px;
+            display: inline-block;
         }
 
         /* Responsive */
@@ -447,6 +450,42 @@
 
         .star-empty {
             color: #ddd;
+        }
+
+        /* Emoji Chain */
+        .emoji-chain {
+            font-size: 2rem;
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            margin: 15px 0;
+        }
+
+        /* Life Cycle */
+        .lifecycle {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .lifecycle-stage {
+            text-align: center;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .lifecycle-stage .emoji {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .lifecycle-arrow {
+            font-size: 2rem;
+            color: #667eea;
         }
     </style>
 </head>
@@ -535,12 +574,15 @@
                         }
                     }
 
-                    // Schritt 2: Alle Infos sammeln (ERWEITERT für Kinder!)
-                    const infoPrompt = `Du bist ein super cooler Tier-Experte für KINDER! Sammle ALLE Informationen über "${detectedAnimal}" und gib sie als JSON zurück.
+                    // Schritt 2: ALLE Infos sammeln (KOMPLETT!)
+                    const infoPrompt = `Du bist ein super cooler Tier-Experte für KINDER (8-12 Jahre)! Sammle ALLE Informationen über "${detectedAnimal}" und gib sie als JSON zurück.
 
-WICHTIG: Antworte NUR mit validem JSON! Kein anderer Text!
+WICHTIG: 
+- Antworte NUR mit validem JSON! Kein anderer Text!
+- Sei GENAU und KONSISTENT bei den Zahlen!
+- Mache es LUSTIG und KINDGERECHT!
 
-STRUKTUR (ALLE Felder ausfüllen!):
+JSON-STRUKTUR (ALLE Felder ausfüllen!):
 
 {
   "name_deutsch": "${detectedAnimal}",
@@ -549,10 +591,10 @@ STRUKTUR (ALLE Felder ausfüllen!):
   
   "level_system": {
     "seltenheit": "Häufig/Selten/Legendär",
-    "gefaehrlichkeit": 5,
-    "niedlichkeit": 8,
-    "intelligenz": 7,
-    "coolness": 9
+    "gefaehrlichkeit": 2,
+    "niedlichkeit": 9,
+    "intelligenz": 8,
+    "coolness": 10
   },
   
   "aussehen": {
@@ -560,42 +602,90 @@ STRUKTUR (ALLE Felder ausfüllen!):
     "besonderheiten": ["Merkmal 1", "Merkmal 2"],
     "anzahl_augen": 2,
     "anzahl_beine": 4,
+    "skelett_typ": "Wirbeltier/Wirbellos/Exoskelett",
+    "biolumineszenz": false,
+    "anzahl_zaehne": 32,
+    "art_zaehne": "Schneidezähne/Reißzähne/Keine",
     "groesse_cm": "10-50",
-    "gewicht_kg": "0.5-2"
+    "gewicht_g": 1000
   },
   
   "rekorde": {
     "hoechstgeschwindigkeit_kmh": 50,
+    "schnellste_beschleunigung": "0-50 km/h in 2 Sekunden",
     "weitester_sprung_m": 3,
-    "staerke_verhaeltnis": "Kann 10x Körpergewicht tragen",
-    "besondere_faehigkeiten": ["Fähigkeit 1", "Fähigkeit 2"],
+    "tauchrekord_m": 100,
+    "laengster_winterschlaf_monate": 6,
+    "lautstaerke_dezibel": 80,
+    "staerke_verhaeltnis": "Kann 10x Körpergewicht tragen!",
+    "besondere_faehigkeiten": ["UV-Sicht", "Echoortung"],
     "herzschlag_pro_minute": 120,
     "lebenserwartung_jahre": "5-10"
   },
   
   "krasse_facts": [
-    "🤯 Unglaublicher Fakt 1",
-    "💥 Überraschender Fakt 2",
-    "🎪 Verrücktes Verhalten",
-    "🦾 Extreme Anpassung",
-    "😱 Mind-blowing Fakt 5"
+    "🤯 Unglaublicher Fakt mit Zahlen!",
+    "💥 Überraschender Fakt!",
+    "🎪 Verrücktes Verhalten!",
+    "🦾 Extreme Anpassung!",
+    "😱 Mind-blowing Fakt!"
   ],
   
   "fun_vergleiche": {
-    "groesse_wie": "So groß wie ein Fußball",
-    "gewicht_wie": "So schwer wie 5 Äpfel",
-    "geschwindigkeit_wie": "So schnell wie ein Fahrrad",
-    "staerke_wie": "So stark wie 10 Menschen",
-    "anzahl_weltweit": "So viele wie Menschen in Berlin"
+    "groesse_wie": "So groß wie 10 Gummibärchen übereinander!",
+    "gewicht_wie": "So schwer wie 50 Tafeln Schokolade!",
+    "geschwindigkeit_wie": "So schnell wie ein Rennrad!",
+    "staerke_wie": "Kann so viel tragen wie wenn DU 20 Schulranzen trägst!",
+    "anzahl_weltweit": "2000000000000",
+    "anzahl_vergleich": "So viele wie 250.000x alle Menschen auf der Erde!"
   },
   
   "wusstest_du": [
-    "💡 Schneller Fakt 1",
-    "🤓 Schneller Fakt 2",
-    "😮 Schneller Fakt 3",
-    "🎯 Schneller Fakt 4",
-    "✨ Schneller Fakt 5"
+    "💡 Fakt 1 mit Zahlen!",
+    "🤓 Fakt 2!",
+    "😮 Fakt 3!",
+    "🎯 Fakt 4!",
+    "✨ Fakt 5!"
   ],
+  
+  "emoji_stimmung": {
+    "freundlichkeit": "😊",
+    "aktivitaet": "☀️",
+    "winterschlaf": false,
+    "lautstaerke": "🔊",
+    "geschwindigkeit": "🏃",
+    "intelligenz_emoji": "🧠"
+  },
+  
+  "lebenszyklus": {
+    "stufen": [
+      "🥚 Ei (3 Tage)",
+      "🐛 Larve (6 Tage)",
+      "🛏️ Puppe (12 Tage)",
+      "🦋 Erwachsen"
+    ],
+    "gesamtdauer": "21 Tage"
+  },
+  
+  "nahrungskette": {
+    "position": "Pflanzenfresser/Fleischfresser/Allesfresser",
+    "frisst": ["🌸 Nektar", "🌼 Pollen"],
+    "wird_gefressen_von": ["🦅 Vögel", "🕷️ Spinnen"],
+    "kette_emoji": "🌸 → 🐝 → 🦅"
+  },
+  
+  "verbreitung_karte": {
+    "kontinente": ["🌍 Europa", "🌏 Asien"],
+    "klima": "☀️ Warm/🥶 Kalt/🌡️ Gemäßigt",
+    "hoehe": "0-3000m"
+  },
+  
+  "population_trend": {
+    "aktuell": "📉 Abnehmend/📈 Zunehmend/➡️ Stabil",
+    "vor_50_jahren": "100%",
+    "heute": "50%",
+    "prognose": "⚠️ Gefährdet/✅ Sicher"
+  },
   
   "beruehmt": {
     "filme": ["Film 1", "Film 2"],
@@ -605,7 +695,11 @@ STRUKTUR (ALLE Felder ausfüllen!):
   },
   
   "helfen": {
-    "was_kann_ich_tun": ["Aktion 1", "Aktion 2", "Aktion 3"],
+    "was_kann_ich_tun": [
+      "🌻 Aktion 1!",
+      "🏠 Aktion 2!",
+      "🚫 Aktion 3!"
+    ],
     "im_garten": "Konkrete Tipps",
     "apps": ["App 1", "App 2"]
   },
@@ -632,16 +726,15 @@ STRUKTUR (ALLE Felder ausfüllen!):
                     infoText = infoText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
                     const tierInfo = JSON.parse(infoText);
 
-                    // Schritt 3: KURZE Geschichte (30% Länge)
+                    // Schritt 3: KURZE Geschichte
                     const shortStoryPrompt = `Schreibe eine KURZE, spannende Geschichte über "${tierInfo.name_deutsch}" für Kinder (8-12 Jahre).
 
 ANFORDERUNGEN:
-- Länge: Maximal 500 Wörter (ca. 30 Sekunden Lesezeit)
+- Länge: Maximal 500 Wörter
 - Gib dem Tier einen coolen Namen
-- Spannend aber kurz und knackig
 - Ein kleines Abenteuer
 - Happy End
-- Keine Moral - einfach Spaß!
+- Keine Moral!
 
 Schreibe NUR die Geschichte!`;
 
@@ -660,13 +753,12 @@ Schreibe NUR die Geschichte!`;
                     const longStoryPrompt = `Schreibe eine LANGE, fesselnde Geschichte über "${tierInfo.name_deutsch}" für Kinder (8-12 Jahre).
 
 ANFORDERUNGEN:
-- Länge: 1500-2000 Wörter (ca. 5-7 Minuten Lesezeit)
-- Gib dem Tier einen anderen Namen als in der kurzen Geschichte
-- Episches Abenteuer mit Wendungen
+- Länge: 1500-2000 Wörter
+- Gib dem Tier einen ANDEREN Namen als in der kurzen Geschichte
+- Episches Abenteuer
 - Spannungsaufbau
-- Lebendige Beschreibungen
 - Happy End
-- Unterscheidet sich KOMPLETT von der kurzen Geschichte!
+- KOMPLETT unterschiedlich von der kurzen Geschichte!
 
 Schreibe NUR die Geschichte!`;
 
@@ -681,11 +773,20 @@ Schreibe NUR die Geschichte!`;
                     const longStoryData = await longStoryResponse.json();
                     const longStory = longStoryData.candidates[0].content.parts[0].text.trim();
 
+                    // Schritt 5: Bild generieren (falls keins hochgeladen wurde)
+                    let tierBild = image;
+                    if (!image) {
+                        // Nutze eine kostenlose Tier-Bild API (Unsplash)
+                        // Format: https://source.unsplash.com/800x800/?{animal}
+                        const searchTerm = encodeURIComponent(tierInfo.name_englisch || detectedAnimal);
+                        tierBild = `https://source.unsplash.com/800x800/?${searchTerm},animal,wildlife`;
+                    }
+
                     setResult({
                         ...tierInfo,
                         geschichte_kurz: shortStory,
                         geschichte_lang: longStory,
-                        bild: image || null
+                        bild: tierBild
                     });
 
                     setMode('result');
@@ -809,7 +910,7 @@ Schreibe NUR die Geschichte!`;
                                 <div className="loading-spinner"></div>
                                 <div className="loading-text">
                                     🔍 Ich sammle coole Infos über dein Tier...<br />
-                                    <span style={{ fontSize: '1.2rem' }}>
+                                    <span style={{ fontSize: '1.2rem', color: '#666' }}>
                                         (Das dauert 30-60 Sekunden - gleich geht's los!)
                                     </span>
                                 </div>
@@ -855,6 +956,35 @@ Schreibe NUR die Geschichte!`;
                                 </div>
                             </div>
 
+                            {/* Emoji-Stimmungen */}
+                            <div className="special-card">
+                                <h2>🎭 Charakter & Stimmung</h2>
+                                <div className="content">
+                                    <div className="info-grid" style={{ gap: '15px' }}>
+                                        <div className="info-item">
+                                            <strong>Freundlichkeit:</strong> {result.emoji_stimmung.freundlichkeit} {result.emoji_stimmung.freundlichkeit === '😊' ? 'Freundlich' : 'Vorsichtig'}
+                                        </div>
+                                        <div className="info-item">
+                                            <strong>Aktivität:</strong> {result.emoji_stimmung.aktivitaet} {result.emoji_stimmung.aktivitaet === '☀️' ? 'Tagaktiv' : result.emoji_stimmung.aktivitaet === '😴' ? 'Nachtaktiv' : 'Dämmerungsaktiv'}
+                                        </div>
+                                        <div className="info-item">
+                                            <strong>Lautstärke:</strong> {result.emoji_stimmung.lautstaerke} {result.emoji_stimmung.lautstaerke === '🔊' ? 'Laut' : 'Leise'}
+                                        </div>
+                                        <div className="info-item">
+                                            <strong>Geschwindigkeit:</strong> {result.emoji_stimmung.geschwindigkeit} {result.emoji_stimmung.geschwindigkeit === '🏃' ? 'Schnell' : 'Langsam'}
+                                        </div>
+                                        <div className="info-item">
+                                            <strong>Intelligenz:</strong> {result.emoji_stimmung.intelligenz_emoji} {result.emoji_stimmung.intelligenz_emoji === '🧠' ? 'Intelligent' : 'Instinktiv'}
+                                        </div>
+                                        {result.emoji_stimmung.winterschlaf && (
+                                            <div className="info-item">
+                                                <strong>Winterschlaf:</strong> 🥶 Ja, hält Winterschlaf!
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
                             {/* Level-System Detail */}
                             <div className="special-card">
                                 <h2>🎮 Level & Stats</h2>
@@ -886,8 +1016,11 @@ Schreibe NUR die Geschichte!`;
                                 <div className="info-item">🌈 <strong>Farben:</strong> {result.aussehen.farben?.join(', ')}</div>
                                 <div className="info-item">👁️ <strong>Augen:</strong> {result.aussehen.anzahl_augen}</div>
                                 <div className="info-item">🦵 <strong>Beine:</strong> {result.aussehen.anzahl_beine}</div>
+                                <div className="info-item">🦴 <strong>Skelett:</strong> {result.aussehen.skelett_typ}</div>
+                                <div className="info-item">✨ <strong>Leuchtet im Dunkeln:</strong> {result.aussehen.biolumineszenz ? 'Ja! 🌟' : 'Nein'}</div>
+                                <div className="info-item">🦷 <strong>Zähne:</strong> {result.aussehen.anzahl_zaehne} ({result.aussehen.art_zaehne})</div>
                                 <div className="info-item">📏 <strong>Größe:</strong> {result.aussehen.groesse_cm} cm</div>
-                                <div className="info-item">⚖️ <strong>Gewicht:</strong> {result.aussehen.gewicht_kg} kg</div>
+                                <div className="info-item">⚖️ <strong>Gewicht:</strong> {result.aussehen.gewicht_g} g</div>
                                 {result.aussehen.besonderheiten?.map((b, i) => (
                                     <div key={i} className="info-item">✨ {b}</div>
                                 ))}
@@ -898,7 +1031,15 @@ Schreibe NUR die Geschichte!`;
                                 <h2>🏆 Rekorde & Superkräfte</h2>
                                 <div className="content">
                                     <div className="fact-item">🏃 <strong>Höchstgeschwindigkeit:</strong> {result.rekorde.hoechstgeschwindigkeit_kmh} km/h</div>
+                                    <div className="fact-item">⚡ <strong>Beschleunigung:</strong> {result.rekorde.schnellste_beschleunigung}</div>
                                     <div className="fact-item">🎯 <strong>Weitester Sprung:</strong> {result.rekorde.weitester_sprung_m} Meter</div>
+                                    {result.rekorde.tauchrekord_m > 0 && (
+                                        <div className="fact-item">🏊 <strong>Tauchrekord:</strong> {result.rekorde.tauchrekord_m} Meter tief!</div>
+                                    )}
+                                    {result.rekorde.laengster_winterschlaf_monate > 0 && (
+                                        <div className="fact-item">⏰ <strong>Winterschlaf:</strong> {result.rekorde.laengster_winterschlaf_monate} Monate!</div>
+                                    )}
+                                    <div className="fact-item">🔊 <strong>Lautstärke:</strong> {result.rekorde.lautstaerke_dezibel} Dezibel</div>
                                     <div className="fact-item">💪 <strong>Stärke:</strong> {result.rekorde.staerke_verhaeltnis}</div>
                                     <div className="fact-item">💓 <strong>Herzschlag:</strong> {result.rekorde.herzschlag_pro_minute} Schläge/Minute</div>
                                     <div className="fact-item">⏰ <strong>Lebenserwartung:</strong> {result.rekorde.lebenserwartung_jahre} Jahre</div>
@@ -906,6 +1047,38 @@ Schreibe NUR die Geschichte!`;
                                         <div key={i} className="fact-item">🦸 {f}</div>
                                     ))}
                                 </div>
+                            </div>
+
+                            {/* Lebenszyklus */}
+                            <div className="special-card" style={{ background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)' }}>
+                                <h2>👶 Lebenszyklus</h2>
+                                <div className="content">
+                                    <div className="lifecycle">
+                                        {result.lebenszyklus.stufen.map((stufe, i) => (
+                                            <React.Fragment key={i}>
+                                                <div className="lifecycle-stage">
+                                                    <div className="emoji">{stufe.split(' ')[0]}</div>
+                                                    <div>{stufe.split(' ').slice(1).join(' ')}</div>
+                                                </div>
+                                                {i < result.lebenszyklus.stufen.length - 1 && (
+                                                    <div className="lifecycle-arrow">→</div>
+                                                )}
+                                            </React.Fragment>
+                                        ))}
+                                    </div>
+                                    <div className="fact-item" style={{ marginTop: '20px', textAlign: 'center' }}>
+                                        ⏱️ <strong>Gesamtdauer:</strong> {result.lebenszyklus.gesamtdauer}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Nahrungskette */}
+                            <div className="info-card">
+                                <h3>🍴 Nahrungskette</h3>
+                                <div className="emoji-chain">{result.nahrungskette.kette_emoji}</div>
+                                <div className="info-item">📍 <strong>Position:</strong> {result.nahrungskette.position}</div>
+                                <div className="info-item">🍽️ <strong>Frisst:</strong> {result.nahrungskette.frisst?.join(', ')}</div>
+                                <div className="info-item">⚠️ <strong>Wird gefressen von:</strong> {result.nahrungskette.wird_gefressen_von?.join(', ')}</div>
                             </div>
 
                             {/* Krasse Facts */}
@@ -925,7 +1098,30 @@ Schreibe NUR die Geschichte!`;
                                 <div className="info-item">⚖️ <strong>Gewicht:</strong> {result.fun_vergleiche.gewicht_wie}</div>
                                 <div className="info-item">🏃 <strong>Geschwindigkeit:</strong> {result.fun_vergleiche.geschwindigkeit_wie}</div>
                                 <div className="info-item">💪 <strong>Stärke:</strong> {result.fun_vergleiche.staerke_wie}</div>
-                                <div className="info-item">🌍 <strong>Anzahl weltweit:</strong> {result.fun_vergleiche.anzahl_weltweit}</div>
+                                <div className="info-item">
+                                    🌍 <strong>Anzahl weltweit:</strong> {parseInt(result.fun_vergleiche.anzahl_weltweit).toLocaleString('de-DE')}
+                                    <br />
+                                    <span style={{ fontSize: '0.9rem', color: '#666' }}>{result.fun_vergleiche.anzahl_vergleich}</span>
+                                </div>
+                            </div>
+
+                            {/* Verbreitung */}
+                            <div className="info-card">
+                                <h3>🌍 Wo leben sie?</h3>
+                                <div className="info-item">🗺️ <strong>Kontinente:</strong> {result.verbreitung_karte.kontinente?.join(', ')}</div>
+                                <div className="info-item">🌡️ <strong>Klima:</strong> {result.verbreitung_karte.klima}</div>
+                                <div className="info-item">⛰️ <strong>Höhe:</strong> {result.verbreitung_karte.hoehe}</div>
+                            </div>
+
+                            {/* Population */}
+                            <div className="special-card" style={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' }}>
+                                <h2>📊 Population & Trend</h2>
+                                <div className="content">
+                                    <div className="fact-item">📈 <strong>Aktueller Trend:</strong> {result.population_trend.aktuell}</div>
+                                    <div className="fact-item">🕐 <strong>Vor 50 Jahren:</strong> {result.population_trend.vor_50_jahren}</div>
+                                    <div className="fact-item">📅 <strong>Heute:</strong> {result.population_trend.heute}</div>
+                                    <div className="fact-item">🔮 <strong>Prognose:</strong> {result.population_trend.prognose}</div>
+                                </div>
                             </div>
 
                             {/* Wusstest du? */}
@@ -1010,10 +1206,11 @@ Schreibe NUR die Geschichte!`;
                                     ))}
                                 </div>
                                 <div className="info-card">
-                                    <h3>🍴 Ernährung</h3>
-                                    <div className="info-item">{result.basis_info.ernaehrung}</div>
+                                    <h3>🍴 Ernährung & Verhalten</h3>
+                                    <div className="info-item">🍽️ {result.basis_info.ernaehrung}</div>
                                     <div className="info-item">🕐 {result.basis_info.aktivitaet}</div>
                                     <div className="info-item">👥 {result.basis_info.sozialverhalten}</div>
+                                    <div className="info-item">⚠️ Gefährdung: {result.basis_info.gefaehrdung}</div>
                                 </div>
                             </div>
                         </div>
