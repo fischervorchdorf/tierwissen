@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🦁 TierWissen für Kids - Entdecke die coolsten Tiere!</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Comic+Neue:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Fredoka', 'Comic Sans MS', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            color: #2a2a2a;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #FFD93D 0%, #FF6B6B 100%);
+            border-radius: 30px;
+            padding: 50px 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+            border: 5px solid white;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .header-emojis {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            font-size: 4rem;
+            opacity: 0.15;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            z-index: 1;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        .header h1 {
+            font-size: 4rem;
+            color: white;
+            text-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
+            margin: 0;
+            line-height: 1.1;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.6rem;
+            color: white;
+            font-weight: 600;
+            margin: 15px 0 10px 0;
+            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .header small {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+        }
+
+        /* Input Section */
+        .input-section {
+            background: white;
+            border-radius: 30px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+            border: 5px solid #FFD93D;
+        }
+
+        .input-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .input-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 4px solid transparent;
+            color: white;
+        }
+
+        .input-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            border-color: #FFD93D;
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.5);
+        }
+
+        .input-card.active {
+            border-color: #FFD93D;
+            background: linear-gradient(135deg, #FFD93D 0%, #FF6B6B 100%);
+            transform: scale(1.1);
+        }
+
+        .input-card-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .input-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .text-input {
+            width: 100%;
+            padding: 20px;
+            font-size: 1.3rem;
+            border: 4px solid #667eea;
+            border-radius: 20px;
+            font-family: 'Fredoka', sans-serif;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .text-input:focus {
+            border-color: #FFD93D;
+            box-shadow: 0 0 30px rgba(255, 217, 61, 0.5);
+            transform: scale(1.02);
+        }
+
+        .upload-area {
+            border: 4px dashed #667eea;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            margin-top: 20px;
+        }
+
+        .upload-area:hover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+            border-color: #FFD93D;
+            transform: scale(1.05);
+        }
+
+        .btn {
+            padding: 20px 50px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Fredoka', sans-serif;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #FFD93D 0%, #FF6B6B 100%);
+            color: white;
+            border: 4px solid white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 20px 50px rgba(255, 107, 107, 0.5);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #667eea;
+            border: 4px solid #667eea;
+        }
+
+        /* Result Section */
+        .result-section {
+            background: white;
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.5s ease;
+            border: 5px solid #FFD93D;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tier-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tier-image {
+            width: 250px;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 20px;
+            border: 5px solid white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .tier-title h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .tier-title .scientific-name {
+            font-style: italic;
+            font-size: 1.3rem;
+            opacity: 0.9;
+        }
+
+        .level-badges {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border: 3px solid white;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Info Cards */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .info-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 20px;
+            padding: 25px;
+            border: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
+        }
+
+        .info-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-item {
+            margin: 15px 0;
+            padding: 12px;
+            background: white;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            border-left: 5px solid #FFD93D;
+        }
+
+        .info-item strong {
+            color: #667eea;
+        }
+
+        /* Sliders */
+        .slider-container {
+            margin-bottom: 20px;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .slider-track {
+            height: 15px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .slider-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #FFD93D, #FF6B6B);
+            border-radius: 10px;
+            transition: width 1s ease-out;
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        /* Special Cards */
+        .special-card {
+            background: linear-gradient(135deg, #FFD93D 0%, #FF6B6B 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 25px 0;
+            border: 5px solid white;
+            box-shadow: 0 15px 40px rgba(255, 107, 107, 0.4);
+        }
+
+        .special-card h2 {
+            font-size: 2.5rem;
+            color: white;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .special-card .content {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .fact-item {
+            padding: 15px;
+            margin: 10px 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+            font-size: 1.2rem;
+        }
+
+        /* Stories */
+        .story-section {
+            margin: 30px 0;
+        }
+
+        .story-tabs {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .story-tab {
+            flex: 1;
+            padding: 20px;
+            border-radius: 15px;
+            border: 4px solid #667eea;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .story-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .story-content {
+            background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+            border-radius: 20px;
+            padding: 30px;
+            border: 4px solid #FFD93D;
+            line-height: 1.8;
+            font-size: 1.2rem;
+            white-space: pre-wrap;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 80px;
+            height: 80px;
+            border: 8px solid rgba(102, 126, 234, 0.3);
+            border-radius: 50%;
+            border-top-color: #FFD93D;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            margin-top: 30px;
+            font-size: 1.8rem;
+            color: #2a2a2a;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+                padding-right: 80px;
+            }
+
+            .header::before {
+                font-size: 1.8rem;
+                right: 10px;
+            }
+
+            .tier-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .tier-image {
+                width: 100%;
+                height: auto;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .input-methods {
+                grid-template-columns: 1fr;
+            }
+
+            .story-tabs {
+                flex-direction: column;
+            }
+
+            .lifecycle {
+                flex-direction: column;
+            }
+
+            .lifecycle-arrow {
+                transform: rotate(90deg);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .header p {
+                font-size: 1rem;
+            }
+
+            .btn {
+                padding: 15px 30px;
+                font-size: 1.2rem;
+            }
+        }
+
+        /* Rating Stars */
+        .rating {
+            display: flex;
+            gap: 5px;
+            font-size: 1.5rem;
+        }
+
+        .star-filled {
+            color: #FFD93D;
+        }
+
+        .star-empty {
+            color: #ddd;
+        }
+
+        /* Emoji Chain */
+        .emoji-chain {
+            font-size: 2rem;
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            margin: 15px 0;
+        }
+
+        /* Life Cycle */
+        .lifecycle {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .lifecycle-stage {
+            text-align: center;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .lifecycle-stage .emoji {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .lifecycle-arrow {
+            font-size: 2rem;
+            color: #667eea;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        function TierWissen() {
+            const [mode, setMode] = useState('input');
+            const [inputMethod, setInputMethod] = useState('text');
+            const [tierName, setTierName] = useState('');
+            const [image, setImage] = useState(null);
+            const [result, setResult] = useState(null);
+            const [apiKey] = useState('AIzaSyBudkecvmZX9cRyXRaPw16Fct2MbGDBQog');
+            const [activeStory, setActiveStory] = useState('short');
+
+            const handleImageUpload = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setImage(reader.result);
+                };
+                reader.readAsDataURL(file);
+            };
+
+            const RatingStars = ({ rating, max = 10 }) => {
+                const stars = [];
+                const fullStars = Math.round(rating);
+                for (let i = 0; i < max; i++) {
+                    stars.push(
+                        <span key={i} className={i < fullStars ? 'star-filled' : 'star-empty'}>
+                            ⭐
+                        </span>
+                    );
+                }
+                return <div className="rating">{stars}</div>;
+            };
+
+            const analyzeTier = async (forceRefresh = false) => {
+                if (!tierName && !image) {
+                    alert('🦁 Bitte gib einen Tiernamen ein oder lade ein Foto hoch!');
+                    return;
+                }
+
+                setMode('loading');
+
+                // CACHE-SYSTEM: Prüfe ob Daten bereits gespeichert sind
+                if (!forceRefresh && tierName && !image) {
+                    const cacheKey = `tier_${tierName.toLowerCase().trim()}`;
+                    const cachedData = localStorage.getItem(cacheKey);
+
+                    if (cachedData) {
+                        try {
+                            const parsed = JSON.parse(cachedData);
+                            console.log("📦 Daten aus Cache geladen:", tierName);
+                            setResult(parsed);
+                            setMode('result');
+                            return;
+                        } catch (e) {
+                            console.log("Cache-Fehler, lade neu");
+                        }
+                    }
+                }
+
+                // MOCK DATA FOR LOCALHOST
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    console.log("Using Mock Data");
+                    setTimeout(async () => {
+                        const mockData = {
+                            name_deutsch: tierName || "Löwe",
+                            name_wissenschaftlich: "Panthera leo",
+                            name_englisch: "Lion",
+                            level_system: { seltenheit: "Häufig" },
+                            aussehen: {
+                                farben: ["Goldgelb", "Braun"],
+                                besonderheiten: ["Mähne", "Große Pfoten"],
+                                anzahl_augen: 2,
+                                anzahl_beine: 4,
+                                skelett_typ: "Wirbeltier",
+                                biolumineszenz: false,
+                                anzahl_zaehne: 30,
+                                art_zaehne: "Reißzähne",
+                                groesse_cm: "170-250",
+                                gewicht_g: 190000,
+                                wichtige_masse: "Schulterhöhe: 120 cm"
+                            },
+                            rekorde: {
+                                hoechstgeschwindigkeit_kmh: 80,
+                                schnellste_beschleunigung: "0-50 in 4s",
+                                weitester_sprung_m: 12,
+                                tauchrekord_m: 0,
+                                laengster_winterschlaf_monate: 0,
+                                lautstaerke_dezibel: 114,
+                                staerke_verhaeltnis: "Sehr stark",
+                                besondere_faehigkeiten: ["Nachtsicht", "Brüllen"],
+                                herzschlag_pro_minute: 60,
+                                lebenserwartung_jahre: "10-14"
+                            },
+                            krasse_facts: ["Ein Löwenbrüllen ist 8km weit zu hören!", "Schlafen 20 Stunden am Tag"],
+                            fun_vergleiche: {
+                                groesse_wie: "So lang wie ein Kleinwagen",
+                                gewicht_wie: "So schwer wie 3 erwachsene Männer",
+                                geschwindigkeit_wie: "Schneller als dein Schulbus",
+                                staerke_wie: "Bärenstark",
+                                anzahl_weltweit: "20.000",
+                                anzahl_vergleich: "Weniger als Einwohner in einer Kleinstadt"
+                            },
+                            wusstest_du: ["Löwen sind die einzigen Katzen, die im Rudel leben"],
+                            charakter_stats: {
+                                freundlichkeit: { wert: 3, label_links: "Vorsichtig", label_rechts: "Super Freundlich" },
+                                lautstaerke: { wert: 10, label_links: "Leise", label_rechts: "Sehr Laut" },
+                                gefaehrlichkeit: { wert: 9, label_links: "Harmlos", label_rechts: "Gefährlich" },
+                                niedlichkeit: { wert: 6, label_links: "Okay", label_rechts: "Super Süß" },
+                                intelligenz: { wert: 7, label_links: "Instinktiv", label_rechts: "Genie" },
+                                coolness: { wert: 10, label_links: "Normal", label_rechts: "Mega Cool" },
+                                geschwindigkeit: { wert: 8, label_links: "Gemütlich", label_rechts: "Blitzschnell" }
+                            },
+                            lebenszyklus: { stufen: ["Baby", "Jungtier", "Erwachsen"], gesamtdauer: "15 Jahre" },
+                            nahrungskette: { position: "Fleischfresser", frisst: ["Zebras", "Antilopen"], wird_gefressen_von: [], kette_emoji: "🦓 → 🦁" },
+                            verbreitung_karte: { kontinente: ["Afrika"], klima: "Heiß", hoehe: "Savanne" },
+                            population_trend: { aktuell: "Abnehmend", anzahl_weltweit: "20.000", vor_50_jahren: "Es gab viel mehr Löwen als heute.", heute: "Der Lebensraum wird kleiner.", prognose: "Gefährdet" },
+                            beruehmt: { filme: ["König der Löwen"], buecher: [], videospiele: [], maskottchen: "" },
+                            helfen: { was_kann_ich_tun: ["Spenden"], im_garten: "", apps: [] },
+                            basis_info: { lebensraum: ["Savanne"], ernaehrung: "Fleisch", gefaehrdung: "Gefährdet", sozialverhalten: "Rudel", aktivitaet: "Dämmerung" },
+                            geschichte_kurz: "Es war einmal ein Löwe, der brüllte sehr laut.",
+                            geschichte_lang: "Es war einmal ein Löwe, der brüllte sehr laut und alle Tiere hörten ihn...",
+                            bild: null // Will be filled by wiki or placeholder
+                        };
+
+                        // Try Wiki Image even in mock mode
+                        let wikiImage = null;
+                        try {
+                            const wikiResponse = await fetch(`https://de.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(mockData.name_deutsch)}&prop=pageimages&format=json&pithumbsize=1000&origin=*`);
+                            const wikiData = await wikiResponse.json();
+                            const pages = wikiData.query.pages;
+                            const pageId = Object.keys(pages)[0];
+                            if (pageId !== '-1' && pages[pageId].thumbnail) {
+                                wikiImage = pages[pageId].thumbnail.source;
+                            }
+                        } catch (e) {
+                            console.log("Wikipedia Bild Fehler:", e);
+                        }
+
+                        mockData.bild = wikiImage; // Fallback handled later if null
+
+                        setResult(mockData);
+                        setMode('result');
+                    }, 1500);
+                    return;
+                }
+
+                try {
+                    let detectedAnimal = tierName;
+
+                    // Schritt 1: Tier erkennen (falls Bild)
+                    if (image && !tierName) {
+                        const base64Image = image.split(',')[1];
+
+                        const identifyResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                contents: [{
+                                    parts: [
+                                        {
+                                            text: "Identifiziere das Tier auf diesem Bild. Gib nur den deutschen Namen zurück, so spezifisch wie möglich. Wenn es kein Tier ist, schreibe 'KEIN TIER'."
+                                        },
+                                        {
+                                            inline_data: {
+                                                mime_type: "image/jpeg",
+                                                data: base64Image
+                                            }
+                                        }
+                                    ]
+                                }]
+                            })
+                        });
+
+                        const identifyData = await identifyResponse.json();
+                        detectedAnimal = identifyData.candidates[0].content.parts[0].text.trim();
+
+                        if (detectedAnimal === 'KEIN TIER') {
+                            setMode('input');
+                            alert('🤔 Ich konnte kein Tier auf diesem Bild erkennen. Versuch es nochmal!');
+                            return;
+                        }
+                    }
+
+                    // Schritt 1.5: Wikipedia Bild laden
+                    let wikiImage = null;
+                    try {
+                        const wikiResponse = await fetch(`https://de.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(detectedAnimal)}&prop=pageimages&format=json&pithumbsize=1000&origin=*`);
+                        const wikiData = await wikiResponse.json();
+                        const pages = wikiData.query.pages;
+                        const pageId = Object.keys(pages)[0];
+                        if (pageId !== '-1' && pages[pageId].thumbnail) {
+                            wikiImage = pages[pageId].thumbnail.source;
+                        }
+                    } catch (e) {
+                        console.log("Wikipedia Bild Fehler:", e);
+                    }
+
+                    // Schritt 2: ALLE Infos sammeln (KOMPLETT!)
+                    const infoPrompt = `Du bist ein wissenschaftlicher Tier-Experte für KINDER (8-12 Jahre)! Sammle ALLE Informationen über "${detectedAnimal}" und gib sie als JSON zurück.
+
+⚠️ KRITISCHE ANFORDERUNGEN:
+- Antworte NUR mit validem JSON! Kein anderer Text!
+- ALLE Zahlen müssen REALISTISCH und GUT RECHERCHIERT sein!
+- Populationszahlen: Nutze ECHTE wissenschaftliche Schätzungen (z.B. IUCN, WWF, Fachliteratur)
+- Bei gefährdeten Arten: Unterscheide "in Freiheit" und "in Gefangenschaft"
+- KEINE Fantasy-Zahlen! Lieber "Unbekannt" als falsche Daten!
+- Kindgerecht aber WISSENSCHAFTLICH KORREKT!
+
+JSON-STRUKTUR (ALLE Felder ausfüllen!):
+
+{
+  "name_deutsch": "${detectedAnimal}",
+  "name_wissenschaftlich": "...",
+  "name_englisch": "...",
+  
+  "taxonomie": {
+    "arten_anzahl": "Anzahl bekannter Unterarten/Arten dieser Gattung (z.B. '24 Makakenarten')",
+    "beispiel_arten": ["Art 1", "Art 2", "Art 3"]
+  },
+
+  "level_system": {
+    "seltenheit": "Häufig/Selten/Legendär"
+  },
+
+  "aussehen": {
+    "farben": ["Farbe 1", "Farbe 2"],
+    "besonderheiten": ["Merkmal 1", "Merkmal 2"],
+    "anzahl_augen": 2,
+    "anzahl_beine": 4,
+    "skelett_typ": "Wirbeltier/Wirbellos/Exoskelett",
+    "biolumineszenz": false,
+    "anzahl_zaehne": 32,
+    "art_zaehne": "Schneidezähne/Reißzähne/Keine",
+    "groesse_cm": "10-50",
+    "gewicht_g": 1000,
+    "wichtige_masse": "Spannweite: 2m (Vögel) ODER Schulterhöhe: 1m (Säuger) ODER Panzerlänge (Schildkröten) - kontextabhängig!"
+  },
+
+  "rekorde": {
+    "hoechstgeschwindigkeit_kmh": 50,
+    "schnellste_beschleunigung": "0-50 km/h in 2 Sek (oder null falls nicht relevant)",
+    "weitester_sprung_m": 3,
+    "tauchrekord_m": 100,
+    "laengster_winterschlaf_monate": 6,
+    "lautstaerke_dezibel": 80,
+    "staerke_verhaeltnis": "Kann 10x Körpergewicht tragen!",
+    "besondere_faehigkeiten": ["UV-Sicht", "Echoortung"],
+    "herzschlag_pro_minute": 120,
+    "lebenserwartung_jahre": "5-10"
+  },
+
+  "krasse_facts": [
+    "🤯 Unglaublicher Fakt mit ECHTEN Zahlen!",
+    "💥 Überraschender wissenschaftlicher Fakt!",
+    "🎪 Dokumentiertes Verhalten!",
+    "🦾 Evolutionäre Anpassung!",
+    "😱 Mind-blowing Fakt!"
+  ],
+
+  "fun_vergleiche": {
+    "groesse_wie": "So groß wie...",
+    "gewicht_wie": "So schwer wie...",
+    "geschwindigkeit_wie": "So schnell wie...",
+    "staerke_wie": "Kann so viel tragen wie...",
+    "anzahl_weltweit": "ECHTE Zahl basierend auf wissenschaftlichen Schätzungen (z.B. 500000 für häufige Arten, 5000 für seltene)",
+    "anzahl_vergleich": "Vergleich zu bekannten Größen (z.B. 'So viele wie Einwohner von Berlin')"
+  },
+
+  "wusstest_du": [
+    "💡 Wissenschaftlicher Fakt 1 mit Quelle!",
+    "🤓 Erstaunliche Tatsache!",
+    "😮 Überraschende Forschung!",
+    "🎯 Interessanter Punkt!",
+    "✨ Cooles Detail!"
+  ],
+
+  "charakter_stats": {
+    "freundlichkeit": { "wert": 8, "label_links": "Vorsichtig", "label_rechts": "Super Freundlich" },
+    "lautstaerke": { "wert": 2, "label_links": "Leise", "label_rechts": "Sehr Laut" },
+    "gefaehrlichkeit": { "wert": 5, "label_links": "Harmlos", "label_rechts": "Gefährlich" },
+    "niedlichkeit": { "wert": 9, "label_links": "Okay", "label_rechts": "Super Süß" },
+    "intelligenz": { "wert": 7, "label_links": "Instinktiv", "label_rechts": "Genie" },
+    "coolness": { "wert": 10, "label_links": "Normal", "label_rechts": "Mega Cool" },
+    "geschwindigkeit": { "wert": 6, "label_links": "Gemütlich", "label_rechts": "Blitzschnell" }
+  },
+
+  "lebenszyklus": {
+    "stufen": [
+      "🥚 Phase 1 (Dauer)",
+      "🐛 Phase 2 (Dauer)",
+      "🛏️ Phase 3 (Dauer)",
+      "🦋 Erwachsen"
+    ],
+    "gesamtdauer": "Realistische Zeitangabe"
+  },
+
+  "nahrungskette": {
+    "position": "Pflanzenfresser/Fleischfresser/Allesfresser",
+    "frisst": ["🌸 Item 1", "🌼 Item 2"],
+    "wird_gefressen_von": ["🦅 Predator 1", "🕷️ Predator 2"],
+    "kette_emoji": "🌸 → 🐝 → 🦅"
+  },
+
+  "verbreitung_karte": {
+    "kontinente": ["🌍 Europa", "🌏 Asien"],
+    "klima": "☀️ Warm/🥶 Kalt/🌡️ Gemäßigt",
+    "hoehe": "0-3000m über Meer"
+  },
+
+  "population_trend": {
+    "aktuell": "📉 Abnehmend/📈 Zunehmend/➡️ Stabil",
+    "anzahl_weltweit": "REALISTISCHE ZAHL aus wissenschaftlichen Quellen! Wenn Unterarten: Gesamtzahl aller Unterarten. Beispiel Makaken: mehrere Millionen",
+    "anzahl_in_freiheit": "Nur bei gefährdeten Arten angeben",
+    "anzahl_in_gefangenschaft": "Nur bei gefährdeten Arten angeben",
+    "vor_50_jahren": "Erklärender Satz über historische Population",
+    "heute": "Erklärender Satz über aktuelle Situation",
+    "prognose": "⚠️ Gefährdet/✅ Sicher"
+  },
+
+  "beruehmt": {
+    "filme": ["Film 1", "Film 2"],
+    "buecher": ["Buch 1"],
+    "videospiele": ["Spiel 1"],
+    "maskottchen": "Firma/Team"
+  },
+
+  "helfen": {
+    "was_kann_ich_tun": [
+      "🌻 Konkrete Aktion 1!",
+      "🏠 Konkrete Aktion 2!",
+      "🚫 Was vermeiden!"
+    ],
+    "im_garten": "Konkrete kindgerechte Tipps",
+    "apps": ["App 1", "App 2"]
+  },
+
+  "basis_info": {
+    "lebensraum": ["Habitat 1", "Habitat 2"],
+    "ernaehrung": "Pflanzenfresser/Fleischfresser/Allesfresser",
+    "gefaehrdung": "Nicht gefährdet / Gefährdet / Stark gefährdet / Vom Aussterben bedroht (VOLLES WORT, KEINE ABKÜRZUNGEN!)",
+    "sozialverhalten": "Einzelgänger/Rudel/Schwarm/Familiengruppen",
+    "aktivitaet": "tagaktiv/nachtaktiv/dämmerungsaktiv"
+  }
+}`;
+
+                    const infoResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: infoPrompt }] }]
+                        })
+                    });
+
+                    const infoData = await infoResponse.json();
+                    let infoText = infoData.candidates[0].content.parts[0].text.trim();
+                    infoText = infoText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+                    const tierInfo = JSON.parse(infoText);
+
+                    // Schritt 3: KURZE Geschichte
+                    const shortStoryPrompt = `Schreibe eine KURZE, spannende Geschichte über "${tierInfo.name_deutsch}" für Kinder (8-12 Jahre).
+
+ANFORDERUNGEN:
+- Länge: Maximal 500 Wörter
+- Gib dem Tier einen coolen Namen
+- Ein kleines Abenteuer
+- Happy End
+- Keine Moral!
+Schreibe NUR die Geschichte!`;
+
+                    const shortStoryResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: shortStoryPrompt }] }]
+                        })
+                    });
+
+                    const shortStoryData = await shortStoryResponse.json();
+                    const shortStory = shortStoryData.candidates[0].content.parts[0].text.trim();
+
+                    // Schritt 4: LANGE Geschichte
+                    const longStoryPrompt = `Schreibe eine LANGE, fesselnde Geschichte über "${tierInfo.name_deutsch}" für Kinder (8-12 Jahre).
+
+ANFORDERUNGEN:
+- Länge: 1500-2000 Wörter
+- Gib dem Tier einen ANDEREN Namen als in der kurzen Geschichte
+- Episches Abenteuer
+- Spannungsaufbau
+- Happy End
+- KOMPLETT unterschiedlich von der kurzen Geschichte!
+
+Schreibe NUR die Geschichte!`;
+
+                    const longStoryResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: longStoryPrompt }] }]
+                        })
+                    });
+
+                    const longStoryData = await longStoryResponse.json();
+                    const longStory = longStoryData.candidates[0].content.parts[0].text.trim();
+
+                    // Schritt 5: Bild generieren (falls keins hochgeladen wurde)
+                    let tierBild = image || wikiImage;
+                    if (!tierBild) {
+                        // Nutze Lorem Picsum mit Blur-Effekt als Platzhalter
+                        // Oder generiere ein einfaches Platzhalter-Bild
+                        const animalEmoji = {
+                            'lion': '🦁', 'bee': '🐝', 'elephant': '🐘', 'dog': '🐕',
+                            'cat': '🐱', 'bird': '🐦', 'fish': '🐟', 'snake': '🐍',
+                            'lizard': '🦎', 'frog': '🐸', 'bear': '🐻', 'wolf': '🐺',
+                            'fox': '🦊', 'tiger': '🐯', 'horse': '🐴', 'cow': '🐄',
+                            'monkey': '🐵', 'macaque': '🐵', 'gorilla': '🦍', 'panda': '🐼',
+                            'penguin': '🐧', 'owl': '🦉', 'eagle': '🦅', 'parrot': '🦜',
+                            'dolphin': '🐬', 'whale': '🐋', 'shark': '🦈', 'octopus': '🐙',
+                            'butterfly': '🦋', 'ladybug': '🐞', 'ant': '🐜', 'spider': '🕷️',
+                            'rabbit': '🐰', 'squirrel': '🐿️', 'hedgehog': '🦔', 'bat': '🦇',
+                            'turtle': '🐢', 'crocodile': '🐊', 'deer': '🦌', 'giraffe': '🦒'
+                        };
+
+                        const englishName = (tierInfo.name_englisch || '').toLowerCase();
+                        const emoji = animalEmoji[englishName] || '🦁';
+
+                        // Erstelle ein SVG-Platzhalter mit Emoji
+                        const svg = `<svg width="800" height="800" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                            <rect width="800" height="800" fill="url(#grad)"/>
+                            <text x="400" y="450" font-size="300" text-anchor="middle">${emoji}</text>
+                            <text x="400" y="650" font-size="60" text-anchor="middle" fill="white" font-family="Arial">${tierInfo.name_deutsch}</text>
+                        </svg>`;
+
+                        tierBild = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+                    }
+
+                    const finalResult = {
+                        ...tierInfo,
+                        geschichte_kurz: shortStory,
+                        geschichte_lang: longStory,
+                        bild: tierBild
+                    };
+
+                    // CACHE SPEICHERN für Konsistenz
+                    if (detectedAnimal) {
+                        const cacheKey = `tier_${detectedAnimal.toLowerCase().trim()}`;
+                        try {
+                            localStorage.setItem(cacheKey, JSON.stringify(finalResult));
+                            console.log("💾 Daten im Cache gespeichert:", detectedAnimal);
+                        } catch (e) {
+                            console.log("Cache-Speicher voll oder Fehler");
+                        }
+                    }
+
+                    setResult(finalResult);
+
+                    setMode('result');
+
+                } catch (error) {
+                    console.error('Fehler:', error);
+                    const errorMessage = error instanceof Error ? error.message : "Ein Fehler ist aufgetreten";
+                    alert(`😢 Ups! Es gab einen Fehler: ${errorMessage}. Versuch es nochmal!`);
+                    setMode('input');
+                }
+            };
+
+            return (
+                <div className="container">
+                    {/* Header */}
+                    <div className="header">
+                        <div className="header-emojis">
+                            {['🦁', '🐘', '🦒', '🐼', '🦊', '🐝', '🦎', '🐻', '🦅', '🐟', '🐬', '🦋', '🐵', '🦉', '🐍'].map((emoji, i) => (
+                                <span key={i}>{emoji}</span>
+                            ))}
+                        </div>
+                        <div className="header-content">
+                            <h1>🦁 TierWissen für Kids</h1>
+                            <p>Entdecke die coolsten Tiere der Welt!</p>
+                            <small>v1.5</small>
+                        </div>
+                    </div>
+
+                    {/* Input Section */}
+                    {mode === 'input' && (
+                        <div className="input-section">
+                            <h2 style={{ marginBottom: '30px', fontSize: '2.5rem', color: '#667eea', textAlign: 'center' }}>
+                                🔍 Welches Tier möchtest du kennenlernen?
+                            </h2>
+
+                            <div className="input-methods">
+                                <div
+                                    className={`input-card ${inputMethod === 'text' ? 'active' : ''}`}
+                                    onClick={() => setInputMethod('text')}
+                                >
+                                    <div className="input-card-icon">✍️</div>
+                                    <h3>Name eingeben</h3>
+                                    <p>Tippe den Namen ein</p>
+                                </div>
+
+                                <div
+                                    className={`input-card ${inputMethod === 'photo' ? 'active' : ''}`}
+                                    onClick={() => setInputMethod('photo')}
+                                >
+                                    <div className="input-card-icon">🖼️</div>
+                                    <h3>Foto hochladen</h3>
+                                    <p>Wähle ein Bild aus</p>
+                                </div>
+
+                                <div
+                                    className={`input-card ${inputMethod === 'camera' ? 'active' : ''}`}
+                                    onClick={() => setInputMethod('camera')}
+                                >
+                                    <div className="input-card-icon">📸</div>
+                                    <h3>Foto machen</h3>
+                                    <p>Knipse ein Tier!</p>
+                                </div>
+                            </div>
+
+                            {inputMethod === 'text' && (
+                                <div style={{ marginTop: '20px' }}>
+                                    <input
+                                        type="text"
+                                        value={tierName}
+                                        onChange={(e) => setTierName(e.target.value)}
+                                        onKeyPress={(e) => e.key === 'Enter' && analyzeTier()}
+                                        placeholder="z.B. Löwe, Delfin, Biene, T-Rex..."
+                                        className="text-input"
+                                    />
+                                    <div style={{ marginTop: '15px', fontSize: '1.2rem', color: '#667eea', textAlign: 'center' }}>
+                                        💡 <strong>Tipp:</strong> Je genauer, desto besser! "Afrikanischer Löwe" statt nur "Löwe"
+                                    </div>
+                                </div>
+                            )}
+
+                            {(inputMethod === 'photo' || inputMethod === 'camera') && (
+                                <>
+                                    <label htmlFor="photo-upload">
+                                        <div className="upload-area">
+                                            {image ? (
+                                                <div>
+                                                    <img src={image} alt="Hochgeladen" style={{ maxWidth: '300px', borderRadius: '15px', marginBottom: '15px', border: '4px solid #667eea' }} />
+                                                    <p style={{ fontSize: '1.3rem', color: '#667eea' }}>📸 Super! Jetzt auf "Los geht's!" klicken</p>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <div style={{ fontSize: '5rem', marginBottom: '15px' }}>
+                                                        {inputMethod === 'camera' ? '📸' : '🖼️'}
+                                                    </div>
+                                                    <h3 style={{ fontSize: '1.8rem', marginBottom: '10px', color: '#667eea' }}>
+                                                        {inputMethod === 'camera' ? 'Foto aufnehmen' : 'Foto hochladen'}
+                                                    </h3>
+                                                    <p style={{ fontSize: '1.2rem', color: '#764ba2' }}>Klicke hier!</p>
+                                                </>
+                                            )}
+                                        </div>
+                                    </label>
+                                    <input
+                                        id="photo-upload"
+                                        type="file"
+                                        accept="image/*"
+                                        capture={inputMethod === 'camera' ? 'environment' : undefined}
+                                        onChange={handleImageUpload}
+                                        style={{ display: 'none' }}
+                                    />
+                                </>
+                            )}
+
+                            <div style={{ textAlign: 'center', marginTop: '40px' }}>
+                                <button
+                                    onClick={analyzeTier}
+                                    className="btn btn-primary"
+                                >
+                                    🚀 Los geht's!
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Loading */}
+                    {mode === 'loading' && (
+                        <div className="result-section">
+                            <div className="loading">
+                                <div className="loading-spinner"></div>
+                                <div className="loading-text">
+                                    🔍 Ich sammle coole Infos über dein Tier...<br />
+                                    <span style={{ fontSize: '1.2rem', color: '#666' }}>
+                                        (Das dauert 60-90 Sekunden - gleich geht's los!)
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Results */}
+                    {mode === 'result' && result && (
+                        <div className="result-section">
+                            <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
+                                <button
+                                    onClick={() => {
+                                        setMode('input');
+                                        setTierName('');
+                                        setImage(null);
+                                        setResult(null);
+                                    }}
+                                    className="btn btn-secondary"
+                                >
+                                    ← Anderes Tier suchen
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        analyzeTier(true);
+                                    }}
+                                    className="btn btn-secondary"
+                                    style={{ background: 'linear-gradient(135deg, #FFD93D 0%, #FF6B6B 100%)', color: 'white', borderColor: 'white' }}
+                                >
+                                    🔄 Daten aktualisieren
+                                </button>
+                            </div>
+
+                            {/* Header mit Bild */}
+                            <div className="tier-header">
+                                {result.bild && (
+                                    <img src={result.bild} alt={result.name_deutsch} className="tier-image" />
+                                )}
+                                <div className="tier-title">
+                                    <h1>{result.name_deutsch}</h1>
+                                    <p className="scientific-name">{result.name_wissenschaftlich}</p>
+                                    <p className="english-name">🌍 {result.name_englisch}</p>
+                                    {result.taxonomie && (
+                                        <p className="subspecies-info" style={{ fontSize: '0.95rem', marginTop: '8px', color: '#666' }}>
+                                            🧲 {result.taxonomie.arten_anzahl}
+                                        </p>
+                                    )}
+                                    <div className="level-badges">
+                                        <div className="badge">⭐ {result.level_system.seltenheit}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Charakter & Stimmung (Sliders) */}
+                            <div className="special-card">
+                                <h2>🎭 Charakter & Stimmung</h2>
+                                <div className="content">
+                                    <div className="info-grid" style={{ gap: '25px', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
+                                        {[
+                                            { key: 'freundlichkeit', emoji: '😊', label: 'Freundlichkeit' },
+                                            { key: 'lautstaerke', emoji: '🔊', label: 'Lautstärke' },
+                                            { key: 'gefaehrlichkeit', emoji: '🎯', label: 'Gefahr' },
+                                            { key: 'niedlichkeit', emoji: '😍', label: 'Süß-Faktor' },
+                                            { key: 'intelligenz', emoji: '🧠', label: 'Schlauheit' },
+                                            { key: 'coolness', emoji: '😎', label: 'Coolness' },
+                                            { key: 'geschwindigkeit', emoji: '🏃', label: 'Geschwindigkeit' }
+                                        ].map(stat => {
+                                            const data = result.charakter_stats[stat.key];
+                                            return (
+                                                <div key={stat.key} className="slider-container">
+                                                    <div className="slider-header">
+                                                        <span>{stat.emoji} {stat.label}</span>
+                                                        <span>{data.wert}/10</span>
+                                                    </div>
+                                                    <div className="slider-track">
+                                                        <div className="slider-fill" style={{ width: `${data.wert * 10}%` }}></div>
+                                                    </div>
+                                                    <div className="slider-labels">
+                                                        <span>{data.label_links}</span>
+                                                        <span>{data.label_rechts}</span>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Aussehen */}
+                            <div className="info-card">
+                                <h3>🎨 Aussehen & Merkmale</h3>
+                                <div className="info-item">🌈 <strong>Farben:</strong> {result.aussehen.farben?.join(', ')}</div>
+                                <div className="info-item">👁️ <strong>Augen:</strong> {result.aussehen.anzahl_augen}</div>
+                                <div className="info-item">🦵 <strong>Beine:</strong> {result.aussehen.anzahl_beine}</div>
+                                <div className="info-item">🦴 <strong>Skelett:</strong> {result.aussehen.skelett_typ}</div>
+                                <div className="info-item">✨ <strong>Leuchtet im Dunkeln:</strong> {result.aussehen.biolumineszenz ? 'Ja! 🌟' : 'Nein'}</div>
+                                <div className="info-item">🦷 <strong>Zähne:</strong> {result.aussehen.anzahl_zaehne} ({result.aussehen.art_zaehne})</div>
+                                <div className="info-item">📏 <strong>Größe:</strong> {result.aussehen.groesse_cm} cm</div>
+                                {result.aussehen.wichtige_masse && (
+                                    <div className="info-item">📏 <strong>Maße:</strong> {result.aussehen.wichtige_masse}</div>
+                                )}
+                                <div className="info-item">
+                                    ⚖️ <strong>Gewicht:</strong> {(() => {
+                                        const g = result.aussehen.gewicht_g;
+                                        if (g >= 1000000) {
+                                            return `${(g / 1000000).toLocaleString('de-DE')} Tonnen`;
+                                        } else if (g >= 1000) {
+                                            return `${(g / 1000).toLocaleString('de-DE')} kg`;
+                                        } else {
+                                            return `${g.toLocaleString('de-DE')} g`;
+                                        }
+                                    })()}
+                                </div>
+                                {result.aussehen.besonderheiten?.map((b, i) => (
+                                    <div key={i} className="info-item">✨ {b}</div>
+                                ))}
+                            </div>
+
+                            {/* Rekorde */}
+                            <div className="special-card">
+                                <h2>🏆 Rekorde & Superkräfte</h2>
+                                <div className="content">
+                                    <div className="fact-item">🏃 <strong>Höchstgeschwindigkeit:</strong> {result.rekorde.hoechstgeschwindigkeit_kmh} km/h</div>
+                                    {result.rekorde.schnellste_beschleunigung && result.rekorde.schnellste_beschleunigung !== 'N/A' && (
+                                        <div className="fact-item">⚡ <strong>Beschleunigung:</strong> {result.rekorde.schnellste_beschleunigung}</div>
+                                    )}
+                                    <div className="fact-item">🎯 <strong>Weitester Sprung:</strong> {result.rekorde.weitester_sprung_m} Meter</div>
+                                    {result.rekorde.tauchrekord_m > 0 && (
+                                        <div className="fact-item">🏊 <strong>Tauchrekord:</strong> {result.rekorde.tauchrekord_m} Meter tief!</div>
+                                    )}
+                                    {result.rekorde.laengster_winterschlaf_monate > 0 && (
+                                        <div className="fact-item">⏰ <strong>Winterschlaf:</strong> {result.rekorde.laengster_winterschlaf_monate} Monate!</div>
+                                    )}
+                                    <div className="fact-item">🔊 <strong>Lautstärke:</strong> {result.rekorde.lautstaerke_dezibel} Dezibel</div>
+                                    <div className="fact-item">💪 <strong>Stärke:</strong> {result.rekorde.staerke_verhaeltnis}</div>
+                                    <div className="fact-item">💓 <strong>Herzschlag:</strong> {result.rekorde.herzschlag_pro_minute} Schläge/Minute</div>
+                                    <div className="fact-item">⏰ <strong>Lebenserwartung:</strong> {result.rekorde.lebenserwartung_jahre} Jahre</div>
+                                    {result.rekorde.besondere_faehigkeiten?.map((f, i) => (
+                                        <div key={i} className="fact-item">🦸 {f}</div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Lebenszyklus */}
+                            <div className="special-card" style={{ background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)' }}>
+                                <h2>👶 Lebenszyklus</h2>
+                                <div className="content">
+                                    <div className="lifecycle">
+                                        {result.lebenszyklus.stufen.map((stufe, i) => (
+                                            <React.Fragment key={i}>
+                                                <div className="lifecycle-stage">
+                                                    <div className="emoji">{stufe.split(' ')[0]}</div>
+                                                    <div>{stufe.split(' ').slice(1).join(' ')}</div>
+                                                </div>
+                                                {i < result.lebenszyklus.stufen.length - 1 && (
+                                                    <div className="lifecycle-arrow">→</div>
+                                                )}
+                                            </React.Fragment>
+                                        ))}
+                                    </div>
+                                    <div className="fact-item" style={{ marginTop: '20px', textAlign: 'center' }}>
+                                        ⏱️ <strong>Gesamtdauer:</strong> {result.lebenszyklus.gesamtdauer}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Nahrungskette */}
+                            <div className="info-card">
+                                <h3>🍴 Nahrungskette</h3>
+                                <div className="emoji-chain">{result.nahrungskette.kette_emoji}</div>
+                                <div className="info-item">📍 <strong>Position:</strong> {result.nahrungskette.position}</div>
+                                <div className="info-item">🍽️ <strong>Frisst:</strong> {result.nahrungskette.frisst?.join(', ')}</div>
+                                <div className="info-item">⚠️ <strong>Wird gefressen von:</strong> {result.nahrungskette.wird_gefressen_von?.join(', ')}</div>
+                            </div>
+
+                            {/* Krasse Facts */}
+                            <div className="special-card" style={{ background: 'linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%)' }}>
+                                <h2>😱 Krasse Facts</h2>
+                                <div className="content">
+                                    {result.krasse_facts?.map((fact, i) => (
+                                        <div key={i} className="fact-item">{fact}</div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Fun Vergleiche */}
+                            <div className="info-card">
+                                <h3>🎯 Fun Vergleiche</h3>
+                                <div className="info-item">📏 <strong>Größe:</strong> {result.fun_vergleiche.groesse_wie}</div>
+                                <div className="info-item">⚖️ <strong>Gewicht:</strong> {result.fun_vergleiche.gewicht_wie}</div>
+                                <div className="info-item">🏃 <strong>Geschwindigkeit:</strong> {result.fun_vergleiche.geschwindigkeit_wie}</div>
+                                <div className="info-item">💪 <strong>Stärke:</strong> {result.fun_vergleiche.staerke_wie}</div>
+                                <div className="info-item">
+                                    🌍 <strong>Anzahl weltweit:</strong> {(() => {
+                                        const num = parseInt(result.fun_vergleiche.anzahl_weltweit);
+                                        return !isNaN(num) ? num.toLocaleString('de-DE') : 'Unbekannt';
+                                    })()}
+                                    {result.fun_vergleiche.anzahl_vergleich && (
+                                        <><br /><span style={{ fontSize: '0.9rem', color: '#666' }}>{result.fun_vergleiche.anzahl_vergleich}</span></>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Verbreitung */}
+                            <div className="info-card">
+                                <h3>🌍 Wo leben sie?</h3>
+                                <div className="info-item">🗺️ <strong>Kontinente:</strong> {result.verbreitung_karte.kontinente?.join(', ')}</div>
+                                <div className="info-item">🌡️ <strong>Klima:</strong> {result.verbreitung_karte.klima}</div>
+                                <div className="info-item">⛰️ <strong>Höhe:</strong> {result.verbreitung_karte.hoehe}</div>
+                            </div>
+
+                            {/* Taxonomie & Unterarten */}
+                            {result.taxonomie && result.taxonomie.beispiel_arten && result.taxonomie.beispiel_arten.length > 0 && (
+                                <div className="info-card">
+                                    <h3>🧲 Arten & Unterarten</h3>
+                                    <div className="info-item">
+                                        <strong>Anzahl:</strong> {result.taxonomie.arten_anzahl}
+                                    </div>
+                                    <div className="info-item">
+                                        <strong>Beispiele:</strong>
+                                        <ul style={{ marginTop: '10px', paddingLeft: '20px' }}>
+                                            {result.taxonomie.beispiel_arten.map((art, i) => (
+                                                <li key={i}>{art}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Population & Trend */}
+                            <div className="special-card" style={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' }}>
+                                <h2>📊 Population & Trend</h2>
+                                <div className="content">
+                                    <div className="fact-item">
+                                        🌍 <strong>Anzahl weltweit:</strong> {(() => {
+                                            const num = parseInt(result.population_trend.anzahl_weltweit);
+                                            return !isNaN(num) ? num.toLocaleString('de-DE') : result.population_trend.anzahl_weltweit;
+                                        })()}
+                                    </div>
+                                    {result.population_trend.anzahl_in_freiheit && (
+                                        <div className="fact-item">
+                                            🌳 <strong>In Freiheit:</strong> {result.population_trend.anzahl_in_freiheit}
+                                        </div>
+                                    )}
+                                    {result.population_trend.anzahl_in_gefangenschaft && (
+                                        <div className="fact-item">
+                                            🏠 <strong>In Gefangenschaft:</strong> {result.population_trend.anzahl_in_gefangenschaft}
+                                        </div>
+                                    )}
+                                    <div className="fact-item">📈 <strong>Aktueller Trend:</strong> {result.population_trend.aktuell}</div>
+                                    <div className="fact-item">🕐 <strong>Vor 50 Jahren:</strong> {result.population_trend.vor_50_jahren}</div>
+                                    <div className="fact-item">📅 <strong>Heute:</strong> {result.population_trend.heute}</div>
+                                    <div className="fact-item">🔮 <strong>Prognose:</strong> {result.population_trend.prognose}</div>
+                                </div>
+                            </div>
+
+                            {/* Wusstest du? */}
+                            <div className="special-card" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+                                <h2>💡 Wusstest du?</h2>
+                                <div className="content">
+                                    {result.wusstest_du?.map((fact, i) => (
+                                        <div key={i} className="fact-item">{fact}</div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Berühmte Vertreter */}
+                            {(result.beruehmt.filme?.length > 0 || result.beruehmt.buecher?.length > 0) && (
+                                <div className="info-card">
+                                    <h3>🎬 Berühmte Vertreter</h3>
+                                    {result.beruehmt.filme?.length > 0 && (
+                                        <div className="info-item">🎬 <strong>Filme:</strong> {result.beruehmt.filme.join(', ')}</div>
+                                    )}
+                                    {result.beruehmt.buecher?.length > 0 && (
+                                        <div className="info-item">📚 <strong>Bücher:</strong> {result.beruehmt.buecher.join(', ')}</div>
+                                    )}
+                                    {result.beruehmt.videospiele?.length > 0 && (
+                                        <div className="info-item">🎮 <strong>Spiele:</strong> {result.beruehmt.videospiele.join(', ')}</div>
+                                    )}
+                                    {result.beruehmt.maskottchen && (
+                                        <div className="info-item">🎭 <strong>Maskottchen:</strong> {result.beruehmt.maskottchen}</div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Helfen */}
+                            <div className="special-card" style={{ background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)' }}>
+                                <h2>🌱 Wie kannst DU helfen?</h2>
+                                <div className="content">
+                                    {result.helfen.was_kann_ich_tun?.map((action, i) => (
+                                        <div key={i} className="fact-item">✅ {action}</div>
+                                    ))}
+                                    {result.helfen.im_garten && (
+                                        <div className="fact-item">🏡 <strong>Im Garten:</strong> {result.helfen.im_garten}</div>
+                                    )}
+                                    {result.helfen.apps?.length > 0 && (
+                                        <div className="fact-item">📱 <strong>Apps:</strong> {result.helfen.apps.join(', ')}</div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Geschichten */}
+                            <div className="story-section">
+                                <h2 style={{ fontSize: '2.5rem', color: '#667eea', marginBottom: '20px', textAlign: 'center' }}>
+                                    📖 Geschichten
+                                </h2>
+
+                                <div className="story-tabs">
+                                    <div
+                                        className={`story-tab ${activeStory === 'short' ? 'active' : ''}`}
+                                        onClick={() => setActiveStory('short')}
+                                    >
+                                        ⚡ Kurze Geschichte<br />
+                                        <span style={{ fontSize: '1rem', opacity: 0.8 }}>Für Hastige (30 Sek.)</span>
+                                    </div>
+                                    <div
+                                        className={`story-tab ${activeStory === 'long' ? 'active' : ''}`}
+                                        onClick={() => setActiveStory('long')}
+                                    >
+                                        📚 Lange Geschichte<br />
+                                        <span style={{ fontSize: '1rem', opacity: 0.8 }}>Für Genießer (5-7 Min.)</span>
+                                    </div>
+                                </div>
+
+                                <div className="story-content">
+                                    {activeStory === 'short' ? result.geschichte_kurz : result.geschichte_lang}
+                                </div>
+                            </div>
+
+                            {/* Basis-Infos */}
+                            <div className="info-grid">
+                                <div className="info-card">
+                                    <h3>🌍 Lebensraum</h3>
+                                    {result.basis_info.lebensraum?.map((h, i) => (
+                                        <div key={i} className="info-item">{h}</div>
+                                    ))}
+                                </div>
+                                <div className="info-card">
+                                    <h3>🍴 Ernährung & Verhalten</h3>
+                                    <div className="info-item">🍽️ {result.basis_info.ernaehrung}</div>
+                                    <div className="info-item">🕐 {result.basis_info.aktivitaet}</div>
+                                    <div className="info-item">👥 {result.basis_info.sozialverhalten}</div>
+                                    <div className="info-item">⚠️ Gefährdung: {result.basis_info.gefaehrdung}</div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Footer */}
+                    <div style={{ textAlign: 'center', marginTop: '40px', paddingBottom: '20px' }}>
+                        <p style={{ color: 'white', fontSize: '1.3rem', textShadow: '2px 2px 0 rgba(0,0,0,0.2)' }}>
+                            🦁 Entwickelt mit ❤️ für neugierige Kids!
+                        </p>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<TierWissen />, document.getElementById('root'));
+    </script>
+</body>
+
+</html>
