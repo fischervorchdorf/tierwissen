@@ -791,6 +791,7 @@
                     console.log("🇬🇧 Versuche Englische Wikipedia...");
                     const enUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(tierName)}&prop=pageimages|extracts&exintro&explaintext&format=json&pithumbsize=1200&origin=*`;
                     const enResponse = await fetch(enUrl);
+                    const enData = await enResponse.json();
                     const pages = enData.query.pages;
                     const pageId = Object.keys(pages)[0];
 
