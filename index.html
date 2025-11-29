@@ -894,22 +894,33 @@
                         }
                     }
 
-                    // Schritt 1.5: Wikipedia Bild laden
-                    let wikiImage = null;
+                    // Schritt 1.5: Wikipedia Daten & Bild laden (v1.9)
+                    let wikiData = null;
+                    let wikiContext = "";
                     try {
-                        const wikiResponse = await fetch(`https://de.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(detectedAnimal)}&prop=pageimages&format=json&pithumbsize=1000&origin=*`);
-                        const wikiData = await wikiResponse.json();
-                        const pages = wikiData.query.pages;
-                        const pageId = Object.keys(pages)[0];
-                        if (pageId !== '-1' && pages[pageId].thumbnail) {
-                            wikiImage = pages[pageId].thumbnail.source;
+                        wikiData = await fetchWikipediaData(detectedAnimal);
+                        if (wikiData) {
+                            console.log("✅ Wiki-Daten für Prompt verfügbar:", wikiData);
+                            wikiContext = `
+FAKTEN-CHECK (Nutze diese Daten wenn verfügbar!):
+- Wissenschaftlicher Name: ${wikiData.name_wissenschaftlich || 'Unbekannt'}
+- IUCN Status: ${wikiData.iucn_status || 'Unbekannt'}
+- Population: ${wikiData.population_raw || 'Unbekannt'}
+- Größe: ${wikiData.groesse_raw || 'Unbekannt'}
+- Gewicht: ${wikiData.gewicht_raw || 'Unbekannt'}
+- Lebensraum: ${wikiData.lebensraum_raw || 'Unbekannt'}
+                            `;
                         }
                     } catch (e) {
-                        console.log("Wikipedia Bild Fehler:", e);
+                        console.log("Wikipedia Fehler:", e);
                     }
 
                     // Schritt 2: ALLE Infos sammeln (v1.9: QUALITÄT > SPEED!)
                     const infoPrompt = `Du bist ein Biologe, der Kindern (8-12 Jahre) die Tierwelt erklärt!
+
+${wikiContext}
+
+🎯 OBERSTE PRIORITÄT: DATENQUALITÄT!
 
 🎯 OBERSTE PRIORITÄT: DATENQUALITÄT!
 
@@ -1142,7 +1153,7 @@ Schreibe NUR die Geschichte!`;
                     const longStory = longStoryData.candidates[0].content.parts[0].text.trim();
 
                     // Schritt 5: Bild generieren (falls keins hochgeladen wurde)
-                    let tierBild = image || wikiImage;
+                    let tierBild = image || (wikiData ? wikiData.bild : null);
                     if (!tierBild) {
                         // Nutze Lorem Picsum mit Blur-Effekt als Platzhalter
                         // Oder generiere ein einfaches Platzhalter-Bild
@@ -1182,7 +1193,8 @@ Schreibe NUR die Geschichte!`;
                         ...tierInfo,
                         geschichte_kurz: shortStory,
                         geschichte_lang: longStory,
-                        bild: tierBild
+                        bild: tierBild,
+                        wikipedia_url: wikiData ? wikiData.wikipedia_url : null
                     };
 
                     // CACHE SPEICHERN für Konsistenz
@@ -1655,6 +1667,12 @@ Schreibe NUR die Geschichte!`;
                                 </div>
                             </div>
 
+                            {/* Quelle */}
+                            {result.wikipedia_url && (
+                                <div style={{ textAlign: 'center', marginTop: '30px', color: '#888', fontSize: '0.9rem' }}>
+                                    ℹ️ Basierend auf Daten von <a href={result.wikipedia_url} target="_blank" rel="noopener noreferrer" style={{ color: '#667eea', textDecoration: 'none' }}>Wikipedia</a> & AI-Analyse
+                                </div>
+                            )}
                             {/* Basis-Infos */}
                             <div className="info-grid">
                                 <div className="info-card">
