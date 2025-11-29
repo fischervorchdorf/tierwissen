@@ -641,19 +641,100 @@
                 return <div className="rating">{stars}</div>;
             };
 
-            // Wikipedia-Integration für wissenschaftliche Daten (v1.8)
-            async function fetchWikipediaImage(tierName) {
-                try {
-                    const url = `https://de.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=pageimages|extracts&titles=${encodeURIComponent(tierName)}&pithumbsize=1200&exintro&explaintext`;
-                    const response = await fetch(url);
-                    const data = await response.json();
-                    const pages = data.query.pages;
-                    const pageId = Object.keys(pages)[0];
 
-                    if (pageId !== "-1" && pages[pageId].thumbnail) {
-                        return pages[pageId].thumbnail.source;
+            // Wikipedia-Integration für wissenschaftliche Daten (v1.9: Infobox Parsing)
+            async function fetchWikipediaData(tierName) {
+                try {
+                    console.log(`📚 Lade Wikipedia-Daten für: ${tierName}`);
+
+                    // 1. Get page content with infobox
+                    const parseUrl = `https://de.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(tierName)}&prop=text|images&format=json&origin=*`;
+                    const parseResponse = await fetch(parseUrl);
+                    const parseData = await parseResponse.json();
+
+                    if (parseData.error) {
+                        console.log("Wikipedia Artikel nicht gefunden");
+                        return null;
                     }
-                    return null;
+
+                    const htmlContent = parseData.parse?.text?.['*'] || '';
+
+                    // 2. Get image separately (more reliable)
+                    const imageUrl = `https://de.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(tierName)}&prop=pageimages&format=json&pithumbsize=1200&origin=*`;
+                    const imageResponse = await fetch(imageUrl);
+                    const imageData = await imageResponse.json();
+                    const pages = imageData.query.pages;
+                    const pageId = Object.keys(pages)[0];
+                    const image = (pageId !== "-1" && pages[pageId]?.thumbnail) ? pages[pageId].thumbnail.source : null;
+
+                    // 3. Parse Infobox for structured data
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(htmlContent, 'text/html');
+                    const infobox = doc.querySelector('.infobox, table.taxobox');
+
+                    const extractInfoboxField = (label) => {
+                        if (!infobox) return null;
+                        const rows = infobox.querySelectorAll('tr');
+                        for (const row of rows) {
+                            const header = row.querySelector('th');
+                            if (header && header.textContent.toLowerCase().includes(label.toLowerCase())) {
+                                const value = row.querySelector('td');
+                                return value ? value.textContent.trim().replace(/\[.*?\]/g, '').trim() : null;
+                            }
+                        }
+                        return null;
+                    };
+
+                    // Extract common fields
+                    const scientificName = extractInfoboxField('Wissenschaftlicher Name') ||
+                        extractInfoboxField('Binomial name') ||
+                        doc.querySelector('.binomial')?.textContent.trim();
+
+                    const conservationStatus = extractInfoboxField('Status') ||
+                        extractInfoboxField('Conservation status') ||
+                        extractInfoboxField('Gefährdung');
+
+                    const size = extractInfoboxField('Körperlänge') ||
+                        extractInfoboxField('Größe') ||
+                        extractInfoboxField('Length');
+
+                    const weight = extractInfoboxField('Gewicht') ||
+                        extractInfoboxField('Weight') ||
+                        extractInfoboxField('Masse');
+
+                    const population = extractInfoboxField('Bestand') ||
+                        extractInfoboxField('Population') ||
+                        extractInfoboxField('Wild population');
+
+                    const lifespan = extractInfoboxField('Lebenserwartung') ||
+                        extractInfoboxField('Lebensdauer') ||
+                        extractInfoboxField('Lifespan');
+
+                    const habitat = extractInfoboxField('Lebensraum') ||
+                        extractInfoboxField('Habitat') ||
+                        extractInfoboxField('Verbreitung');
+
+                    console.log(`✅ Wikipedia-Daten geladen:`, {
+                        scientificName,
+                        conservationStatus,
+                        size,
+                        weight,
+                        population,
+                        image: image ? '✓' : '✗'
+                    });
+
+                    return {
+                        name_wissenschaftlich: scientificName,
+                        iucn_status: conservationStatus,
+                        groesse_raw: size,
+                        gewicht_raw: weight,
+                        population_raw: population,
+                        lebenserwartung_raw: lifespan,
+                        lebensraum_raw: habitat,
+                        bild: image,
+                        quelle: 'Wikipedia',
+                        wikipedia_url: `https://de.wikipedia.org/wiki/${encodeURIComponent(tierName)}`
+                    };
                 } catch (error) {
                     console.error("Wikipedia Fetch Error:", error);
                     return null;
@@ -824,26 +905,49 @@
                         console.log("Wikipedia Bild Fehler:", e);
                     }
 
-                    // Schritt 2: ALLE Infos sammeln (KOMPLETT!)
-                    const infoPrompt = `Du bist ein wissenschaftlicher Tier-Experte für KINDER (8-12 Jahre)! Sammle ALLE Informationen über "${detectedAnimal}" und gib sie als JSON zurück.
+                    // Schritt 2: ALLE Infos sammeln (v1.9: QUALITÄT > SPEED!)
+                    const infoPrompt = `Du bist ein Biologe, der Kindern (8-12 Jahre) die Tierwelt erklärt!
 
-⚠️ KRITISCHE ANFORDERUNGEN:
-- Antworte NUR mit validem JSON! Kein anderer Text!
-- ALLE Zahlen müssen REALISTISCH und GUT RECHERCHIERT sein!
-- Populationszahlen: Nutze ECHTE wissenschaftliche Schätzungen (z.B. IUCN, WWF, Fachliteratur)
-- Bei gefährdeten Arten: Unterscheide "in Freiheit" und "in Gefangenschaft"
-- KEINE Fantasy-Zahlen! Lieber "Unbekannt" als falsche Daten!
-- Kindgerecht aber WISSENSCHAFTLICH KORREKT!
+🎯 OBERSTE PRIORITÄT: DATENQUALITÄT!
 
-JSON-STRUKTUR (ALLE Felder ausfüllen!):
+⚠️ KRITISCHE REGELN:
+1. **POPULATION**: NIEMALS "1" oder unrealistische Zahlen! 
+   - Feuersalamander: MILLIONEN (nicht 1!)
+   - Löwen: ~20.000
+   - Häufige Tiere: Hunderttausende bis Millionen
+   - Nutze ECHTE Schätzungen von IUCN, WWF, Wikipedia!
+
+2. **KEINE NULLEN!**: Wenn du keine Info hast, schreibe "null" (JSON null, nicht String "0"!)
+   - Biolumineszenz nur erwähnen wenn Tier LEUCHTET!
+   - Tauchrekord nur bei Wassertieren!
+   - Winterschlaf nur wenn relevant!
+
+3. **KINDERSPRACHE - KEINE ABKÜRZUNGEN!**:
+   - ❌ "IUCN", "LC", "VU", "EN"
+   - ✅ "Nicht gefährdet", "Gefährdet", "Stark gefährdet"
+   - ❌ "ca.", "inkl.", "evtl."
+   - ✅ "ungefähr", "inklusive", "vielleicht"
+
+4. **WILD vs. GEFANGENSCHAFT**:
+   - NUR bei seltenen/gefährdeten Arten wichtig!
+   - Bei häufigen Tieren: nur Gesamtzahl!
+
+5. **ECHTE WISSENSCHAFT**:
+   - Keine erfundenen Zahlen!
+   - Lieber "null" als falsche Daten!
+   - Bei Unsicherheit: "Unbekannt" oder Spanne angeben
+
+Tier: "${detectedAnimal}"
+
+JSON-STRUKTUR (NUR mit ECHTEN Daten füllen!):
 
 {
   "name_deutsch": "${detectedAnimal}",
-  "name_wissenschaftlich": "...",
-  "name_englisch": "...",
+  "name_wissenschaftlich": "Lateinischer Name",
+  "name_englisch": "Englischer Name",
   
   "taxonomie": {
-    "arten_anzahl": "Anzahl bekannter Unterarten/Arten dieser Gattung (z.B. '24 Makakenarten')",
+    "arten_anzahl": "Anzahl Arten in dieser Gattung (z.B. '8 Bärenarten')",
     "beispiel_arten": ["Art 1", "Art 2", "Art 3"]
   },
 
@@ -856,78 +960,71 @@ JSON-STRUKTUR (ALLE Felder ausfüllen!):
     "besonderheiten": ["Merkmal 1", "Merkmal 2"],
     "anzahl_augen": 2,
     "anzahl_beine": 4,
-    "skelett_typ": "Wirbeltier/Wirbellos/Exoskelett",
-    "biolumineszenz": false,
-    "anzahl_zaehne": 32,
-    "art_zaehne": "Schneidezähne/Reißzähne/Keine",
-    "groesse_cm": "10-50",
-    "gewicht_g": 1000,
-    "wichtige_masse": "Spannweite: 2m (Vögel) ODER Schulterhöhe: 1m (Säuger) ODER Panzerlänge (Schildkröten) - kontextabhängig!"
+    "skelett_typ": "Wirbeltier/Wirbellos",
+    "biolumineszenz": true/false (NUR true wenn Tier wirklich leuchtet!),
+    "anzahl_zaehne": 30 (oder null wenn unbekannt),
+    "art_zaehne": "Beschreibung (oder null)",
+    "groesse_cm": "Min-Max Spanne",
+    "gewicht_g": "Durchschnitt in Gramm",
+    "wichtige_masse": "Kontextabhängig: Spannweite/Schulterhöhe/Panzerlänge"
   },
 
   "rekorde": {
-    "hoechstgeschwindigkeit_kmh": 50,
-    "schnellste_beschleunigung": "0-50 km/h in 2 Sek (oder null falls nicht relevant)",
-    "weitester_sprung_m": 3,
-    "tauchrekord_m": 100,
-    "laengster_winterschlaf_monate": 6,
-    "lautstaerke_dezibel": 80,
-    "staerke_verhaeltnis": "Kann 10x Körpergewicht tragen!",
-    "besondere_faehigkeiten": ["UV-Sicht", "Echoortung"],
-    "herzschlag_pro_minute": 120,
+    "hoechstgeschwindigkeit_kmh": 50 (oder null),
+    "schnellste_beschleunigung": "Beschreibung (oder null)",
+    "weitester_sprung_m": 5 (oder null),
+    "tauchrekord_m": 100 (NUR bei Wassertieren!),
+    "laengster_winterschlaf_monate": 6 (NUR wenn relevant!),
+    "lautstaerke_dezibel": 90 (oder null),
+    "staerke_verhaeltnis": "Kann X-faches Körpergewicht tragen",
+    "besondere_faehigkeiten": ["Fähigkeit 1", "Fähigkeit 2"],
+    "herzschlag_pro_minute": 80,
     "lebenserwartung_jahre": "5-10"
   },
 
   "krasse_facts": [
-    "🤯 Unglaublicher Fakt mit ECHTEN Zahlen!",
-    "💥 Überraschender wissenschaftlicher Fakt!",
-    "🎪 Dokumentiertes Verhalten!",
+    "🤯 Unglaublicher ECHTER Fakt mit Zahlen!",
+    "💥 Wissenschaftlich bewiesenes Verhalten!",
+    "🎪 Dokumentierte Fähigkeit!",
     "🦾 Evolutionäre Anpassung!",
-    "😱 Mind-blowing Fakt!"
+    "😱 Überraschendes Detail!"
   ],
 
   "fun_vergleiche": {
-    "groesse_wie": "So groß wie...",
-    "gewicht_wie": "So schwer wie...",
-    "geschwindigkeit_wie": "So schnell wie...",
+    "groesse_wie": "So groß wie... (Alltagsvergleich)",
+    "gewicht_wie": "So schwer wie... (Alltagsvergleich)",
+    "geschwindigkeit_wie": "So schnell wie... (Alltagsvergleich)",
     "staerke_wie": "Kann so viel tragen wie...",
-    "anzahl_weltweit": "ECHTE Zahl basierend auf wissenschaftlichen Schätzungen (z.B. 500000 für häufige Arten, 5000 für seltene)",
-    "anzahl_vergleich": "Vergleich mit österreichischen Städten (z.B. 'So viele wie in Wien, Graz UND Linz zusammen!') oder '2x alle Menschen in Österreich'"
+    "anzahl_weltweit": "ECHTE GESAMTZAHL aller Individuen weltweit! (z.B. Feuersalamander: Millionen!, Löwen: 20000, Pandas: 1860)",
+    "anzahl_vergleich": "Vergleich mit österreichischen Städten (z.B. 'So viele wie in Wien!', '2x alle Menschen in Linz')"
   },
 
   "wusstest_du": [
-    "💡 Wissenschaftlicher Fakt 1 mit Quelle!",
-    "🤓 Erstaunliche Tatsache!",
-    "😮 Überraschende Forschung!",
-    "🎯 Interessanter Punkt!",
-    "✨ Cooles Detail!"
+    "💡 Interessanter Fakt 1!",
+    "🔬 Wissenschaftliche Entdeckung!",
+    "🌍 Besonderheit im Lebensraum!"
   ],
 
-  "charakter_stats": {
-    "freundlichkeit": { "wert": 8, "label_links": "Vorsichtig", "label_rechts": "Super Freundlich" },
-    "lautstaerke": { "wert": 2, "label_links": "Leise", "label_rechts": "Sehr Laut" },
-    "gefaehrlichkeit": { "wert": 5, "label_links": "Harmlos", "label_rechts": "Gefährlich" },
-    "niedlichkeit": { "wert": 9, "label_links": "Okay", "label_rechts": "Super Süß" },
-    "intelligenz": { "wert": 7, "label_links": "Instinktiv", "label_rechts": "Genie" },
-    "coolness": { "wert": 10, "label_links": "Normal", "label_rechts": "Mega Cool" },
-    "geschwindigkeit": { "wert": 6, "label_links": "Gemütlich", "label_rechts": "Blitzschnell" }
+  "emoji_stimmung": {
+    "sanftmut": "1-5 (1=aggressiv, 5=sehr sanft)",
+    "lautstaerke": "1-5",
+    "gefaehrlichkeit": "1-5 (für Menschen)",
+    "niedlichkeit": "1-5 (subjektiv)"
   },
 
-  "lebenszyklus": {
-    "stufen": [
-      "🥚 Phase 1 (Dauer)",
-      "🐛 Phase 2 (Dauer)",
-      "🛏️ Phase 3 (Dauer)",
-      "🦋 Erwachsen"
-    ],
-    "gesamtdauer": "Realistische Zeitangabe"
+  "lebensweise": {
+    "winterschlaf": true/false (NUR true wenn tatsächlich Winterschlaf!),
+    "winterschlaf_dauer": "Monate (oder null wenn kein Winterschlaf)",
+    "metamorphose": true/false,
+    "metamorphose_stufen": ["Stufe 1", "Stufe 2"] (oder null),
+    "gesamtdauer": "Zeitangabe" (oder null)
   },
 
   "nahrungskette": {
     "position": "Pflanzenfresser/Fleischfresser/Allesfresser",
-    "frisst": ["🌸 Item 1", "🌼 Item 2"],
-    "wird_gefressen_von": ["🦅 Predator 1", "🕷️ Predator 2"],
-    "kette_emoji": "🌸 → 🐝 → 🦅"
+    "frisst": ["🌸 Nahrung 1", "🌼 Nahrung 2"],
+    "wird_gefressen_von": ["🦅 Räuber 1", "🦁 Räuber 2"],
+    "kette_emoji": "🌸 → 🐛 → 🦅"
   },
 
   "verbreitung_karte": {
@@ -938,11 +1035,11 @@ JSON-STRUKTUR (ALLE Felder ausfüllen!):
 
   "population_trend": {
     "aktuell": "📉 Abnehmend/📈 Zunehmend/➡️ Stabil",
-    "anzahl_weltweit": "REALISTISCHE ZAHL aus wissenschaftlichen Quellen! Wenn Unterarten: Gesamtzahl aller Unterarten. Beispiel Makaken: mehrere Millionen",
-    "anzahl_in_freiheit": "Nur bei gefährdeten Arten angeben",
-    "anzahl_in_gefangenschaft": "Nur bei gefährdeten Arten angeben",
-    "vor_50_jahren": "Erklärender Satz über historische Population",
-    "heute": "Erklärender Satz über aktuelle Situation",
+    "anzahl_weltweit": "REALISTISCHE GESAMTZAHL! (z.B. Feuersalamander: 'Mehrere Millionen', Löwen: '20000', Pandas: '1860')",
+    "anzahl_in_freiheit": "NUR bei gefährdeten Arten! (sonst null)",
+    "anzahl_in_gefangenschaft": "NUR bei gefährdeten Arten! (sonst null)",
+    "vor_50_jahren": "Erklärender Satz",
+    "heute": "Aktuelle Situation",
     "prognose": "⚠️ Gefährdet/✅ Sicher"
   },
 
@@ -959,16 +1056,16 @@ JSON-STRUKTUR (ALLE Felder ausfüllen!):
       "🏠 Konkrete Aktion 2!",
       "🚫 Was vermeiden!"
     ],
-    "im_garten": "Konkrete kindgerechte Tipps",
+    "im_garten": "Kindgerechte Tipps",
     "apps": ["App 1", "App 2"]
   },
 
   "basis_info": {
     "lebensraum": ["Habitat 1", "Habitat 2"],
     "ernaehrung": "Pflanzenfresser/Fleischfresser/Allesfresser",
-    "gefaehrdung": "Nicht gefährdet / Gefährdet / Stark gefährdet / Vom Aussterben bedroht (VOLLES WORT, KEINE ABKÜRZUNGEN!)",
-    "sozialverhalten": "Einzelgänger/Rudel/Schwarm/Familiengruppen",
-    "aktivitaet": "tagaktiv/nachtaktiv/dämmerungsaktiv"
+    "gefaehrdung": "Nicht gefährdet/Gefährdet/Stark gefährdet/Vom Aussterben bedroht (KEINE ABKÜRZUNGEN!)",
+    "sozialverhalten": "Einzelgänger/Rudel/Schwarm",
+    "aktivitaet": "Tagaktiv/Nachtaktiv/Dämmerungsaktiv"
   }
 }`;
 
@@ -1110,7 +1207,7 @@ Schreibe NUR die Geschichte!`;
                         <div className="header-content">
                             <h1>🦁 Tier-Wissen für Kids</h1>
                             <p>Entdecke die coolsten Tiere der Welt!</p>
-                            <small>v1.8</small>
+                            <small>v1.9</small>
                         </div>
                     </div>
 
