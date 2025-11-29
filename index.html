@@ -961,25 +961,25 @@ JSON-STRUKTUR (NUR mit ECHTEN Daten füllen!):
     "anzahl_augen": 2,
     "anzahl_beine": 4,
     "skelett_typ": "Wirbeltier/Wirbellos",
-    "biolumineszenz": true/false (NUR true wenn Tier wirklich leuchtet!),
-    "anzahl_zaehne": 30 (oder null wenn unbekannt),
-    "art_zaehne": "Beschreibung (oder null)",
-    "groesse_cm": "Min-Max Spanne",
-    "gewicht_g": "Durchschnitt in Gramm",
-    "wichtige_masse": "Kontextabhängig: Spannweite/Schulterhöhe/Panzerlänge"
+    "biolumineszenz": false,
+    "anzahl_zaehne": 30,
+    "art_zaehne": "Reißzähne",
+    "groesse_cm": "100-200",
+    "gewicht_g": 15000,
+    "wichtige_masse": "Schulterhöhe: 80 cm"
   },
 
   "rekorde": {
-    "hoechstgeschwindigkeit_kmh": 50 (oder null),
-    "schnellste_beschleunigung": "Beschreibung (oder null)",
-    "weitester_sprung_m": 5 (oder null),
-    "tauchrekord_m": 100 (NUR bei Wassertieren!),
-    "laengster_winterschlaf_monate": 6 (NUR wenn relevant!),
-    "lautstaerke_dezibel": 90 (oder null),
-    "staerke_verhaeltnis": "Kann X-faches Körpergewicht tragen",
-    "besondere_faehigkeiten": ["Fähigkeit 1", "Fähigkeit 2"],
+    "hoechstgeschwindigkeit_kmh": 50,
+    "schnellste_beschleunigung": "Sehr schnell",
+    "weitester_sprung_m": 5,
+    "tauchrekord_m": null,
+    "laengster_winterschlaf_monate": null,
+    "lautstaerke_dezibel": 90,
+    "staerke_verhaeltnis": "Kann 2x Körpergewicht tragen",
+    "besondere_faehigkeiten": ["Nachtsicht", "Schnelles Laufen"],
     "herzschlag_pro_minute": 80,
-    "lebenserwartung_jahre": "5-10"
+    "lebenserwartung_jahre": "10-15"
   },
 
   "krasse_facts": [
@@ -991,12 +991,12 @@ JSON-STRUKTUR (NUR mit ECHTEN Daten füllen!):
   ],
 
   "fun_vergleiche": {
-    "groesse_wie": "So groß wie... (Alltagsvergleich)",
-    "gewicht_wie": "So schwer wie... (Alltagsvergleich)",
-    "geschwindigkeit_wie": "So schnell wie... (Alltagsvergleich)",
-    "staerke_wie": "Kann so viel tragen wie...",
-    "anzahl_weltweit": "ECHTE GESAMTZAHL aller Individuen weltweit! (z.B. Feuersalamander: Millionen!, Löwen: 20000, Pandas: 1860)",
-    "anzahl_vergleich": "Vergleich mit österreichischen Städten (z.B. 'So viele wie in Wien!', '2x alle Menschen in Linz')"
+    "groesse_wie": "So groß wie ein Kleinwagen",
+    "gewicht_wie": "So schwer wie 3 Erwachsene",
+    "geschwindigkeit_wie": "Schneller als ein Fahrrad",
+    "staerke_wie": "Stark wie 5 Menschen",
+    "anzahl_weltweit": "20000",
+    "anzahl_vergleich": "So viele wie in einer Kleinstadt"
   },
 
   "wusstest_du": [
@@ -1006,68 +1006,69 @@ JSON-STRUKTUR (NUR mit ECHTEN Daten füllen!):
   ],
 
   "emoji_stimmung": {
-    "sanftmut": "1-5 (1=aggressiv, 5=sehr sanft)",
-    "lautstaerke": "1-5",
-    "gefaehrlichkeit": "1-5 (für Menschen)",
-    "niedlichkeit": "1-5 (subjektiv)"
+    "sanftmut": 3,
+    "lautstaerke": 4,
+    "gefaehrlichkeit": 2,
+    "niedlichkeit": 5
   },
 
   "lebensweise": {
-    "winterschlaf": true/false (NUR true wenn tatsächlich Winterschlaf!),
-    "winterschlaf_dauer": "Monate (oder null wenn kein Winterschlaf)",
-    "metamorphose": true/false,
-    "metamorphose_stufen": ["Stufe 1", "Stufe 2"] (oder null),
-    "gesamtdauer": "Zeitangabe" (oder null)
+    "winterschlaf": false,
+    "winterschlaf_dauer": null,
+    "metamorphose": false,
+    "metamorphose_stufen": null,
+    "gesamtdauer": null
   },
 
   "nahrungskette": {
-    "position": "Pflanzenfresser/Fleischfresser/Allesfresser",
-    "frisst": ["🌸 Nahrung 1", "🌼 Nahrung 2"],
-    "wird_gefressen_von": ["🦅 Räuber 1", "🦁 Räuber 2"],
-    "kette_emoji": "🌸 → 🐛 → 🦅"
+    "position": "Fleischfresser",
+    "frisst": ["🦌 Hirsche", "🐰 Hasen"],
+    "wird_gefressen_von": ["🐻 Bären"],
+    "kette_emoji": "🌱 → 🦌 → 🐺"
   },
 
   "verbreitung_karte": {
     "kontinente": ["🌍 Europa", "🌏 Asien"],
-    "klima": "☀️ Warm/🥶 Kalt/🌡️ Gemäßigt",
-    "hoehe": "0-3000m über Meer"
+    "klima": "🌡️ Gemäßigt",
+    "hoehe": "0-2000m"
   },
 
   "population_trend": {
-    "aktuell": "📉 Abnehmend/📈 Zunehmend/➡️ Stabil",
-    "anzahl_weltweit": "REALISTISCHE GESAMTZAHL! (z.B. Feuersalamander: 'Mehrere Millionen', Löwen: '20000', Pandas: '1860')",
-    "anzahl_in_freiheit": "NUR bei gefährdeten Arten! (sonst null)",
-    "anzahl_in_gefangenschaft": "NUR bei gefährdeten Arten! (sonst null)",
-    "vor_50_jahren": "Erklärender Satz",
-    "heute": "Aktuelle Situation",
-    "prognose": "⚠️ Gefährdet/✅ Sicher"
+    "aktuell": "📉 Abnehmend",
+    "anzahl_weltweit": "20000",
+    "anzahl_in_freiheit": null,
+    "anzahl_in_gefangenschaft": null,
+    "vor_50_jahren": "Vor 50 Jahren gab es mehr",
+    "heute": "Heute gefährdet",
+    "prognose": "⚠️ Gefährdet"
   },
 
   "beruehmt": {
     "filme": ["Film 1", "Film 2"],
     "buecher": ["Buch 1"],
     "videospiele": ["Spiel 1"],
-    "maskottchen": "Firma/Team"
+    "maskottchen": "Team XY"
   },
 
   "helfen": {
     "was_kann_ich_tun": [
-      "🌻 Konkrete Aktion 1!",
-      "🏠 Konkrete Aktion 2!",
-      "🚫 Was vermeiden!"
+      "🌻 Lebensraum schützen!",
+      "🏠 Nistkästen aufhängen!",
+      "🚫 Nicht stören!"
     ],
-    "im_garten": "Kindgerechte Tipps",
+    "im_garten": "Wilde Ecken lassen",
     "apps": ["App 1", "App 2"]
   },
 
   "basis_info": {
-    "lebensraum": ["Habitat 1", "Habitat 2"],
-    "ernaehrung": "Pflanzenfresser/Fleischfresser/Allesfresser",
-    "gefaehrdung": "Nicht gefährdet/Gefährdet/Stark gefährdet/Vom Aussterben bedroht (KEINE ABKÜRZUNGEN!)",
-    "sozialverhalten": "Einzelgänger/Rudel/Schwarm",
-    "aktivitaet": "Tagaktiv/Nachtaktiv/Dämmerungsaktiv"
+    "lebensraum": ["Wälder", "Berge"],
+    "ernaehrung": "Fleischfresser",
+    "gefaehrdung": "Gefährdet",
+    "sozialverhalten": "Rudel",
+    "aktivitaet": "Dämmerungsaktiv"
   }
-}`;
+}
+`;
 
                     const infoResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
                         method: 'POST',
