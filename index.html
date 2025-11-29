@@ -1187,11 +1187,11 @@ Schreibe NUR die Geschichte!` }]
                     const longStory = longStoryData.candidates[0].content.parts[0].text.trim();
 
                     // Schritt 5: Bild generieren (falls keins hochgeladen wurde)
+                    // v2.2: Verbesserte Bild-Logik mit besseren Fallbacks
                     let tierBild = image || (wikiData ? wikiData.bild : null);
-                    // v2.1: Kein Emoji-Fallback mehr, nur echte Fotos
                     if (!tierBild) {
-                        // Set a default placeholder if no image is available
-                        tierBild = 'https://via.placeholder.com/800x800?text=Bild+nicht+verfügbar';
+                        // Kein Bild verfügbar - setze null, Frontend zeigt Platzhalter
+                        tierBild = null;
                     }
 
                     const finalResult = {
@@ -1237,7 +1237,7 @@ Schreibe NUR die Geschichte!` }]
                         <div className="header-content">
                             <h1>🦁 Tier-Wissen für Kids</h1>
                             <p>Entdecke die coolsten Tiere der Welt!</p>
-                            <small>v2.1</small>
+                            <small>v2.2</small>
                         </div>
                     </div>
 
@@ -1380,8 +1380,27 @@ Schreibe NUR die Geschichte!` }]
 
                             {/* Header mit Bild */}
                             <div className="tier-header">
-                                {result.bild && (
-                                    <img src={result.bild} alt={result.name_deutsch} className="tier-image" />
+                                {result.bild ? (
+                                    <img
+                                        src={result.bild}
+                                        alt={result.name_deutsch}
+                                        style={{ width: '100%', height: 'auto', objectFit: 'cover', borderRadius: '15px' }}
+                                    />
+                                ) : (
+                                    <div style={{
+                                        width: '100%',
+                                        height: '400px',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                        borderRadius: '15px',
+                                        color: 'white'
+                                    }}>
+                                        <div style={{ fontSize: '4rem', marginBottom: '15px' }}>🖼️</div>
+                                        <div style={{ fontSize: '1.2rem' }}>Kein Bild verfügbar</div>
+                                    </div>
                                 )}
                                 <div className="tier-title">
                                     <h1>{result.name_deutsch}</h1>
@@ -1475,18 +1494,26 @@ Schreibe NUR die Geschichte!` }]
                             <div className="special-card">
                                 <h2>🏆 Rekorde & Superkräfte</h2>
                                 <div className="content">
-                                    <div className="fact-item">🏃 <strong>Höchstgeschwindigkeit:</strong> {result.rekorde.hoechstgeschwindigkeit_kmh} km/h</div>
-                                    {result.rekorde.schnellste_beschleunigung && result.rekorde.schnellste_beschleunigung !== 'N/A' && (
+                                    <div className="fact-item">🏃 <strong>Höchstgeschwindigkeit:</strong> {result.rekorde.hoechstgeschwindigkeit_kmh || 'Keine Ahnung'} km/h</div>
+                                    {result.rekorde.schnellste_beschleunigung && (
                                         <div className="fact-item">⚡ <strong>Beschleunigung:</strong> {result.rekorde.schnellste_beschleunigung}</div>
                                     )}
-                                    <div className="fact-item">🎯 <strong>Weitester Sprung:</strong> {result.rekorde.weitester_sprung_m} Meter</div>
-                                    {result.rekorde.tauchrekord_m > 0 && (
-                                        <div className="fact-item">🏊 <strong>Tauchrekord:</strong> {result.rekorde.tauchrekord_m} Meter tief!</div>
+                                    {result.rekorde.weitester_sprung_m ? (
+                                        <div className="fact-item">🦘 <strong>Weitester Sprung:</strong> {result.rekorde.weitester_sprung_m} Meter</div>
+                                    ) : (
+                                        <div className="fact-item">🦘 <strong>Weitester Sprung:</strong> Keine Ahnung</div>
                                     )}
-                                    {result.rekorde.laengster_winterschlaf_monate > 0 && (
-                                        <div className="fact-item">⏰ <strong>Winterschlaf:</strong> {result.rekorde.laengster_winterschlaf_monate} Monate!</div>
+                                    {result.rekorde.tauchrekord_m && (
+                                        <div className="fact-item">🏊 <strong>Tauchtiefe:</strong> {result.rekorde.tauchrekord_m} Meter</div>
                                     )}
-                                    <div className="fact-item">🔊 <strong>Lautstärke:</strong> {result.rekorde.lautstaerke_dezibel} Dezibel</div>
+                                    {result.rekorde.winterschlaf_monate && (
+                                        <div className="fact-item">🐻 <strong>Winterschlaf:</strong> {result.rekorde.winterschlaf_monate} Monate</div>
+                                    )}
+                                    {result.rekorde.lautstaerke_dezibel ? (
+                                        <div className="fact-item">🔊 <strong>Lautstärke:</strong> {result.rekorde.lautstaerke_dezibel} Dezibel</div>
+                                    ) : (
+                                        <div className="fact-item">🔊 <strong>Lautstärke:</strong> Keine Ahnung</div>
+                                    )}
                                     <div className="fact-item">💪 <strong>Stärke:</strong> {result.rekorde.staerke_verhaeltnis}</div>
                                     <div className="fact-item">💓 <strong>Herzschlag:</strong> {result.rekorde.herzschlag_pro_minute} Schläge/Minute</div>
                                     <div className="fact-item">⏰ <strong>Lebenserwartung:</strong> {result.rekorde.lebenserwartung_jahre} Jahre</div>
@@ -1500,24 +1527,46 @@ Schreibe NUR die Geschichte!` }]
                             <div className="special-card" style={{ background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)' }}>
                                 <h2>👶 Lebenszyklus</h2>
                                 <div className="content">
-                                    <div className="lifecycle-container">
-                                        {result.lebensweise.metamorphose_stufen ? (
-                                            result.lebensweise.metamorphose_stufen.map((stufe, i) => (
-                                                <div key={i} className="lifecycle-step">
-                                                    <div className="step-circle">{i + 1}</div>
-                                                    <div className="step-label">{stufe}</div>
-                                                    {i < result.lebensweise.metamorphose_stufen.length - 1 && (
-                                                        <div className="step-arrow">→</div>
-                                                    )}
-                                                </div>
-                                            ))
-                                        ) : (
-                                            <div className="info-item">Keine speziellen Lebensphasen bekannt.</div>
-                                        )}
-                                    </div>
-                                    <div className="info-item" style={{ marginTop: '15px' }}>
-                                        ⏱️ <strong>Gesamtdauer:</strong> {result.lebensweise.gesamtdauer || 'Unbekannt'}
-                                    </div>
+                                    {result.lebensweise.metamorphose_stufen ? (
+                                        <>
+                                            <div className="lifecycle-container" style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '20px' }}>
+                                                {result.lebensweise.metamorphose_stufen.map((stufe, i) => (
+                                                    <React.Fragment key={i}>
+                                                        <div style={{ textAlign: 'center' }}>
+                                                            <div style={{
+                                                                width: '60px',
+                                                                height: '60px',
+                                                                borderRadius: '50%',
+                                                                background: 'white',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                                fontSize: '1.5rem',
+                                                                fontWeight: 'bold',
+                                                                color: '#11998e',
+                                                                margin: '0 auto 8px'
+                                                            }}>{i + 1}</div>
+                                                            <div style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>{stufe}</div>
+                                                        </div>
+                                                        {i < result.lebensweise.metamorphose_stufen.length - 1 && (
+                                                            <div style={{ fontSize: '2rem', color: 'white' }}>→</div>
+                                                        )}
+                                                    </React.Fragment>
+                                                ))}
+                                            </div>
+                                        </>
+                                    ) : (
+                                        result.lebensweise.gesamtdauer && result.lebensweise.gesamtdauer !== 'Unbekannt' && (
+                                            <div style={{ fontSize: '1rem', lineHeight: '1.6', padding: '15px', background: 'rgba(255,255,255,0.2)', borderRadius: '10px' }}>
+                                                📝 {result.lebensweise.gesamtdauer}
+                                            </div>
+                                        )
+                                    )}
+                                    {result.lebensweise.gesamtdauer && result.lebensweise.metamorphose_stufen && (
+                                        <div className="info-item" style={{ marginTop: '15px' }}>
+                                            ⏱️ <strong>Gesamtdauer:</strong> {result.lebensweise.gesamtdauer}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
@@ -1736,7 +1785,8 @@ Schreibe NUR die Geschichte!` }]
                                 </div>
                             </div>
                         </div>
-                    )}
+                    )
+                    }
 
                     {/* Footer */}
                     <div style={{ textAlign: 'center', marginTop: '40px', paddingBottom: '20px' }}>
@@ -1744,7 +1794,7 @@ Schreibe NUR die Geschichte!` }]
                             🦁 Entwickelt mit ❤️ für neugierige Kids!
                         </p>
                     </div>
-                </div>
+                </div >
             );
         }
 
