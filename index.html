@@ -981,6 +981,12 @@ ${wikiContext}
    - Bei Unsicherheit: "Unbekannt" oder Spanne angeben
    - **ARRAYS**: Vergiss NIEMALS die Kommas! '["A", "B"]' (NICHT '["A" "B"]')!
 
+6. **LEBENSZYKLUS IST PFLICHT!**:
+   - NIEMALS "nicht bekannt" oder null!
+   - Geburt, Aufzucht, wichtige Meilensteine
+   - Beispiel Zebra: "Fohlen steht nach 3 Minuten, säugt 7-11 Monate, geschlechtsreif mit 3-6 Jahren"
+   - Beispiel Schmetterling: "Ei → Raupe → Puppe → Falter, Gesamtdauer 4-6 Wochen"
+
 Tier: "${detectedAnimal}"
 
 JSON-STRUKTUR (NUR mit ECHTEN Daten füllen!):
@@ -1008,7 +1014,7 @@ JSON-STRUKTUR (NUR mit ECHTEN Daten füllen!):
     "biolumineszenz": false,
     "anzahl_zaehne": 30,
     "art_zaehne": "Reißzähne",
-    "groesse_cm": "100-200",
+    "groesse_cm": "100-200 cm (Körperlänge)",
     "gewicht_g": 15000,
     "wichtige_masse": "Schulterhöhe: 80 cm (NUR ZUSÄTZLICHE MAßE!)"
   },
@@ -1039,7 +1045,6 @@ JSON-STRUKTUR (NUR mit ECHTEN Daten füllen!):
     "gewicht_wie": "So schwer wie 3 Erwachsene",
     "geschwindigkeit_wie": "Schneller als ein Fahrrad",
     "staerke_wie": "Stark wie 5 Menschen",
-    "anzahl_weltweit": "20000",
     "anzahl_vergleich": "So viele wie in einer Kleinstadt"
   },
 
@@ -1061,7 +1066,7 @@ JSON-STRUKTUR (NUR mit ECHTEN Daten füllen!):
     "winterschlaf_dauer": null,
     "metamorphose": false,
     "metamorphose_stufen": null,
-    "gesamtdauer": null
+    "gesamtdauer": "PFLICHT! Geburt, Meilensteine, Geschlechtsreife. Beispiel: 'Fohlen steht nach 3 Min, säugt 7-11 Mon, geschlechtsreif mit 3-6 Jahren'"
   },
 
   "nahrungskette": {
@@ -1114,15 +1119,57 @@ JSON-STRUKTUR (NUR mit ECHTEN Daten füllen!):
 }
 `;
 
-                    const infoResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: infoPrompt }] }]
-                        })
-                    });
+                    // v2.1: PARALLEL FETCHING für 3x Speedup!
+                    const [infoData, shortStoryData, longStoryData] = await Promise.all([
+                        fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                contents: [{ parts: [{ text: infoPrompt }] }]
+                            })
+                        }).then(r => r.json()),
 
-                    const infoData = await infoResponse.json();
+                        fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                contents: [{
+                                    parts: [{
+                                        text: `Schreibe eine KURZE, spannende Geschichte über "${detectedAnimal}" für Kinder (8-12 Jahre).
+
+ANFORDERUNGEN:
+- Länge: Maximal 500 Wörter
+- Gib dem Tier einen coolen Namen
+- Ein kleines Abenteuer
+- Happy End
+- Keine Moral!
+Schreibe NUR die Geschichte!` }]
+                                }]
+                            })
+                        }).then(r => r.json()),
+
+                        fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                contents: [{
+                                    parts: [{
+                                        text: `Schreibe eine LANGE, fesselnde Geschichte über "${detectedAnimal}" für Kinder (8-12 Jahre).
+
+ANFORDERUNGEN:
+- Länge: 1500-2000 Wörter
+- Gib dem Tier einen ANDEREN Namen als in der kurzen Geschichte
+- Episches Abenteuer
+- Spannungsaufbau
+- Happy End
+- KOMPLETT unterschiedlich von der kurzen Geschichte!
+
+Schreibe NUR die Geschichte!` }]
+                                }]
+                            })
+                        }).then(r => r.json())
+                    ]);
+
                     let infoText = infoData.candidates[0].content.parts[0].text.trim();
 
                     // Robust JSON extraction: Find first '{' and last '}'
@@ -1136,87 +1183,15 @@ JSON-STRUKTUR (NUR mit ECHTEN Daten füllen!):
                     console.log("Parsed JSON Text:", infoText);
                     const tierInfo = JSON.parse(infoText);
 
-                    // Schritt 3: KURZE Geschichte
-                    const shortStoryPrompt = `Schreibe eine KURZE, spannende Geschichte über "${tierInfo.name_deutsch}" für Kinder (8-12 Jahre).
-
-ANFORDERUNGEN:
-- Länge: Maximal 500 Wörter
-- Gib dem Tier einen coolen Namen
-- Ein kleines Abenteuer
-- Happy End
-- Keine Moral!
-Schreibe NUR die Geschichte!`;
-
-                    const shortStoryResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: shortStoryPrompt }] }]
-                        })
-                    });
-
-                    const shortStoryData = await shortStoryResponse.json();
                     const shortStory = shortStoryData.candidates[0].content.parts[0].text.trim();
-
-                    // Schritt 4: LANGE Geschichte
-                    const longStoryPrompt = `Schreibe eine LANGE, fesselnde Geschichte über "${tierInfo.name_deutsch}" für Kinder (8-12 Jahre).
-
-ANFORDERUNGEN:
-- Länge: 1500-2000 Wörter
-- Gib dem Tier einen ANDEREN Namen als in der kurzen Geschichte
-- Episches Abenteuer
-- Spannungsaufbau
-- Happy End
-- KOMPLETT unterschiedlich von der kurzen Geschichte!
-
-Schreibe NUR die Geschichte!`;
-
-                    const longStoryResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: longStoryPrompt }] }]
-                        })
-                    });
-
-                    const longStoryData = await longStoryResponse.json();
                     const longStory = longStoryData.candidates[0].content.parts[0].text.trim();
 
                     // Schritt 5: Bild generieren (falls keins hochgeladen wurde)
                     let tierBild = image || (wikiData ? wikiData.bild : null);
+                    // v2.1: Kein Emoji-Fallback mehr, nur echte Fotos
                     if (!tierBild) {
-                        // Nutze Lorem Picsum mit Blur-Effekt als Platzhalter
-                        // Oder generiere ein einfaches Platzhalter-Bild
-                        const animalEmoji = {
-                            'lion': '🦁', 'bee': '🐝', 'elephant': '🐘', 'dog': '🐕',
-                            'cat': '🐱', 'bird': '🐦', 'fish': '🐟', 'snake': '🐍',
-                            'lizard': '🦎', 'frog': '🐸', 'bear': '🐻', 'wolf': '🐺',
-                            'fox': '🦊', 'tiger': '🐯', 'horse': '🐴', 'cow': '🐄',
-                            'monkey': '🐵', 'macaque': '🐵', 'gorilla': '🦍', 'panda': '🐼',
-                            'penguin': '🐧', 'owl': '🦉', 'eagle': '🦅', 'parrot': '🦜',
-                            'dolphin': '🐬', 'whale': '🐋', 'shark': '🦈', 'octopus': '🐙',
-                            'butterfly': '🦋', 'ladybug': '🐞', 'ant': '🐜', 'spider': '🕷️',
-                            'rabbit': '🐰', 'squirrel': '🐿️', 'hedgehog': '🦔', 'bat': '🦇',
-                            'turtle': '🐢', 'crocodile': '🐊', 'deer': '🦌', 'giraffe': '🦒'
-                        };
-
-                        const englishName = (tierInfo.name_englisch || '').toLowerCase();
-                        const emoji = animalEmoji[englishName] || '🦁';
-
-                        // Erstelle ein SVG-Platzhalter mit Emoji
-                        const svg = `<svg width="800" height="800" xmlns="http://www.w3.org/2000/svg">
-                            <defs>
-                                <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
-                                    <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
-                                </linearGradient>
-                            </defs>
-                            <rect width="800" height="800" fill="url(#grad)"/>
-                            <text x="400" y="450" font-size="300" text-anchor="middle">${emoji}</text>
-                            <text x="400" y="650" font-size="60" text-anchor="middle" fill="white" font-family="Arial">${tierInfo.name_deutsch}</text>
-                        </svg>`;
-
-                        tierBild = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+                        // Set a default placeholder if no image is available
+                        tierBild = 'https://via.placeholder.com/800x800?text=Bild+nicht+verfügbar';
                     }
 
                     const finalResult = {
@@ -1262,7 +1237,7 @@ Schreibe NUR die Geschichte!`;
                         <div className="header-content">
                             <h1>🦁 Tier-Wissen für Kids</h1>
                             <p>Entdecke die coolsten Tiere der Welt!</p>
-                            <small>v2.0</small>
+                            <small>v2.1</small>
                         </div>
                     </div>
 
@@ -1461,9 +1436,11 @@ Schreibe NUR die Geschichte!`;
                                 <div className="info-item">👁️ <strong>Augen:</strong> {result.aussehen.anzahl_augen}</div>
                                 <div className="info-item">🦵 <strong>Beine:</strong> {result.aussehen.anzahl_beine}</div>
                                 <div className="info-item">🦴 <strong>Skelett:</strong> {result.aussehen.skelett_typ}</div>
-                                <div className="info-item">✨ <strong>Leuchtet im Dunkeln:</strong> {result.aussehen.biolumineszenz ? 'Ja! 🌟' : 'Nein'}</div>
+                                {result.aussehen.biolumineszenz && (
+                                    <div className="info-item">✨ <strong>Leuchtet im Dunkeln:</strong> Ja! 🌟</div>
+                                )}
                                 <div className="info-item">🦷 <strong>Zähne:</strong> {result.aussehen.anzahl_zaehne} ({result.aussehen.art_zaehne})</div>
-                                <div className="info-item">📏 <strong>Größe:</strong> {result.aussehen.groesse_cm} cm</div>
+                                <div className="info-item">📏 <strong>Körperlänge:</strong> {result.aussehen.groesse_cm}</div>
                                 {result.aussehen.wichtige_masse && (
                                     <div className="info-item">📏 <strong>Weitere Maße:</strong> {result.aussehen.wichtige_masse}</div>
                                 )}
@@ -1565,19 +1542,13 @@ Schreibe NUR die Geschichte!`;
 
                             {/* Fun Vergleiche */}
                             <div className="info-card">
-                                <h3>🎯 Fun Vergleiche</h3>
-                                <div className="info-item">📏 <strong>Größe:</strong> {result.fun_vergleiche.groesse_wie}</div>
-                                <div className="info-item">⚖️ <strong>Gewicht:</strong> {result.fun_vergleiche.gewicht_wie}</div>
-                                <div className="info-item">🏃 <strong>Geschwindigkeit:</strong> {result.fun_vergleiche.geschwindigkeit_wie}</div>
-                                <div className="info-item">💪 <strong>Stärke:</strong> {result.fun_vergleiche.staerke_wie}</div>
-                                <div className="info-item">
-                                    🌍 <strong>Anzahl weltweit:</strong> {(() => {
-                                        const num = parseInt(result.fun_vergleiche.anzahl_weltweit);
-                                        return !isNaN(num) ? num.toLocaleString('de-DE') : 'Unbekannt';
-                                    })()}
-                                    {result.fun_vergleiche.anzahl_vergleich && (
-                                        <><br /><span style={{ fontSize: '0.9rem', color: '#666' }}>{result.fun_vergleiche.anzahl_vergleich}</span></>
-                                    )}
+                                <h3>✨ Fun Vergleiche</h3>
+                                <div className="info-grid">
+                                    <div className="info-item">📏 <strong>Größe:</strong> {result.fun_vergleiche.groesse_wie}</div>
+                                    <div className="info-item">⚖️ <strong>Gewicht:</strong> {result.fun_vergleiche.gewicht_wie}</div>
+                                    <div className="info-item">🏃 <strong>Schnell wie:</strong> {result.fun_vergleiche.geschwindigkeit_wie}</div>
+                                    <div className="info-item">💪 <strong>Stark wie:</strong> {result.fun_vergleiche.staerke_wie}</div>
+                                    <div className="info-item">🌍 <strong>Anzahl-Vergleich:</strong> {result.fun_vergleiche.anzahl_vergleich}</div>
                                 </div>
                             </div>
 
@@ -1707,12 +1678,47 @@ Schreibe NUR die Geschichte!`;
                                 </div>
                             </div>
 
-                            {/* Quelle */}
-                            {result.wikipedia_url && (
-                                <div style={{ textAlign: 'center', marginTop: '30px', color: '#888', fontSize: '0.9rem' }}>
-                                    ℹ️ Basierend auf Daten von <a href={result.wikipedia_url} target="_blank" rel="noopener noreferrer" style={{ color: '#667eea', textDecoration: 'none' }}>Wikipedia</a> & AI-Analyse
+                            {/* Quellen - v2.1: Responsive Footer */}
+                            <div style={{
+                                marginTop: '40px',
+                                padding: '20px',
+                                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                borderRadius: '15px',
+                                color: 'white'
+                            }}>
+                                <h3 style={{ margin: '0 0 15px 0', fontSize: '1.2rem' }}>📚 Quellen & Daten</h3>
+                                <div style={{
+                                    fontSize: '0.9rem',
+                                    lineHeight: '1.6',
+                                    wordWrap: 'break-word',
+                                    overflowWrap: 'break-word'
+                                }}>
+                                    {result.wikipedia_url && (
+                                        <div style={{ marginBottom: '8px' }}>
+                                            🌐 <strong>Wikipedia:</strong>{' '}
+                                            <a
+                                                href={result.wikipedia_url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                style={{
+                                                    color: 'white',
+                                                    textDecoration: 'underline',
+                                                    wordBreak: 'break-all'
+                                                }}
+                                            >
+                                                {result.wikipedia_url.replace('https://', '').substring(0, 50)}...
+                                            </a>
+                                        </div>
+                                    )}
+                                    <div style={{ marginBottom: '8px' }}>
+                                        🤖 <strong>KI-Analyse:</strong> Google Gemini 2.5 Flash
+                                    </div>
+                                    <div style={{ fontSize: '0.8rem', opacity: 0.9, marginTop: '12px' }}>
+                                        ⚠️ Alle Angaben ohne Gewähr. Bitte überprüfe wichtige Informationen in wissenschaftlichen Quellen.
+                                    </div>
                                 </div>
-                            )}
+                            </div>
+
                             {/* Basis-Infos */}
                             <div className="info-grid">
                                 <div className="info-card">
