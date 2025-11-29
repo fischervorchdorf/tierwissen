@@ -811,14 +811,11 @@
                                 anzahl_vergleich: "Weniger als Einwohner in einer Kleinstadt"
                             },
                             wusstest_du: ["Löwen sind die einzigen Katzen, die im Rudel leben"],
-                            charakter_stats: {
-                                freundlichkeit: { wert: 3, label_links: "Vorsichtig", label_rechts: "Super Freundlich" },
-                                lautstaerke: { wert: 10, label_links: "Leise", label_rechts: "Sehr Laut" },
-                                gefaehrlichkeit: { wert: 9, label_links: "Harmlos", label_rechts: "Gefährlich" },
-                                niedlichkeit: { wert: 6, label_links: "Okay", label_rechts: "Super Süß" },
-                                intelligenz: { wert: 7, label_links: "Instinktiv", label_rechts: "Genie" },
-                                coolness: { wert: 10, label_links: "Normal", label_rechts: "Mega Cool" },
-                                geschwindigkeit: { wert: 8, label_links: "Gemütlich", label_rechts: "Blitzschnell" }
+                            emoji_stimmung: {
+                                sanftmut: 3,
+                                lautstaerke: 5,
+                                gefaehrlichkeit: 4,
+                                niedlichkeit: 4
                             },
                             lebenszyklus: { stufen: ["Baby", "Jungtier", "Erwachsen"], gesamtdauer: "15 Jahre" },
                             nahrungskette: { position: "Fleischfresser", frisst: ["Zebras", "Antilopen"], wird_gefressen_von: [], kette_emoji: "🦓 → 🦁" },
@@ -1383,19 +1380,15 @@ Schreibe NUR die Geschichte!`;
                                             { key: 'coolness', emoji: '😎', label: 'Coolness' },
                                             { key: 'geschwindigkeit', emoji: '🏃', label: 'Geschwindigkeit' }
                                         ].map(stat => {
-                                            const data = result.charakter_stats[stat.key];
+                                            const value = result.emoji_stimmung[stat.key] || 3;
                                             return (
                                                 <div key={stat.key} className="slider-container">
                                                     <div className="slider-header">
                                                         <span>{stat.emoji} {stat.label}</span>
-                                                        <span>{data.wert}/10</span>
+                                                        <span>{value}/5</span>
                                                     </div>
                                                     <div className="slider-track">
-                                                        <div className="slider-fill" style={{ width: `${data.wert * 10}%` }}></div>
-                                                    </div>
-                                                    <div className="slider-labels">
-                                                        <span>{data.label_links}</span>
-                                                        <span>{data.label_rechts}</span>
+                                                        <div className="slider-fill" style={{ width: `${value * 20}%` }}></div>
                                                     </div>
                                                 </div>
                                             );
