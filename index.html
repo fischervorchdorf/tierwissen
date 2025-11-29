@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🦁 TierWissen für Kids - Entdecke die coolsten Tiere!</title>
+    <title>🦁 Tier-Wissen für Kids - Entdecke die coolsten Tiere!</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -641,6 +641,25 @@
                 return <div className="rating">{stars}</div>;
             };
 
+            // Wikipedia-Integration für wissenschaftliche Daten (v1.8)
+            async function fetchWikipediaImage(tierName) {
+                try {
+                    const url = `https://de.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=pageimages|extracts&titles=${encodeURIComponent(tierName)}&pithumbsize=1200&exintro&explaintext`;
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    const pages = data.query.pages;
+                    const pageId = Object.keys(pages)[0];
+
+                    if (pageId !== "-1" && pages[pageId].thumbnail) {
+                        return pages[pageId].thumbnail.source;
+                    }
+                    return null;
+                } catch (error) {
+                    console.error("Wikipedia Fetch Error:", error);
+                    return null;
+                }
+            }
+
             const analyzeTier = async (forceRefresh = false) => {
                 if (!tierName && !image) {
                     alert('🦁 Bitte gib einen Tiernamen ein oder lade ein Foto hoch!');
@@ -1089,9 +1108,9 @@ Schreibe NUR die Geschichte!`;
                             ))}
                         </div>
                         <div className="header-content">
-                            <h1>🦁 TierWissen für Kids</h1>
+                            <h1>🦁 Tier-Wissen für Kids</h1>
                             <p>Entdecke die coolsten Tiere der Welt!</p>
-                            <small>v1.6</small>
+                            <small>v1.8</small>
                         </div>
                     </div>
 
@@ -1142,7 +1161,7 @@ Schreibe NUR die Geschichte!`;
                                         className="text-input"
                                     />
                                     <div style={{ marginTop: '15px', fontSize: '1.2rem', color: '#667eea', textAlign: 'center' }}>
-                                        💡 <strong>Tipp:</strong> Je genauer, desto besser! "Afrikanischer Löwe" statt nur "Löwe"
+                                        💡 <strong>Tipp:</strong> Probiere z.B. "Löwe", "Delfin" oder "Eisbär"!
                                     </div>
                                 </div>
                             )}
@@ -1258,7 +1277,7 @@ Schreibe NUR die Geschichte!`;
                                 <div className="content">
                                     <div className="info-grid" style={{ gap: '25px', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
                                         {[
-                                            { key: 'freundlichkeit', emoji: '😊', label: 'Freundlichkeit' },
+                                            { key: 'freundlichkeit', emoji: '😊', label: 'Sanftmut' },
                                             { key: 'lautstaerke', emoji: '🔊', label: 'Lautstärke' },
                                             { key: 'gefaehrlichkeit', emoji: '🎯', label: 'Gefahr' },
                                             { key: 'niedlichkeit', emoji: '😍', label: 'Süß-Faktor' },
