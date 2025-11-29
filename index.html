@@ -736,7 +736,36 @@
                         wikipedia_url: `https://de.wikipedia.org/wiki/${encodeURIComponent(tierName)}`
                     };
                 } catch (error) {
-                    console.error("Wikipedia Fetch Error:", error);
+                    console.error("Wikipedia Fetch Error (DE):", error);
+
+                    // FALLBACK: Try English Wikipedia
+                    try {
+                        console.log("🇬🇧 Versuche Englische Wikipedia...");
+                        const enUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(tierName)}&prop=pageimages|extracts&exintro&explaintext&format=json&pithumbsize=1200&origin=*`;
+                        const enResponse = await fetch(enUrl);
+                        const enData = await enResponse.json();
+                        const pages = enData.query.pages;
+                        const pageId = Object.keys(pages)[0];
+
+                        if (pageId !== "-1") {
+                            const page = pages[pageId];
+                            return {
+                                name_wissenschaftlich: null, // Schwerer aus Text zu parsen
+                                iucn_status: null,
+                                groesse_raw: null,
+                                gewicht_raw: null,
+                                population_raw: null,
+                                lebenserwartung_raw: null,
+                                lebensraum_raw: null,
+                                bild: page.thumbnail ? page.thumbnail.source : null,
+                                quelle: 'Wikipedia (EN)',
+                                wikipedia_url: `https://en.wikipedia.org/wiki/${encodeURIComponent(tierName)}`
+                            };
+                        }
+                    } catch (enError) {
+                        console.error("Wikipedia Fetch Error (EN):", enError);
+                    }
+
                     return null;
                 }
             }
@@ -950,6 +979,7 @@ ${wikiContext}
    - Keine erfundenen Zahlen!
    - Lieber "null" als falsche Daten!
    - Bei Unsicherheit: "Unbekannt" oder Spanne angeben
+   - **ARRAYS**: Vergiss NIEMALS die Kommas! `["A", "B"]` (NICHT `["A" "B"]`)!
 
 Tier: "${detectedAnimal}"
 
@@ -1232,7 +1262,7 @@ Schreibe NUR die Geschichte!`;
                         <div className="header-content">
                             <h1>🦁 Tier-Wissen für Kids</h1>
                             <p>Entdecke die coolsten Tiere der Welt!</p>
-                            <small>v1.9</small>
+                            <small>v2.0</small>
                         </div>
                     </div>
 
@@ -1340,7 +1370,7 @@ Schreibe NUR die Geschichte!`;
                                 <div className="loading-text">
                                     🔍 Ich sammle coole Infos über dein Tier...<br />
                                     <span style={{ fontSize: '1.2rem', color: '#666' }}>
-                                        (Das dauert 60-90 Sekunden - gleich geht's los!)
+                                        (Gleich geht's los!)
                                     </span>
                                 </div>
                             </div>
@@ -1383,7 +1413,7 @@ Schreibe NUR die Geschichte!`;
                                     <p className="scientific-name">{result.name_wissenschaftlich}</p>
                                     <p className="english-name">🌍 {result.name_englisch}</p>
                                     {result.taxonomie && (
-                                        <p className="subspecies-info" style={{ fontSize: '0.95rem', marginTop: '8px', color: '#666' }}>
+                                        <p className="subspecies-info" style={{ fontSize: '0.95rem', marginTop: '8px', color: 'rgba(255, 255, 255, 0.9)' }}>
                                             🧲 {result.taxonomie.arten_anzahl}
                                         </p>
                                     )}
