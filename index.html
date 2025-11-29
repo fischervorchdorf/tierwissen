@@ -817,7 +817,13 @@
                                 gefaehrlichkeit: 4,
                                 niedlichkeit: 4
                             },
-                            lebenszyklus: { stufen: ["Baby", "Jungtier", "Erwachsen"], gesamtdauer: "15 Jahre" },
+                            lebensweise: {
+                                winterschlaf: false,
+                                winterschlaf_dauer: null,
+                                metamorphose: true,
+                                metamorphose_stufen: ["Baby", "Jungtier", "Erwachsen"],
+                                gesamtdauer: "15 Jahre"
+                            },
                             nahrungskette: { position: "Fleischfresser", frisst: ["Zebras", "Antilopen"], wird_gefressen_von: [], kette_emoji: "🦓 → 🦁" },
                             verbreitung_karte: { kontinente: ["Afrika"], klima: "Heiß", hoehe: "Savanne" },
                             population_trend: { aktuell: "Abnehmend", anzahl_weltweit: "20.000", vor_50_jahren: "Es gab viel mehr Löwen als heute.", heute: "Der Lebensraum wird kleiner.", prognose: "Gefährdet" },
@@ -1465,21 +1471,23 @@ Schreibe NUR die Geschichte!`;
                             <div className="special-card" style={{ background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)' }}>
                                 <h2>👶 Lebenszyklus</h2>
                                 <div className="content">
-                                    <div className="lifecycle">
-                                        {result.lebenszyklus.stufen.map((stufe, i) => (
-                                            <React.Fragment key={i}>
-                                                <div className="lifecycle-stage">
-                                                    <div className="emoji">{stufe.split(' ')[0]}</div>
-                                                    <div>{stufe.split(' ').slice(1).join(' ')}</div>
+                                    <div className="lifecycle-container">
+                                        {result.lebensweise.metamorphose_stufen ? (
+                                            result.lebensweise.metamorphose_stufen.map((stufe, i) => (
+                                                <div key={i} className="lifecycle-step">
+                                                    <div className="step-circle">{i + 1}</div>
+                                                    <div className="step-label">{stufe}</div>
+                                                    {i < result.lebensweise.metamorphose_stufen.length - 1 && (
+                                                        <div className="step-arrow">→</div>
+                                                    )}
                                                 </div>
-                                                {i < result.lebenszyklus.stufen.length - 1 && (
-                                                    <div className="lifecycle-arrow">→</div>
-                                                )}
-                                            </React.Fragment>
-                                        ))}
+                                            ))
+                                        ) : (
+                                            <div className="info-item">Keine speziellen Lebensphasen bekannt.</div>
+                                        )}
                                     </div>
-                                    <div className="fact-item" style={{ marginTop: '20px', textAlign: 'center' }}>
-                                        ⏱️ <strong>Gesamtdauer:</strong> {result.lebenszyklus.gesamtdauer}
+                                    <div className="info-item" style={{ marginTop: '15px' }}>
+                                        ⏱️ <strong>Gesamtdauer:</strong> {result.lebensweise.gesamtdauer || 'Unbekannt'}
                                     </div>
                                 </div>
                             </div>
