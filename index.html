@@ -1589,38 +1589,99 @@ Schreibe NUR die Geschichte!` }]
                             <div className="content">
                                 {result.lebensweise.metamorphose_stufen ? (
                                     <>
-                                        <div className="lifecycle-container" style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '20px' }}>
-                                            {result.lebensweise.metamorphose_stufen.map((stufe, i) => (
-                                                <React.Fragment key={i}>
-                                                    <div style={{ textAlign: 'center' }}>
-                                                        <div style={{
-                                                            width: '60px',
-                                                            height: '60px',
-                                                            borderRadius: '50%',
-                                                            background: 'white',
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            justifyContent: 'center',
-                                                            fontSize: '1.5rem',
-                                                            fontWeight: 'bold',
-                                                            color: '#11998e',
-                                                            margin: '0 auto 8px'
-                                                        }}>{i + 1}</div>
-                                                        <div style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>{stufe}</div>
-                                                    </div>
-                                                    {i < result.lebensweise.metamorphose_stufen.length - 1 && (
-                                                        <div style={{ fontSize: '2rem', color: 'white' }}>→</div>
-                                                    )}
-                                                </React.Fragment>
-                                            ))}
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '20px' }}>
+                                            {result.lebensweise.metamorphose_stufen.map((stufe, i) => {
+                                                // Emoji-Mapping für häufige Begriffe
+                                                const getEmoji = (text) => {
+                                                    const lower = text.toLowerCase();
+                                                    if (lower.includes('ei')) return '🥚';
+                                                    if (lower.includes('raupe') || lower.includes('larve')) return '🐛';
+                                                    if (lower.includes('puppe') || lower.includes('kokon')) return '🧀';
+                                                    if (lower.includes('schmetterling') || lower.includes('falter')) return '🦋';
+                                                    if (lower.includes('kaulquappe')) return '🦎';
+                                                    if (lower.includes('frosch')) return '🐸';
+                                                    if (lower.includes('küken') || lower.includes('vogel')) return '🐥';
+                                                    if (lower.includes('erwachsen') || lower.includes('adult')) return '⭐';
+                                                    if (lower.includes('geburt') || lower.includes('baby')) return '👶';
+                                                    if (lower.includes('jugend')) return '🧒';
+                                                    return `${i + 1}️⃣`; // Fallback: Nummer-Emoji
+                                                };
+
+                                                return (
+                                                    <React.Fragment key={i}>
+                                                        <div style={{ textAlign: 'center', maxWidth: '120px' }}>
+                                                            <div style={{
+                                                                width: '70px',
+                                                                height: '70px',
+                                                                borderRadius: '50%',
+                                                                background: 'white',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                                fontSize: '2.5rem',
+                                                                margin: '0 auto 10px',
+                                                                boxShadow: '0 4px 8px rgba(0,0,0,0.15)'
+                                                            }}>{getEmoji(stufe)}</div>
+                                                            <div style={{ fontSize: '0.85rem', fontWeight: 'bold', lineHeight: '1.3' }}>{stufe}</div>
+                                                        </div>
+                                                        {i < result.lebensweise.metamorphose_stufen.length - 1 && (
+                                                            <div style={{ fontSize: '2.5rem', color: 'white', fontWeight: 'bold' }}>→</div>
+                                                        )}
+                                                    </React.Fragment>
+                                                );
+                                            })}
                                         </div>
                                     </>
                                 ) : (
-                                    result.lebensweise.gesamtdauer && result.lebensweise.gesamtdauer !== 'Unbekannt' && (
-                                        <div style={{ fontSize: '1rem', lineHeight: '1.6', padding: '15px', background: 'rgba(255,255,255,0.2)', borderRadius: '10px' }}>
-                                            📝 {result.lebensweise.gesamtdauer}
-                                        </div>
-                                    )
+                                    result.lebensweise.gesamtdauer && result.lebensweise.gesamtdauer !== 'Unbekannt' && (() => {
+                                        // Visueller Lifecycle auch für nicht-Metamorphose Tiere
+                                        const stages = result.lebensweise.gesamtdauer.split(/,|\.|;/).map(s => s.trim()).filter(s => s.length > 0);
+                                        if (stages.length > 1) {
+                                            return (
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '15px' }}>
+                                                    {stages.map((stage, i) => {
+                                                        const getStageEmoji = (text, index) => {
+                                                            const lower = text.toLowerCase();
+                                                            if (lower.includes('geburt') || lower.includes('geboren') || lower.includes('fohlen') || lower.includes('welp') || lower.includes('jungtier')) return '👶';
+                                                            if (lower.includes('säug') || lower.includes('stillt') || lower.includes('mutter')) return '🍼';
+                                                            if (lower.includes('monat') || lower.includes('aufzucht')) return '📅';
+                                                            if (lower.includes('geschlechtsreif') || lower.includes('erwachsen') || lower.includes('adult')) return '⭐';
+                                                            if (lower.includes('jahr')) return '🕒';
+                                                            return `${index + 1}️⃣`;
+                                                        };
+
+                                                        return (
+                                                            <React.Fragment key={i}>
+                                                                <div style={{
+                                                                    background: 'rgba(255, 255, 255, 0.25)',
+                                                                    padding: '8px 12px',
+                                                                    borderRadius: '20px',
+                                                                    fontSize: '0.9rem',
+                                                                    fontWeight: 'bold',
+                                                                    display: 'flex',
+                                                                    alignItems: 'center',
+                                                                    gap: '6px'
+                                                                }}>
+                                                                    <span style={{ fontSize: '1.3rem' }}>{getStageEmoji(stage, i)}</span>
+                                                                    <span>{stage}</span>
+                                                                </div>
+                                                                {i < stages.length - 1 && (
+                                                                    <div style={{ fontSize: '1.5rem', color: 'white' }}>→</div>
+                                                                )}
+                                                            </React.Fragment>
+                                                        );
+                                                    })}
+                                                </div>
+                                            );
+                                        } else {
+                                            // Fallback: Nur Text wenn nicht splittable
+                                            return (
+                                                <div style={{ fontSize: '1rem', lineHeight: '1.6', padding: '15px', background: 'rgba(255,255,255,0.2)', borderRadius: '10px' }}>
+                                                    📝 {result.lebensweise.gesamtdauer}
+                                                </div>
+                                            );
+                                        }
+                                    })()
                                 )}
                                 {result.lebensweise.gesamtdauer && result.lebensweise.metamorphose_stufen && (
                                     <div className="info-item" style={{ marginTop: '15px' }}>
