@@ -979,7 +979,7 @@ ${wikiContext}
    - Keine erfundenen Zahlen!
    - Lieber "null" als falsche Daten!
    - Bei Unsicherheit: "Unbekannt" oder Spanne angeben
-   - **ARRAYS**: Vergiss NIEMALS die Kommas! `["A", "B"]` (NICHT `["A" "B"]`)!
+   - **ARRAYS**: Vergiss NIEMALS die Kommas! '["A", "B"]' (NICHT '["A" "B"]')!
 
 Tier: "${detectedAnimal}"
 
@@ -1010,7 +1010,7 @@ JSON-STRUKTUR (NUR mit ECHTEN Daten füllen!):
     "art_zaehne": "Reißzähne",
     "groesse_cm": "100-200",
     "gewicht_g": 15000,
-    "wichtige_masse": "Schulterhöhe: 80 cm"
+    "wichtige_masse": "Schulterhöhe: 80 cm (NUR ZUSÄTZLICHE MAßE!)"
   },
 
   "rekorde": {
@@ -1465,18 +1465,28 @@ Schreibe NUR die Geschichte!`;
                                 <div className="info-item">🦷 <strong>Zähne:</strong> {result.aussehen.anzahl_zaehne} ({result.aussehen.art_zaehne})</div>
                                 <div className="info-item">📏 <strong>Größe:</strong> {result.aussehen.groesse_cm} cm</div>
                                 {result.aussehen.wichtige_masse && (
-                                    <div className="info-item">📏 <strong>Maße:</strong> {result.aussehen.wichtige_masse}</div>
+                                    <div className="info-item">📏 <strong>Weitere Maße:</strong> {result.aussehen.wichtige_masse}</div>
                                 )}
                                 <div className="info-item">
                                     ⚖️ <strong>Gewicht:</strong> {(() => {
-                                        const g = result.aussehen.gewicht_g;
-                                        if (g >= 1000000) {
-                                            return `${(g / 1000000).toLocaleString('de-DE')} Tonnen`;
-                                        } else if (g >= 1000) {
-                                            return `${(g / 1000).toLocaleString('de-DE')} kg`;
-                                        } else {
+                                        const val = result.aussehen.gewicht_g;
+                                        if (!val) return 'Unbekannt';
+
+                                        const formatSingle = (g) => {
+                                            if (typeof g === 'string') g = parseInt(g.replace(/[^0-9]/g, ''));
+                                            if (isNaN(g)) return val;
+                                            if (g >= 1000000) return `${(g / 1000000).toLocaleString('de-DE', { maximumFractionDigits: 1 })} t`;
+                                            if (g >= 1000) return `${(g / 1000).toLocaleString('de-DE', { maximumFractionDigits: 1 })} kg`;
                                             return `${g.toLocaleString('de-DE')} g`;
+                                        };
+
+                                        // Handle Range "100-200"
+                                        const strVal = String(val);
+                                        if (strVal.includes('-')) {
+                                            const parts = strVal.split('-');
+                                            return `${formatSingle(parts[0])} - ${formatSingle(parts[1])}`;
                                         }
+                                        return formatSingle(val);
                                     })()}
                                 </div>
                                 {result.aussehen.besonderheiten?.map((b, i) => (
