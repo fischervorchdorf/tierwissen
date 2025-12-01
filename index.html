@@ -27,13 +27,17 @@
             color: #2a2a2a;
         }
 
+        #root {
+            width: 100%;
+            min-height: 100vh;
+        }
+
         .container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
         }
 
-        /* Header */
         .header {
             background: linear-gradient(135deg, #FFD93D 0%, #FF6B6B 100%);
             border-radius: 30px;
@@ -106,7 +110,6 @@
             font-weight: 500;
         }
 
-        /* Input Section */
         .input-section {
             background: white;
             border-radius: 30px;
@@ -232,7 +235,6 @@
             border: 4px solid #667eea;
         }
 
-        /* Result Section */
         .result-section {
             background: white;
             border-radius: 30px;
@@ -307,7 +309,6 @@
             backdrop-filter: blur(10px);
         }
 
-        /* Info Cards */
         .info-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -350,7 +351,6 @@
             color: #667eea;
         }
 
-        /* Sliders */
         .slider-container {
             margin-bottom: 20px;
         }
@@ -386,7 +386,6 @@
             color: #888;
         }
 
-        /* Special Cards */
         .special-card {
             background: linear-gradient(135deg, #FFD93D 0%, #FF6B6B 100%);
             border-radius: 20px;
@@ -418,7 +417,6 @@
             font-size: 1.2rem;
         }
 
-        /* Stories */
         .story-section {
             margin: 30px 0;
         }
@@ -458,7 +456,6 @@
             white-space: pre-wrap;
         }
 
-        /* Loading */
         .loading {
             text-align: center;
             padding: 80px 20px;
@@ -491,7 +488,6 @@
             display: inline-block;
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2rem;
@@ -549,7 +545,6 @@
             }
         }
 
-        /* Rating Stars */
         .rating {
             display: flex;
             gap: 5px;
@@ -564,7 +559,6 @@
             color: #ddd;
         }
 
-        /* Emoji Chain */
         .emoji-chain {
             font-size: 2rem;
             text-align: center;
@@ -574,7 +568,6 @@
             margin: 15px 0;
         }
 
-        /* Life Cycle */
         .lifecycle {
             display: flex;
             justify-content: space-around;
@@ -641,16 +634,10 @@
                 return <div className="rating">{stars}</div>;
             };
 
-
-            // Wikipedia-Integration für wissenschaftliche Daten (v2.2: Multi-Variant Search)
             async function fetchWikipediaData(tierName) {
-                // v2.2: Generate search variants to handle different spellings
                 const generateVariants = (name) => {
-                    const variants = [name]; // Original
-
-                    // Add hyphenated version if not already hyphenated
+                    const variants = [name];
                     if (!name.includes('-')) {
-                        // Try common German compound animal names
                         const compounds = ['nashorn', 'fuchs', 'bär', 'wolf', 'tiger', 'löwe', 'eule', 'adler', 'falke'];
                         for (const compound of compounds) {
                             if (name.toLowerCase().includes(compound)) {
@@ -662,48 +649,25 @@
                             }
                         }
                     }
-
-                    // Add space version if not already spaced
                     if (!name.includes(' ') && !name.includes('-')) {
-                        // Convert camelCase or compound words
                         const spaced = name.replace(/([a-z])([A-Z])/g, '$1 $2');
                         if (spaced !== name) variants.push(spaced);
                     }
-
-                    // Try with hyphen → space conversion
-                    if (name.includes('-')) {
-                        variants.push(name.replace(/-/g, ' '));
-                    }
-
-                    // Try with space → hyphen conversion  
-                    if (name.includes(' ')) {
-                        variants.push(name.replace(/ /g, '-'));
-                    }
-
-                    return [...new Set(variants)]; // Remove duplicates
+                    if (name.includes('-')) variants.push(name.replace(/-/g, ' '));
+                    if (name.includes(' ')) variants.push(name.replace(/ /g, '-'));
+                    return [...new Set(variants)];
                 };
 
                 const searchVariants = generateVariants(tierName);
-                console.log(`🔍 Wikipedia Suchvarianten:`, searchVariants);
-
-                // Try each variant until one succeeds
                 for (const variant of searchVariants) {
                     try {
-                        console.log(`📚 Versuche: ${variant}`);
-
-                        // 1. Get page content with infobox
                         const parseUrl = `https://de.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(variant)}&prop=text|images&format=json&origin=*`;
                         const parseResponse = await fetch(parseUrl);
                         const parseData = await parseResponse.json();
 
-                        if (parseData.error) {
-                            console.log(`❌ Nicht gefunden: ${variant}`);
-                            continue; // Try next variant
-                        }
+                        if (parseData.error) continue;
 
                         const htmlContent = parseData.parse?.text?.['*'] || '';
-
-                        // 2. Get image separately (more reliable)
                         const imageUrl = `https://de.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(variant)}&prop=pageimages&format=json&pithumbsize=1200&origin=*`;
                         const imageResponse = await fetch(imageUrl);
                         const imageData = await imageResponse.json();
@@ -711,7 +675,6 @@
                         const pageId = Object.keys(pages)[0];
                         const image = (pageId !== "-1" && pages[pageId]?.thumbnail) ? pages[pageId].thumbnail.source : null;
 
-                        // 3. Parse Infobox for structured data
                         const parser = new DOMParser();
                         const doc = parser.parseFromString(htmlContent, 'text/html');
                         const infobox = doc.querySelector('.infobox, table.taxobox');
@@ -729,43 +692,13 @@
                             return null;
                         };
 
-                        // Extract common fields
-                        const scientificName = extractInfoboxField('Wissenschaftlicher Name') ||
-                            extractInfoboxField('Binomial name') ||
-                            doc.querySelector('.binomial')?.textContent.trim();
-
-                        const conservationStatus = extractInfoboxField('Status') ||
-                            extractInfoboxField('Conservation status') ||
-                            extractInfoboxField('Gefährdung');
-
-                        const size = extractInfoboxField('Körperlänge') ||
-                            extractInfoboxField('Größe') ||
-                            extractInfoboxField('Length');
-
-                        const weight = extractInfoboxField('Gewicht') ||
-                            extractInfoboxField('Weight') ||
-                            extractInfoboxField('Masse');
-
-                        const population = extractInfoboxField('Bestand') ||
-                            extractInfoboxField('Population') ||
-                            extractInfoboxField('Wild population');
-
-                        const lifespan = extractInfoboxField('Lebenserwartung') ||
-                            extractInfoboxField('Lebensdauer') ||
-                            extractInfoboxField('Lifespan');
-
-                        const habitat = extractInfoboxField('Lebensraum') ||
-                            extractInfoboxField('Habitat') ||
-                            extractInfoboxField('Verbreitung');
-
-                        console.log(`✅ Wikipedia-Daten geladen (${variant}):`, {
-                            scientificName,
-                            conservationStatus,
-                            size,
-                            weight,
-                            population,
-                            image: image ? '✓' : '✗'
-                        });
+                        const scientificName = extractInfoboxField('Wissenschaftlicher Name') || extractInfoboxField('Binomial name') || doc.querySelector('.binomial')?.textContent.trim();
+                        const conservationStatus = extractInfoboxField('Status') || extractInfoboxField('Conservation status') || extractInfoboxField('Gefährdung');
+                        const size = extractInfoboxField('Körperlänge') || extractInfoboxField('Größe') || extractInfoboxField('Length');
+                        const weight = extractInfoboxField('Gewicht') || extractInfoboxField('Weight') || extractInfoboxField('Masse');
+                        const population = extractInfoboxField('Bestand') || extractInfoboxField('Population') || extractInfoboxField('Wild population');
+                        const lifespan = extractInfoboxField('Lebenserwartung') || extractInfoboxField('Lebensdauer') || extractInfoboxField('Lifespan');
+                        const habitat = extractInfoboxField('Lebensraum') || extractInfoboxField('Habitat') || extractInfoboxField('Verbreitung');
 
                         return {
                             name_wissenschaftlich: scientificName,
@@ -778,17 +711,14 @@
                             bild: image,
                             quelle: 'Wikipedia',
                             wikipedia_url: `https://de.wikipedia.org/wiki/${encodeURIComponent(variant)}`,
-                            search_variant_used: variant // Track which variant worked
+                            search_variant_used: variant
                         };
                     } catch (error) {
-                        console.error(`Wikipedia Fetch Error (${variant}):`, error);
-                        continue; // Try next variant
+                        continue;
                     }
                 }
 
-                // All German variants failed, try English Wikipedia as final fallback
                 try {
-                    console.log("🇬🇧 Versuche Englische Wikipedia...");
                     const enUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(tierName)}&prop=pageimages|extracts&exintro&explaintext&format=json&pithumbsize=1200&origin=*`;
                     const enResponse = await fetch(enUrl);
                     const enData = await enResponse.json();
@@ -798,7 +728,7 @@
                     if (pageId !== "-1") {
                         const page = pages[pageId];
                         return {
-                            name_wissenschaftlich: null, // Schwerer aus Text zu parsen
+                            name_wissenschaftlich: null,
                             iucn_status: null,
                             groesse_raw: null,
                             gewicht_raw: null,
@@ -813,172 +743,62 @@
                 } catch (enError) {
                     console.error("Wikipedia Fetch Error (EN):", enError);
                 }
-
                 return null;
             }
-        }
 
-        const analyzeTier = async (forceRefresh = false) => {
-            if (!tierName && !image) {
-                alert('🦁 Bitte gib einen Tiernamen ein oder lade ein Foto hoch!');
-                return;
-            }
-
-            setMode('loading');
-
-            // CACHE-SYSTEM: Prüfe ob Daten bereits gespeichert sind
-            if (!forceRefresh && tierName && !image) {
-                const cacheKey = `tier_${tierName.toLowerCase().trim()}`;
-                const cachedData = localStorage.getItem(cacheKey);
-
-                if (cachedData) {
-                    try {
-                        const parsed = JSON.parse(cachedData);
-                        console.log("📦 Daten aus Cache geladen:", tierName);
-                        setResult(parsed);
-                        setMode('result');
-                        return;
-                    } catch (e) {
-                        console.log("Cache-Fehler, lade neu");
-                    }
+            const analyzeTier = async (forceRefresh = false) => {
+                if (!tierName && !image) {
+                    alert('🦁 Bitte gib einen Tiernamen ein oder lade ein Foto hoch!');
+                    return;
                 }
-            }
 
-            // MOCK DATA FOR LOCALHOST
-            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                console.log("Using Mock Data");
-                setTimeout(async () => {
-                    const mockData = {
-                        name_deutsch: tierName || "Löwe",
-                        name_wissenschaftlich: "Panthera leo",
-                        name_englisch: "Lion",
-                        level_system: { seltenheit: "Häufig" },
-                        aussehen: {
-                            farben: ["Goldgelb", "Braun"],
-                            besonderheiten: ["Mähne", "Große Pfoten"],
-                            anzahl_augen: 2,
-                            anzahl_beine: 4,
-                            skelett_typ: "Wirbeltier",
-                            biolumineszenz: false,
-                            anzahl_zaehne: 30,
-                            art_zaehne: "Reißzähne",
-                            groesse_cm: "170-250",
-                            gewicht_g: 190000,
-                            wichtige_masse: "Schulterhöhe: 120 cm"
-                        },
-                        rekorde: {
-                            hoechstgeschwindigkeit_kmh: 80,
-                            schnellste_beschleunigung: "0-50 in 4s",
-                            weitester_sprung_m: 12,
-                            tauchrekord_m: 0,
-                            laengster_winterschlaf_monate: 0,
-                            lautstaerke_dezibel: 114,
-                            staerke_verhaeltnis: "Sehr stark",
-                            besondere_faehigkeiten: ["Nachtsicht", "Brüllen"],
-                            herzschlag_pro_minute: 60,
-                            lebenserwartung_jahre: "10-14"
-                        },
-                        krasse_facts: ["Ein Löwenbrüllen ist 8km weit zu hören!", "Schlafen 20 Stunden am Tag"],
-                        fun_vergleiche: {
-                            groesse_wie: "So lang wie ein Kleinwagen",
-                            gewicht_wie: "So schwer wie 3 erwachsene Männer",
-                            geschwindigkeit_wie: "Schneller als dein Schulbus",
-                            staerke_wie: "Bärenstark",
-                            anzahl_weltweit: "20.000",
-                            anzahl_vergleich: "Weniger als Einwohner in einer Kleinstadt"
-                        },
-                        wusstest_du: ["Löwen sind die einzigen Katzen, die im Rudel leben"],
-                        emoji_stimmung: {
-                            sanftmut: 3,
-                            lautstaerke: 5,
-                            gefaehrlichkeit: 4,
-                            niedlichkeit: 4
-                        },
-                        lebensweise: {
-                            winterschlaf: false,
-                            winterschlaf_dauer: null,
-                            metamorphose: true,
-                            metamorphose_stufen: ["Baby", "Jungtier", "Erwachsen"],
-                            gesamtdauer: "15 Jahre"
-                        },
-                        nahrungskette: { position: "Fleischfresser", frisst: ["Zebras", "Antilopen"], wird_gefressen_von: [], kette_emoji: "🦓 → 🦁" },
-                        verbreitung_karte: { kontinente: ["Afrika"], klima: "Heiß", hoehe: "Savanne" },
-                        population_trend: { aktuell: "Abnehmend", anzahl_weltweit: "20.000", vor_50_jahren: "Es gab viel mehr Löwen als heute.", heute: "Der Lebensraum wird kleiner.", prognose: "Gefährdet" },
-                        beruehmt: { filme: ["König der Löwen"], buecher: [], videospiele: [], maskottchen: "" },
-                        helfen: { was_kann_ich_tun: ["Spenden"], im_garten: "", apps: [] },
-                        basis_info: { lebensraum: ["Savanne"], ernaehrung: "Fleisch", gefaehrdung: "Gefährdet", sozialverhalten: "Rudel", aktivitaet: "Dämmerung" },
-                        geschichte_kurz: "Es war einmal ein Löwe, der brüllte sehr laut.",
-                        geschichte_lang: "Es war einmal ein Löwe, der brüllte sehr laut und alle Tiere hörten ihn...",
-                        bild: null // Will be filled by wiki or placeholder
-                    };
+                setMode('loading');
 
-                    // Try Wiki Image even in mock mode
-                    let wikiImage = null;
-                    try {
-                        const wikiResponse = await fetch(`https://de.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(mockData.name_deutsch)}&prop=pageimages&format=json&pithumbsize=1000&origin=*`);
-                        const wikiData = await wikiResponse.json();
-                        const pages = wikiData.query.pages;
-                        const pageId = Object.keys(pages)[0];
-                        if (pageId !== '-1' && pages[pageId].thumbnail) {
-                            wikiImage = pages[pageId].thumbnail.source;
-                        }
-                    } catch (e) {
-                        console.log("Wikipedia Bild Fehler:", e);
-                    }
-
-                    mockData.bild = wikiImage; // Fallback handled later if null
-
-                    setResult(mockData);
-                    setMode('result');
-                }, 1500);
-                return;
-            }
-
-            try {
-                let detectedAnimal = tierName;
-
-                // Schritt 1: Tier erkennen (falls Bild)
-                if (image && !tierName) {
-                    const base64Image = image.split(',')[1];
-
-                    const identifyResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{
-                                parts: [
-                                    {
-                                        text: "Identifiziere das Tier auf diesem Bild. Gib nur den deutschen Namen zurück, so spezifisch wie möglich. Wenn es kein Tier ist, schreibe 'KEIN TIER'."
-                                    },
-                                    {
-                                        inline_data: {
-                                            mime_type: "image/jpeg",
-                                            data: base64Image
-                                        }
-                                    }
-                                ]
-                            }]
-                        })
-                    });
-
-                    const identifyData = await identifyResponse.json();
-                    detectedAnimal = identifyData.candidates[0].content.parts[0].text.trim();
-
-                    if (detectedAnimal === 'KEIN TIER') {
-                        setMode('input');
-                        alert('🤔 Ich konnte kein Tier auf diesem Bild erkennen. Versuch es nochmal!');
-                        return;
+                if (!forceRefresh && tierName && !image) {
+                    const cacheKey = `tier_${tierName.toLowerCase().trim()}`;
+                    const cachedData = localStorage.getItem(cacheKey);
+                    if (cachedData) {
+                        try {
+                            const parsed = JSON.parse(cachedData);
+                            setResult(parsed);
+                            setMode('result');
+                            return;
+                        } catch (e) { }
                     }
                 }
 
-                // Schritt 1.5: Wikipedia Daten & Bild laden (v1.9)
-                let wikiData = null;
-                let wikiContext = "";
                 try {
-                    wikiData = await fetchWikipediaData(detectedAnimal);
-                    if (wikiData) {
-                        console.log("✅ Wiki-Daten für Prompt verfügbar:", wikiData);
-                        wikiContext = `
+                    let detectedAnimal = tierName;
+
+                    if (image && !tierName) {
+                        const base64Image = image.split(',')[1];
+                        const identifyResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                contents: [{
+                                    parts: [
+                                        { text: "Identifiziere das Tier auf diesem Bild. Gib nur den deutschen Namen zurück, so spezifisch wie möglich. Wenn es kein Tier ist, schreibe 'KEIN TIER'." },
+                                        { inline_data: { mime_type: "image/jpeg", data: base64Image } }
+                                    ]
+                                }]
+                            })
+                        });
+                        const identifyData = await identifyResponse.json();
+                        detectedAnimal = identifyData.candidates[0].content.parts[0].text.trim();
+                        if (detectedAnimal === 'KEIN TIER') {
+                            setMode('input');
+                            alert('🤔 Ich konnte kein Tier auf diesem Bild erkennen. Versuch es nochmal!');
+                            return;
+                        }
+                    }
+
+                    let wikiData = null;
+                    let wikiContext = "";
+                    try {
+                        wikiData = await fetchWikipediaData(detectedAnimal);
+                        if (wikiData) {
+                            wikiContext = `
 FAKTEN-CHECK (Nutze diese Daten wenn verfügbar!):
 - Wissenschaftlicher Name: ${wikiData.name_wissenschaftlich || 'Unbekannt'}
 - IUCN Status: ${wikiData.iucn_status || 'Unbekannt'}
@@ -987,381 +807,145 @@ FAKTEN-CHECK (Nutze diese Daten wenn verfügbar!):
 - Gewicht: ${wikiData.gewicht_raw || 'Unbekannt'}
 - Lebensraum: ${wikiData.lebensraum_raw || 'Unbekannt'}
                             `;
-                    }
-                } catch (e) {
-                    console.log("Wikipedia Fehler:", e);
-                }
+                        }
+                    } catch (e) { }
 
-                // Schritt 2: ALLE Infos sammeln (v1.9: QUALITÄT > SPEED!)
-                const infoPrompt = `Du bist ein Biologe, der Kindern (8-12 Jahre) die Tierwelt erklärt!
-
+                    const infoPrompt = `Du bist ein Biologe, der Kindern (8-12 Jahre) die Tierwelt erklärt!
 ${wikiContext}
-
 🎯 OBERSTE PRIORITÄT: DATENQUALITÄT!
-
-🎯 OBERSTE PRIORITÄT: DATENQUALITÄT!
-
 ⚠️ KRITISCHE REGELN:
 1. **POPULATION**: NIEMALS "1" oder unrealistische Zahlen! 
-   - Feuersalamander: MILLIONEN (nicht 1!)
-   - Löwen: ~20.000
-   - Häufige Tiere: Hunderttausende bis Millionen
-   - Nutze ECHTE Schätzungen von IUCN, WWF, Wikipedia!
-
 2. **KEINE NULLEN!**: Wenn du keine Info hast, schreibe "null" (JSON null, nicht String "0"!)
-   - Biolumineszenz nur erwähnen wenn Tier LEUCHTET!
-   - Tauchrekord nur bei Wassertieren!
-   - Winterschlaf nur wenn relevant!
-
-3. **KINDERSPRACHE - KEINE ABKÜRZUNGEN!**:
-   - ❌ "IUCN", "LC", "VU", "EN"
-   - ✅ "Nicht gefährdet", "Gefährdet", "Stark gefährdet"
-   - ❌ "ca.", "inkl.", "evtl."
-   - ✅ "ungefähr", "inklusive", "vielleicht"
-
-4. **WILD vs. GEFANGENSCHAFT**:
-   - NUR bei seltenen/gefährdeten Arten wichtig!
-   - Bei häufigen Tieren: nur Gesamtzahl!
-
-5. **ECHTE WISSENSCHAFT**:
-   - Keine erfundenen Zahlen!
-   - Lieber "null" als falsche Daten!
-   - Bei Unsicherheit: "Unbekannt" oder Spanne angeben
-   - **ARRAYS**: Vergiss NIEMALS die Kommas! '["A", "B"]' (NICHT '["A" "B"]')!
-
-6. **LEBENSZYKLUS IST PFLICHT!**:
-   - NIEMALS "nicht bekannt" oder null!
-   - Geburt, Aufzucht, wichtige Meilensteine
-   - Beispiel Zebra: "Fohlen steht nach 3 Minuten, säugt 7-11 Monate, geschlechtsreif mit 3-6 Jahren"
-   - Beispiel Schmetterling: "Ei → Raupe → Puppe → Falter, Gesamtdauer 4-6 Wochen"
+3. **KINDERSPRACHE - KEINE ABKÜRZUNGEN!**
+4. **WILD vs. GEFANGENSCHAFT**: NUR bei seltenen/gefährdeten Arten wichtig!
+5. **ECHTE WISSENSCHAFT**: Keine erfundenen Zahlen!
+6. **LEBENSZYKLUS IST PFLICHT!**: NIEMALS "nicht bekannt" oder null!
 
 Tier: "${detectedAnimal}"
 
 JSON-STRUKTUR (NUR mit ECHTEN Daten füllen!):
-
 {
   "name_deutsch": "${detectedAnimal}",
   "name_wissenschaftlich": "Lateinischer Name",
   "name_englisch": "Englischer Name",
-  
-  "taxonomie": {
-    "arten_anzahl": "Anzahl Arten in dieser Gattung (z.B. '8 Bärenarten')",
-    "beispiel_arten": ["Art 1", "Art 2", "Art 3"]
-  },
+  "taxonomie": { "arten_anzahl": "Anzahl Arten", "beispiel_arten": ["Art 1", "Art 2"] },
+  "level_system": { "seltenheit": "Häufig/Selten/Legendär" },
+  "aussehen": { "farben": ["Farbe 1"], "besonderheiten": ["Merkmal 1"], "anzahl_augen": 2, "anzahl_beine": 4, "skelett_typ": "Wirbeltier", "biolumineszenz": false, "anzahl_zaehne": 30, "art_zaehne": "Reißzähne", "groesse_cm": "100-200 cm", "gewicht_g": 15000, "wichtige_masse": "Schulterhöhe: 80 cm" },
+  "rekorde": { "hoechstgeschwindigkeit_kmh": 50, "schnellste_beschleunigung": "Sehr schnell", "weitester_sprung_m": 5, "tauchrekord_m": null, "laengster_winterschlaf_monate": null, "lautstaerke_dezibel": 90, "staerke_verhaeltnis": "Kann 2x Körpergewicht tragen", "besondere_faehigkeiten": ["Nachtsicht"], "herzschlag_pro_minute": 80, "lebenserwartung_jahre": "10-15" },
+  "krasse_facts": ["🤯 Unglaublicher ECHTER Fakt!"],
+  "fun_vergleiche": { "groesse_wie": "So groß wie...", "gewicht_wie": "So schwer wie...", "geschwindigkeit_wie": "Schneller als...", "staerke_wie": "Stark wie...", "anzahl_vergleich": "So viele wie..." },
+  "wusstest_du": ["💡 Interessanter Fakt 1!"],
+  "emoji_stimmung": { "sanftmut": 3, "lautstaerke": 4, "gefaehrlichkeit": 2, "niedlichkeit": 5 },
+  "lebensweise": { "winterschlaf": false, "winterschlaf_dauer": null, "metamorphose": false, "metamorphose_stufen": null, "gesamtdauer": "PFLICHT! Geburt, Meilensteine, Geschlechtsreife." },
+  "nahrungskette": { "position": "Fleischfresser", "frisst": ["🦌 Hirsche"], "wird_gefressen_von": ["🐻 Bären"], "kette_emoji": "🌱 → 🦌 → 🐺" },
+  "verbreitung_karte": { "kontinente": ["🌍 Europa"], "klima": "🌡️ Gemäßigt", "hoehe": "0-2000m" },
+  "population_trend": { "aktuell": "📉 Abnehmend", "anzahl_weltweit": "20000", "vor_50_jahren": "Mehr", "heute": "Gefährdet", "prognose": "⚠️ Gefährdet" },
+  "beruehmt": { "filme": ["Film 1"], "buecher": ["Buch 1"], "videospiele": ["Spiel 1"], "maskottchen": "Team XY" },
+  "helfen": { "was_kann_ich_tun": ["🌻 Lebensraum schützen!"], "im_garten": "Wilde Ecken lassen", "apps": ["App 1"] },
+  "basis_info": { "lebensraum": ["Wälder"], "ernaehrung": "Fleischfresser", "gefaehrdung": "Gefährdet", "sozialverhalten": "Rudel", "aktivitaet": "Dämmerungsaktiv" }
+}`;
 
-  "level_system": {
-    "seltenheit": "Häufig/Selten/Legendär"
-  },
+                    const [infoData, shortStoryData, longStoryData] = await Promise.all([
+                        fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ contents: [{ parts: [{ text: infoPrompt }] }] })
+                        }).then(r => r.json()),
+                        fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ contents: [{ parts: [{ text: `Schreibe eine KURZE, spannende Geschichte über "${detectedAnimal}" für Kinder (8-12 Jahre). Länge: Max 500 Wörter. Coolen Namen. Happy End. Keine Moral!` }] }] })
+                        }).then(r => r.json()),
+                        fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ contents: [{ parts: [{ text: `Schreibe eine LANGE, fesselnde Geschichte über "${detectedAnimal}" für Kinder (8-12 Jahre). Länge: 1500-2000 Wörter. Anderen Namen. Episches Abenteuer. Happy End.` }] }] })
+                        }).then(r => r.json())
+                    ])
 
-  "aussehen": {
-    "farben": ["Farbe 1", "Farbe 2"],
-    "besonderheiten": ["Merkmal 1", "Merkmal 2"],
-    "anzahl_augen": 2,
-    "anzahl_beine": 4,
-    "skelett_typ": "Wirbeltier/Wirbellos",
-    "biolumineszenz": false,
-    "anzahl_zaehne": 30,
-    "art_zaehne": "Reißzähne",
-    "groesse_cm": "100-200 cm (Körperlänge)",
-    "gewicht_g": 15000,
-    "wichtige_masse": "Schulterhöhe: 80 cm (NUR ZUSÄTZLICHE MAßE!)"
-  },
-
-  "rekorde": {
-    "hoechstgeschwindigkeit_kmh": 50,
-    "schnellste_beschleunigung": "Sehr schnell",
-    "weitester_sprung_m": 5,
-    "tauchrekord_m": null,
-    "laengster_winterschlaf_monate": null,
-    "lautstaerke_dezibel": 90,
-    "staerke_verhaeltnis": "Kann 2x Körpergewicht tragen",
-    "besondere_faehigkeiten": ["Nachtsicht", "Schnelles Laufen"],
-    "herzschlag_pro_minute": 80,
-    "lebenserwartung_jahre": "10-15"
-  },
-
-  "krasse_facts": [
-    "🤯 Unglaublicher ECHTER Fakt mit Zahlen!",
-    "💥 Wissenschaftlich bewiesenes Verhalten!",
-    "🎪 Dokumentierte Fähigkeit!",
-    "🦾 Evolutionäre Anpassung!",
-    "😱 Überraschendes Detail!"
-  ],
-
-  "fun_vergleiche": {
-    "groesse_wie": "So groß wie ein Kleinwagen",
-    "gewicht_wie": "So schwer wie 3 Erwachsene",
-    "geschwindigkeit_wie": "Schneller als ein Fahrrad",
-    "staerke_wie": "Stark wie 5 Menschen",
-    "anzahl_vergleich": "So viele wie in einer Kleinstadt"
-  },
-
-  "wusstest_du": [
-    "💡 Interessanter Fakt 1!",
-    "🔬 Wissenschaftliche Entdeckung!",
-    "🌍 Besonderheit im Lebensraum!"
-  ],
-
-  "emoji_stimmung": {
-    "sanftmut": 3,
-    "lautstaerke": 4,
-    "gefaehrlichkeit": 2,
-    "niedlichkeit": 5
-  },
-
-  "lebensweise": {
-    "winterschlaf": false,
-    "winterschlaf_dauer": null,
-    "metamorphose": false,
-    "metamorphose_stufen": null,
-    "gesamtdauer": "PFLICHT! Geburt, Meilensteine, Geschlechtsreife. Beispiel: 'Fohlen steht nach 3 Min, säugt 7-11 Mon, geschlechtsreif mit 3-6 Jahren'"
-  },
-
-  "nahrungskette": {
-    "position": "Fleischfresser",
-    "frisst": ["🦌 Hirsche", "🐰 Hasen"],
-    "wird_gefressen_von": ["🐻 Bären"],
-    "kette_emoji": "🌱 → 🦌 → 🐺"
-  },
-
-  "verbreitung_karte": {
-    "kontinente": ["🌍 Europa", "🌏 Asien"],
-    "klima": "🌡️ Gemäßigt",
-    "hoehe": "0-2000m"
-  },
-
-  "population_trend": {
-    "aktuell": "📉 Abnehmend",
-    "anzahl_weltweit": "20000",
-    "anzahl_in_freiheit": null,
-    "anzahl_in_gefangenschaft": null,
-    "vor_50_jahren": "Vor 50 Jahren gab es mehr",
-    "heute": "Heute gefährdet",
-    "prognose": "⚠️ Gefährdet"
-  },
-
-  "beruehmt": {
-    "filme": ["Film 1", "Film 2"],
-    "buecher": ["Buch 1"],
-    "videospiele": ["Spiel 1"],
-    "maskottchen": "Team XY"
-  },
-
-  "helfen": {
-    "was_kann_ich_tun": [
-      "🌻 Lebensraum schützen!",
-      "🏠 Nistkästen aufhängen!",
-      "🚫 Nicht stören!"
-    ],
-    "im_garten": "Wilde Ecken lassen",
-    "apps": ["App 1", "App 2"]
-  },
-
-  "basis_info": {
-    "lebensraum": ["Wälder", "Berge"],
-    "ernaehrung": "Fleischfresser",
-    "gefaehrdung": "Gefährdet",
-    "sozialverhalten": "Rudel",
-    "aktivitaet": "Dämmerungsaktiv"
-  }
-}
-`;
-
-                // v2.1: PARALLEL FETCHING für 3x Speedup!
-                const [infoData, shortStoryData, longStoryData] = await Promise.all([
-                    fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: infoPrompt }] }]
-                        })
-                    }).then(r => r.json()),
-
-                    fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{
-                                parts: [{
-                                    text: `Schreibe eine KURZE, spannende Geschichte über "${detectedAnimal}" für Kinder (8-12 Jahre).
-
-ANFORDERUNGEN:
-- Länge: Maximal 500 Wörter
-- Gib dem Tier einen coolen Namen
-- Ein kleines Abenteuer
-- Happy End
-- Keine Moral!
-Schreibe NUR die Geschichte!` }]
-                            }]
-                        })
-                    }).then(r => r.json()),
-
-                    fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{
-                                parts: [{
-                                    text: `Schreibe eine LANGE, fesselnde Geschichte über "${detectedAnimal}" für Kinder (8-12 Jahre).
-
-ANFORDERUNGEN:
-- Länge: 1500-2000 Wörter
-- Gib dem Tier einen ANDEREN Namen als in der kurzen Geschichte
-- Episches Abenteuer
-- Spannungsaufbau
-- Happy End
-- KOMPLETT unterschiedlich von der kurzen Geschichte!
-
-Schreibe NUR die Geschichte!` }]
-                            }]
-                        })
-                    }).then(r => r.json())
-                ]);
-
-                let infoText = infoData.candidates[0].content.parts[0].text.trim();
-
-                // Robust JSON extraction: Find first '{' and last '}'
-                const startIndex = infoText.indexOf('{');
-                const endIndex = infoText.lastIndexOf('}');
-
-                if (startIndex !== -1 && endIndex !== -1) {
-                    infoText = infoText.substring(startIndex, endIndex + 1);
-                }
-
-                console.log("Parsed JSON Text:", infoText);
-                const tierInfo = JSON.parse(infoText);
-
-                const shortStory = shortStoryData.candidates[0].content.parts[0].text.trim();
-                const longStory = longStoryData.candidates[0].content.parts[0].text.trim();
-
-                // Schritt 5: Bild generieren (falls keins hochgeladen wurde)
-                // v2.2: Verbesserte Bild-Logik mit besseren Fallbacks
-                let tierBild = image || (wikiData ? wikiData.bild : null);
-                if (!tierBild) {
-                    // Kein Bild verfügbar - setze null, Frontend zeigt Platzhalter
-                    tierBild = null;
-                }
-
-                const finalResult = {
-                    ...tierInfo,
-                    geschichte_kurz: shortStory,
-                    geschichte_lang: longStory,
-                    bild: tierBild,
-                    wikipedia_url: wikiData ? wikiData.wikipedia_url : null
-                };
-
-                // CACHE SPEICHERN für Konsistenz
-                if (detectedAnimal) {
-                    const cacheKey = `tier_${detectedAnimal.toLowerCase().trim()}`;
-                    try {
-                        localStorage.setItem(cacheKey, JSON.stringify(finalResult));
-                        console.log("💾 Daten im Cache gespeichert:", detectedAnimal);
-                    } catch (e) {
-                        console.log("Cache-Speicher voll oder Fehler");
+                    // Check if API responses are valid
+                    if (!infoData.candidates || !infoData.candidates[0]) {
+                        console.error('Info API Error:', infoData);
+                        throw new Error(`API-Fehler: ${infoData.error?.message || 'Keine Daten erhalten'}`);
                     }
+                    if (!shortStoryData.candidates || !shortStoryData.candidates[0]) {
+                        console.error('Short Story API Error:', shortStoryData);
+                        throw new Error(`API-Fehler: ${shortStoryData.error?.message || 'Keine Daten erhalten'}`);
+                    }
+                    if (!longStoryData.candidates || !longStoryData.candidates[0]) {
+                        console.error('Long Story API Error:', longStoryData);
+                        throw new Error(`API-Fehler: ${longStoryData.error?.message || 'Keine Daten erhalten'}`);
+                    }
+
+                    let infoText = infoData.candidates[0].content.parts[0].text.trim();
+                    const startIndex = infoText.indexOf('{');
+                    const endIndex = infoText.lastIndexOf('}');
+                    if (startIndex !== -1 && endIndex !== -1) {
+                        infoText = infoText.substring(startIndex, endIndex + 1);
+                    }
+                    const tierInfo = JSON.parse(infoText);
+                    const shortStory = shortStoryData.candidates[0].content.parts[0].text.trim();
+                    const longStory = longStoryData.candidates[0].content.parts[0].text.trim();
+
+                    let tierBild = image || (wikiData ? wikiData.bild : null);
+                    if (!tierBild) tierBild = null;
+
+                    const finalResult = {
+                        ...tierInfo,
+                        geschichte_kurz: shortStory,
+                        geschichte_lang: longStory,
+                        bild: tierBild,
+                        wikipedia_url: wikiData ? wikiData.wikipedia_url : null
+                    };
+
+                    if (detectedAnimal) {
+                        const cacheKey = `tier_${detectedAnimal.toLowerCase().trim()}`;
+                        try {
+                            localStorage.setItem(cacheKey, JSON.stringify(finalResult));
+                        } catch (e) { }
+                    }
+
+                    setResult(finalResult);
+                    setMode('result');
+
+                } catch (error) {
+                    console.error('Fehler:', error);
+                    const errorMessage = error instanceof Error ? error.message : "Ein Fehler ist aufgetreten";
+                    alert(`😢 Ups! Es gab einen Fehler: ${errorMessage}. Versuch es nochmal!`);
+                    setMode('input');
                 }
+            };
 
-                setResult(finalResult);
+            const renderLifecycle = () => {
+                if (!result || !result.lebensweise) return null;
+                const { metamorphose_stufen, gesamtdauer } = result.lebensweise;
 
-                setMode('result');
-
-            } catch (error) {
-                console.error('Fehler:', error);
-                const errorMessage = error instanceof Error ? error.message : "Ein Fehler ist aufgetreten";
-                alert(`😢 Ups! Es gab einen Fehler: ${errorMessage}. Versuch es nochmal!`);
-                setMode('input');
-            }
-        };
-
-        // v2.3 Fix: Helper function for lifecycle rendering to avoid syntax errors
-        const renderLifecycle = () => {
-            if (!result || !result.lebensweise) return null;
-            const { metamorphose_stufen, gesamtdauer } = result.lebensweise;
-
-            if (metamorphose_stufen) {
-                return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '20px' }}>
-                        {metamorphose_stufen.map((stufe, i) => {
-                            const getEmoji = (text) => {
-                                const lower = text.toLowerCase();
-                                if (lower.includes('ei')) return '🥚';
-                                if (lower.includes('raupe') || lower.includes('larve')) return '🐛';
-                                if (lower.includes('puppe') || lower.includes('kokon')) return '🧀';
-                                if (lower.includes('schmetterling') || lower.includes('falter')) return '🦋';
-                                if (lower.includes('kaulquappe')) return '🦎';
-                                if (lower.includes('frosch')) return '🐸';
-                                if (lower.includes('küken') || lower.includes('vogel')) return '🐥';
-                                if (lower.includes('erwachsen') || lower.includes('adult')) return '⭐';
-                                if (lower.includes('geburt') || lower.includes('baby')) return '👶';
-                                if (lower.includes('jugend')) return '🧒';
-                                return `${i + 1}️⃣`;
-                            };
-                            return (
-                                <React.Fragment key={i}>
-                                    <div style={{ textAlign: 'center', maxWidth: '120px' }}>
-                                        <div style={{
-                                            width: '70px',
-                                            height: '70px',
-                                            borderRadius: '50%',
-                                            background: 'white',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            fontSize: '2.5rem',
-                                            margin: '0 auto 10px',
-                                            boxShadow: '0 4px 8px rgba(0,0,0,0.15)'
-                                        }}>{getEmoji(stufe)}</div>
-                                        <div style={{ fontSize: '0.85rem', fontWeight: 'bold', lineHeight: '1.3' }}>{stufe}</div>
-                                    </div>
-                                    {i < metamorphose_stufen.length - 1 && (
-                                        <div style={{ fontSize: '2.5rem', color: 'white', fontWeight: 'bold' }}>→</div>
-                                    )}
-                                </React.Fragment>
-                            );
-                        })}
-                    </div>
-                );
-            }
-
-            if (gesamtdauer && gesamtdauer !== 'Unbekannt') {
-                let stages = [];
-                try {
-                    stages = gesamtdauer.split(/,|\.|;/).map(s => s.trim()).filter(s => s.length > 0);
-                } catch (e) {
-                    stages = [];
-                }
-
-                if (stages.length > 1) {
+                if (metamorphose_stufen) {
                     return (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '15px' }}>
-                            {stages.map((stage, i) => {
-                                const getStageEmoji = (text, index) => {
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '20px' }}>
+                            {metamorphose_stufen.map((stufe, i) => {
+                                const getEmoji = (text) => {
                                     const lower = text.toLowerCase();
-                                    if (lower.includes('geburt') || lower.includes('geboren') || lower.includes('fohlen') || lower.includes('welp') || lower.includes('jungtier')) return '👶';
-                                    if (lower.includes('säug') || lower.includes('stillt') || lower.includes('mutter')) return '🍼';
-                                    if (lower.includes('monat') || lower.includes('aufzucht')) return '📅';
-                                    if (lower.includes('geschlechtsreif') || lower.includes('erwachsen') || lower.includes('adult')) return '⭐';
-                                    if (lower.includes('jahr')) return '🕒';
-                                    return `${index + 1}️⃣`;
+                                    if (lower.includes('ei')) return '🥚';
+                                    if (lower.includes('raupe') || lower.includes('larve')) return '🐛';
+                                    if (lower.includes('puppe') || lower.includes('kokon')) return '🧀';
+                                    if (lower.includes('schmetterling') || lower.includes('falter')) return '🦋';
+                                    if (lower.includes('kaulquappe')) return '🦎';
+                                    if (lower.includes('frosch')) return '🐸';
+                                    if (lower.includes('küken') || lower.includes('vogel')) return '🐥';
+                                    if (lower.includes('erwachsen') || lower.includes('adult')) return '⭐';
+                                    if (lower.includes('geburt') || lower.includes('baby')) return '👶';
+                                    if (lower.includes('jugend')) return '🧒';
+                                    return `${i + 1}️⃣`;
                                 };
-
                                 return (
                                     <React.Fragment key={i}>
-                                        <div style={{
-                                            background: 'rgba(255, 255, 255, 0.25)',
-                                            padding: '8px 12px',
-                                            borderRadius: '20px',
-                                            fontSize: '0.9rem',
-                                            fontWeight: 'bold',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '6px'
-                                        }}>
-                                            <span style={{ fontSize: '1.3rem' }}>{getStageEmoji(stage, i)}</span>
-                                            <span>{stage}</span>
+                                        <div style={{ textAlign: 'center', maxWidth: '120px' }}>
+                                            <div style={{ width: '70px', height: '70px', borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', margin: '0 auto 10px', boxShadow: '0 4px 8px rgba(0,0,0,0.15)' }}>{getEmoji(stufe)}</div>
+                                            <div style={{ fontSize: '0.85rem', fontWeight: 'bold', lineHeight: '1.3' }}>{stufe}</div>
                                         </div>
-                                        {i < stages.length - 1 && (
-                                            <div style={{ fontSize: '1.5rem', color: 'white' }}>→</div>
+                                        {i < metamorphose_stufen.length - 1 && (
+                                            <div style={{ fontSize: '2.5rem', color: 'white', fontWeight: 'bold' }}>→</div>
                                         )}
                                     </React.Fragment>
                                 );
@@ -1370,567 +954,257 @@ Schreibe NUR die Geschichte!` }]
                     );
                 }
 
-                return (
-                    <div style={{ fontSize: '1rem', lineHeight: '1.6', padding: '15px', background: 'rgba(255,255,255,0.2)', borderRadius: '10px' }}>
-                        📝 {gesamtdauer}
-                    </div>
-                );
-            }
-            return null;
-        };
+                if (gesamtdauer && gesamtdauer !== 'Unbekannt') {
+                    let stages = [];
+                    try {
+                        stages = gesamtdauer.split(/,|\.|;/).map(s => s.trim()).filter(s => s.length > 0);
+                    } catch (e) { stages = []; }
 
-        return (
-            <div className="container">
-                {/* Header */}
-                <div className="header">
-                    <div className="header-emojis">
-                        {['🦁', '🐘', '🦒', '🐼', '🦊', '🐝', '🦎', '🐻', '🦅', '🐟', '🐬', '🦋', '🐵', '🦉', '🐍'].map((emoji, i) => (
-                            <span key={i}>{emoji}</span>
-                        ))}
-                    </div>
-                    <div className="header-content">
-                        <h1>🦁 Tier-Wissen für Kids</h1>
-                        <p>Entdecke die coolsten Tiere der Welt!</p>
-                        <small>v2.2</small>
-                    </div>
-                </div>
-
-                {/* Input Section */}
-                {mode === 'input' && (
-                    <div className="input-section">
-                        <h2 style={{ marginBottom: '30px', fontSize: '2.5rem', color: '#667eea', textAlign: 'center' }}>
-                            🔍 Welches Tier möchtest du kennenlernen?
-                        </h2>
-
-                        <div className="input-methods">
-                            <div
-                                className={`input-card ${inputMethod === 'text' ? 'active' : ''}`}
-                                onClick={() => setInputMethod('text')}
-                            >
-                                <div className="input-card-icon">✍️</div>
-                                <h3>Name eingeben</h3>
-                                <p>Tippe den Namen ein</p>
-                            </div>
-
-                            <div
-                                className={`input-card ${inputMethod === 'photo' ? 'active' : ''}`}
-                                onClick={() => setInputMethod('photo')}
-                            >
-                                <div className="input-card-icon">🖼️</div>
-                                <h3>Foto hochladen</h3>
-                                <p>Wähle ein Bild aus</p>
-                            </div>
-
-                            <div
-                                className={`input-card ${inputMethod === 'camera' ? 'active' : ''}`}
-                                onClick={() => setInputMethod('camera')}
-                            >
-                                <div className="input-card-icon">📸</div>
-                                <h3>Foto machen</h3>
-                                <p>Knipse ein Tier!</p>
-                            </div>
-                        </div>
-
-                        {inputMethod === 'text' && (
-                            <div style={{ marginTop: '20px' }}>
-                                <input
-                                    type="text"
-                                    value={tierName}
-                                    onChange={(e) => setTierName(e.target.value)}
-                                    onKeyPress={(e) => e.key === 'Enter' && analyzeTier()}
-                                    placeholder="z.B. Löwe, Delfin, Biene, T-Rex..."
-                                    className="text-input"
-                                />
-                                <div style={{ marginTop: '15px', fontSize: '1.2rem', color: '#667eea', textAlign: 'center' }}>
-                                    💡 <strong>Tipp:</strong> Probiere z.B. "Löwe", "Delfin" oder "Eisbär"!
-                                </div>
-                            </div>
-                        )}
-
-                        {(inputMethod === 'photo' || inputMethod === 'camera') && (
-                            <>
-                                <label htmlFor="photo-upload">
-                                    <div className="upload-area">
-                                        {image ? (
-                                            <div>
-                                                <img src={image} alt="Hochgeladen" style={{ maxWidth: '300px', borderRadius: '15px', marginBottom: '15px', border: '4px solid #667eea' }} />
-                                                <p style={{ fontSize: '1.3rem', color: '#667eea' }}>📸 Super! Jetzt auf "Los geht's!" klicken</p>
-                                            </div>
-                                        ) : (
-                                            <>
-                                                <div style={{ fontSize: '5rem', marginBottom: '15px' }}>
-                                                    {inputMethod === 'camera' ? '📸' : '🖼️'}
-                                                </div>
-                                                <h3 style={{ fontSize: '1.8rem', marginBottom: '10px', color: '#667eea' }}>
-                                                    {inputMethod === 'camera' ? 'Foto aufnehmen' : 'Foto hochladen'}
-                                                </h3>
-                                                <p style={{ fontSize: '1.2rem', color: '#764ba2' }}>Klicke hier!</p>
-                                            </>
-                                        )}
-                                    </div>
-                                </label>
-                                <input
-                                    id="photo-upload"
-                                    type="file"
-                                    accept="image/*"
-                                    capture={inputMethod === 'camera' ? 'environment' : undefined}
-                                    onChange={handleImageUpload}
-                                    style={{ display: 'none' }}
-                                />
-                            </>
-                        )}
-
-                        <div style={{ textAlign: 'center', marginTop: '40px' }}>
-                            <button
-                                onClick={analyzeTier}
-                                className="btn btn-primary"
-                            >
-                                🚀 Los geht's!
-                            </button>
-                        </div>
-                    </div>
-                )}
-
-                {/* Loading */}
-                {mode === 'loading' && (
-                    <div className="result-section">
-                        <div className="loading">
-                            <div className="loading-spinner"></div>
-                            <div className="loading-text">
-                                🔍 Ich sammle coole Infos über dein Tier...<br />
-                                <span style={{ fontSize: '1.2rem', color: '#666' }}>
-                                    (Gleich geht's los!)
-                                </span>
-                                <div style={{
-                                    marginTop: '20px',
-                                    padding: '15px',
-                                    background: 'rgba(255, 193, 7, 0.1)',
-                                    border: '2px solid rgba(255, 193, 7, 0.3)',
-                                    borderRadius: '10px',
-                                    fontSize: '0.9rem',
-                                    lineHeight: '1.6',
-                                    color: '#856404'
-                                }}>
-                                    ⚠️ <strong>Bitte aufpassen:</strong> Ich bin eine KI und ich mache leider immer noch Fehler. Ich versuche mein Bestes, aber nimm alle Daten nicht für bare Münze. Ein Vergleich mit Büchern und wissenschaftlichen Seiten ist immer angebracht!
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* Results */}
-                {mode === 'result' && result && (
-                    <div className="result-section">
-                        <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
-                            <button
-                                onClick={() => {
-                                    setMode('input');
-                                    setTierName('');
-                                    setImage(null);
-                                    setResult(null);
-                                }}
-                                className="btn btn-secondary"
-                            >
-                                ← Anderes Tier suchen
-                            </button>
-                            <button
-                                onClick={() => {
-                                    analyzeTier(true);
-                                }}
-                                className="btn btn-secondary"
-                                style={{ background: 'linear-gradient(135deg, #FFD93D 0%, #FF6B6B 100%)', color: 'white', borderColor: 'white' }}
-                            >
-                                🔄 Daten aktualisieren
-                            </button>
-                        </div>
-
-                        {/* Header mit Bild */}
-                        <div className="tier-header">
-                            {result.bild ? (
-                                <img
-                                    src={result.bild}
-                                    alt={result.name_deutsch}
-                                    style={{ width: '100%', height: 'auto', objectFit: 'cover', borderRadius: '15px' }}
-                                />
-                            ) : (
-                                <div style={{
-                                    width: '100%',
-                                    height: '400px',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                    borderRadius: '15px',
-                                    color: 'white'
-                                }}>
-                                    <div style={{ fontSize: '4rem', marginBottom: '15px' }}>🖼️</div>
-                                    <div style={{ fontSize: '1.2rem' }}>Kein Bild verfügbar</div>
-                                </div>
-                            )}
-                            <div className="tier-title">
-                                <h1>{result.name_deutsch}</h1>
-                                <p className="scientific-name">{result.name_wissenschaftlich}</p>
-                                <p className="english-name">🌍 {result.name_englisch}</p>
-                                {result.taxonomie && (
-                                    <p className="subspecies-info" style={{ fontSize: '0.95rem', marginTop: '8px', color: 'rgba(255, 255, 255, 0.9)' }}>
-                                        🧲 {result.taxonomie.arten_anzahl}
-                                    </p>
-                                )}
-                                <div className="level-badges">
-                                    <div className="badge">⭐ {result.level_system.seltenheit}</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Charakter & Stimmung (Sliders) */}
-                        <div className="special-card">
-                            <h2>🎭 Charakter & Stimmung</h2>
-                            <div className="content">
-                                <div className="info-grid" style={{ gap: '25px', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
-                                    {[
-                                        { key: 'freundlichkeit', emoji: '😊', label: 'Sanftmut' },
-                                        { key: 'lautstaerke', emoji: '🔊', label: 'Lautstärke' },
-                                        { key: 'gefaehrlichkeit', emoji: '🎯', label: 'Gefahr' },
-                                        { key: 'niedlichkeit', emoji: '😍', label: 'Süß-Faktor' },
-                                        { key: 'intelligenz', emoji: '🧠', label: 'Schlauheit' },
-                                        { key: 'coolness', emoji: '😎', label: 'Coolness' },
-                                        { key: 'geschwindigkeit', emoji: '🏃', label: 'Geschwindigkeit' }
-                                    ].map(stat => {
-                                        const value = result.emoji_stimmung[stat.key] || 3;
-                                        return (
-                                            <div key={stat.key} className="slider-container">
-                                                <div className="slider-header">
-                                                    <span>{stat.emoji} {stat.label}</span>
-                                                    <span>{value}/5</span>
-                                                </div>
-                                                <div className="slider-track">
-                                                    <div className="slider-fill" style={{ width: `${value * 20}%` }}></div>
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Aussehen */}
-                        <div className="info-card">
-                            <h3>🎨 Aussehen & Merkmale</h3>
-                            <div className="info-item">🌈 <strong>Farben:</strong> {result.aussehen.farben?.join(', ')}</div>
-                            <div className="info-item">👁️ <strong>Augen:</strong> {result.aussehen.anzahl_augen}</div>
-                            <div className="info-item">🦵 <strong>Beine:</strong> {result.aussehen.anzahl_beine}</div>
-                            <div className="info-item">🦴 <strong>Skelett:</strong> {result.aussehen.skelett_typ}</div>
-                            {result.aussehen.biolumineszenz && (
-                                <div className="info-item">✨ <strong>Leuchtet im Dunkeln:</strong> Ja! 🌟</div>
-                            )}
-                            <div className="info-item">🦷 <strong>Zähne:</strong> {result.aussehen.anzahl_zaehne} ({result.aussehen.art_zaehne})</div>
-                            <div className="info-item">📏 <strong>Körperlänge:</strong> {result.aussehen.groesse_cm}</div>
-                            {result.aussehen.wichtige_masse && (
-                                <div className="info-item">📏 <strong>Weitere Maße:</strong> {result.aussehen.wichtige_masse}</div>
-                            )}
-                            <div className="info-item">
-                                ⚖️ <strong>Gewicht:</strong> {(() => {
-                                    const val = result.aussehen.gewicht_g;
-                                    if (!val) return 'Unbekannt';
-
-                                    const formatSingle = (g) => {
-                                        if (typeof g === 'string') g = parseInt(g.replace(/[^0-9]/g, ''));
-                                        if (isNaN(g)) return val;
-                                        if (g >= 1000000) return `${(g / 1000000).toLocaleString('de-DE', { maximumFractionDigits: 1 })} t`;
-                                        if (g >= 1000) return `${(g / 1000).toLocaleString('de-DE', { maximumFractionDigits: 1 })} kg`;
-                                        return `${g.toLocaleString('de-DE')} g`;
+                    if (stages.length > 1) {
+                        return (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '15px' }}>
+                                {stages.map((stage, i) => {
+                                    const getStageEmoji = (text, index) => {
+                                        const lower = text.toLowerCase();
+                                        if (lower.includes('geburt') || lower.includes('geboren') || lower.includes('fohlen') || lower.includes('welp') || lower.includes('jungtier')) return '👶';
+                                        if (lower.includes('säug') || lower.includes('stillt') || lower.includes('mutter')) return '🍼';
+                                        if (lower.includes('monat') || lower.includes('aufzucht')) return '📅';
+                                        if (lower.includes('geschlechtsreif') || lower.includes('erwachsen') || lower.includes('adult')) return '⭐';
+                                        if (lower.includes('jahr')) return '🕒';
+                                        return `${index + 1}️⃣`;
                                     };
-
-                                    // Handle Range "100-200"
-                                    const strVal = String(val);
-                                    if (strVal.includes('-')) {
-                                        const parts = strVal.split('-');
-                                        return `${formatSingle(parts[0])} - ${formatSingle(parts[1])}`;
-                                    }
-                                    return formatSingle(val);
-                                })()}
+                                    return (
+                                        <React.Fragment key={i}>
+                                            <div style={{ background: 'rgba(255, 255, 255, 0.25)', padding: '8px 12px', borderRadius: '20px', fontSize: '0.9rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                <span style={{ fontSize: '1.3rem' }}>{getStageEmoji(stage, i)}</span>
+                                                <span>{stage}</span>
+                                            </div>
+                                            {i < stages.length - 1 && (
+                                                <div style={{ fontSize: '1.5rem', color: 'white' }}>→</div>
+                                            )}
+                                        </React.Fragment>
+                                    );
+                                })}
                             </div>
-                            {result.aussehen.besonderheiten?.map((b, i) => (
-                                <div key={i} className="info-item">✨ {b}</div>
+                        );
+                    }
+                    return (
+                        <div style={{ fontSize: '1rem', lineHeight: '1.6', padding: '15px', background: 'rgba(255,255,255,0.2)', borderRadius: '10px' }}>
+                            📝 {gesamtdauer}
+                        </div>
+                    );
+                }
+                return null;
+            };
+
+            return (
+                <div className="container">
+                    <div className="header">
+                        <div className="header-emojis">
+                            {['🦁', '🐘', '🦒', '🐼', '🦊', '🐝', '🦎', '🐻', '🦅', '🐟', '🐬', '🦋', '🐵', '🦉', '🐍'].map((emoji, i) => (
+                                <span key={i}>{emoji}</span>
                             ))}
                         </div>
-
-                        {/* Rekorde */}
-                        <div className="special-card">
-                            <h2>🏆 Rekorde & Superkräfte</h2>
-                            <div className="content">
-                                <div className="fact-item">🏃 <strong>Höchstgeschwindigkeit:</strong> {result.rekorde.hoechstgeschwindigkeit_kmh || 'Keine Ahnung'} km/h</div>
-                                {result.rekorde.schnellste_beschleunigung && (
-                                    <div className="fact-item">⚡ <strong>Beschleunigung:</strong> {result.rekorde.schnellste_beschleunigung}</div>
-                                )}
-                                {result.rekorde.weitester_sprung_m ? (
-                                    <div className="fact-item">🦘 <strong>Weitester Sprung:</strong> {result.rekorde.weitester_sprung_m} Meter</div>
-                                ) : (
-                                    <div className="fact-item">🦘 <strong>Weitester Sprung:</strong> Keine Ahnung</div>
-                                )}
-                                {result.rekorde.tauchrekord_m && (
-                                    <div className="fact-item">🏊 <strong>Tauchtiefe:</strong> {result.rekorde.tauchrekord_m} Meter</div>
-                                )}
-                                {result.rekorde.winterschlaf_monate && (
-                                    <div className="fact-item">🐻 <strong>Winterschlaf:</strong> {result.rekorde.winterschlaf_monate} Monate</div>
-                                )}
-                                {result.rekorde.lautstaerke_dezibel ? (
-                                    <div className="fact-item">🔊 <strong>Lautstärke:</strong> {result.rekorde.lautstaerke_dezibel} Dezibel</div>
-                                ) : (
-                                    <div className="fact-item">🔊 <strong>Lautstärke:</strong> Keine Ahnung</div>
-                                )}
-                                <div className="fact-item">💪 <strong>Stärke:</strong> {result.rekorde.staerke_verhaeltnis}</div>
-                                <div className="fact-item">💓 <strong>Herzschlag:</strong> {result.rekorde.herzschlag_pro_minute} Schläge/Minute</div>
-                                <div className="fact-item">⏰ <strong>Lebenserwartung:</strong> {result.rekorde.lebenserwartung_jahre} Jahre</div>
-                                {result.rekorde.besondere_faehigkeiten?.map((f, i) => (
-                                    <div key={i} className="fact-item">🦸 {f}</div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Lebenszyklus */}
-                        <div className="special-card" style={{ background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)' }}>
-                            <h2>👶 Lebenszyklus</h2>
-                            <div className="content">
-                                {renderLifecycle()}
-                                {result.lebensweise.gesamtdauer && result.lebensweise.metamorphose_stufen && (
-                                    <div className="info-item" style={{ marginTop: '15px' }}>
-                                        ⏱️ <strong>Gesamtdauer:</strong> {result.lebensweise.gesamtdauer}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Nahrungskette */}
-                        <div className="info-card">
-                            <h3>🍴 Nahrungskette</h3>
-                            <div className="emoji-chain">{result.nahrungskette.kette_emoji}</div>
-                            <div className="info-item">📍 <strong>Position:</strong> {result.nahrungskette.position}</div>
-                            <div className="info-item">🍽️ <strong>Frisst:</strong> {result.nahrungskette.frisst?.join(', ')}</div>
-                            <div className="info-item">⚠️ <strong>Wird gefressen von:</strong> {result.nahrungskette.wird_gefressen_von?.join(', ')}</div>
-                        </div>
-
-                        {/* Krasse Facts */}
-                        <div className="special-card" style={{ background: 'linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%)' }}>
-                            <h2>😱 Krasse Facts</h2>
-                            <div className="content">
-                                {result.krasse_facts?.map((fact, i) => (
-                                    <div key={i} className="fact-item">{fact}</div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Fun Vergleiche */}
-                        <div className="info-card">
-                            <h3>✨ Fun Vergleiche</h3>
-                            <div className="info-grid">
-                                <div className="info-item">📏 <strong>Größe:</strong> {result.fun_vergleiche.groesse_wie}</div>
-                                <div className="info-item">⚖️ <strong>Gewicht:</strong> {result.fun_vergleiche.gewicht_wie}</div>
-                                <div className="info-item">🏃 <strong>Schnell wie:</strong> {result.fun_vergleiche.geschwindigkeit_wie}</div>
-                                <div className="info-item">💪 <strong>Stark wie:</strong> {result.fun_vergleiche.staerke_wie}</div>
-                                <div className="info-item">🌍 <strong>Anzahl-Vergleich:</strong> {result.fun_vergleiche.anzahl_vergleich}</div>
-                            </div>
-                        </div>
-
-                        {/* Verbreitung */}
-                        <div className="info-card">
-                            <h3>🌍 Wo leben sie?</h3>
-                            <div className="info-item">🗺️ <strong>Kontinente:</strong> {result.verbreitung_karte.kontinente?.join(', ')}</div>
-                            <div className="info-item">🌡️ <strong>Klima:</strong> {result.verbreitung_karte.klima}</div>
-                            <div className="info-item">⛰️ <strong>Höhe:</strong> {result.verbreitung_karte.hoehe}</div>
-                        </div>
-
-                        {/* Taxonomie & Unterarten */}
-                        {result.taxonomie && result.taxonomie.beispiel_arten && result.taxonomie.beispiel_arten.length > 0 && (
-                            <div className="info-card">
-                                <h3>🧲 Arten & Unterarten</h3>
-                                <div className="info-item">
-                                    <strong>Anzahl:</strong> {result.taxonomie.arten_anzahl}
-                                </div>
-                                <div className="info-item">
-                                    <strong>Beispiele:</strong>
-                                    <ul style={{ marginTop: '10px', paddingLeft: '20px' }}>
-                                        {result.taxonomie.beispiel_arten.map((art, i) => (
-                                            <li key={i}>{art}</li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Population & Trend */}
-                        <div className="special-card" style={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' }}>
-                            <h2>📊 Population & Trend</h2>
-                            <div className="content">
-                                <div className="fact-item">
-                                    🌍 <strong>Anzahl weltweit:</strong> {(() => {
-                                        const num = parseInt(result.population_trend.anzahl_weltweit);
-                                        return !isNaN(num) ? num.toLocaleString('de-DE') : result.population_trend.anzahl_weltweit;
-                                    })()}
-                                </div>
-                                {result.population_trend.anzahl_in_freiheit && (
-                                    <div className="fact-item">
-                                        🌳 <strong>In Freiheit:</strong> {result.population_trend.anzahl_in_freiheit}
-                                    </div>
-                                )}
-                                {result.population_trend.anzahl_in_gefangenschaft && (
-                                    <div className="fact-item">
-                                        🏠 <strong>In Gefangenschaft:</strong> {result.population_trend.anzahl_in_gefangenschaft}
-                                    </div>
-                                )}
-                                <div className="fact-item">📈 <strong>Aktueller Trend:</strong> {result.population_trend.aktuell}</div>
-                                <div className="fact-item">🕐 <strong>Vor 50 Jahren:</strong> {result.population_trend.vor_50_jahren}</div>
-                                <div className="fact-item">📅 <strong>Heute:</strong> {result.population_trend.heute}</div>
-                                <div className="fact-item">🔮 <strong>Prognose:</strong> {result.population_trend.prognose}</div>
-                            </div>
-                        </div>
-
-                        {/* Wusstest du? */}
-                        <div className="special-card" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
-                            <h2>💡 Wusstest du?</h2>
-                            <div className="content">
-                                {result.wusstest_du?.map((fact, i) => (
-                                    <div key={i} className="fact-item">{fact}</div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Berühmte Vertreter */}
-                        {(result.beruehmt.filme?.length > 0 || result.beruehmt.buecher?.length > 0) && (
-                            <div className="info-card">
-                                <h3>🎬 Berühmte Vertreter</h3>
-                                {result.beruehmt.filme?.length > 0 && (
-                                    <div className="info-item">🎬 <strong>Filme:</strong> {result.beruehmt.filme.join(', ')}</div>
-                                )}
-                                {result.beruehmt.buecher?.length > 0 && (
-                                    <div className="info-item">📚 <strong>Bücher:</strong> {result.beruehmt.buecher.join(', ')}</div>
-                                )}
-                                {result.beruehmt.videospiele?.length > 0 && (
-                                    <div className="info-item">🎮 <strong>Spiele:</strong> {result.beruehmt.videospiele.join(', ')}</div>
-                                )}
-                                {result.beruehmt.maskottchen && (
-                                    <div className="info-item">🎭 <strong>Maskottchen:</strong> {result.beruehmt.maskottchen}</div>
-                                )}
-                            </div>
-                        )}
-
-                        {/* Helfen */}
-                        <div className="special-card" style={{ background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)' }}>
-                            <h2>🌱 Wie kannst DU helfen?</h2>
-                            <div className="content">
-                                {result.helfen.was_kann_ich_tun?.map((action, i) => (
-                                    <div key={i} className="fact-item">✅ {action}</div>
-                                ))}
-                                {result.helfen.im_garten && (
-                                    <div className="fact-item">🏡 <strong>Im Garten:</strong> {result.helfen.im_garten}</div>
-                                )}
-                                {result.helfen.apps?.length > 0 && (
-                                    <div className="fact-item">📱 <strong>Apps:</strong> {result.helfen.apps.join(', ')}</div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Geschichten */}
-                        <div className="story-section">
-                            <h2 style={{ fontSize: '2.5rem', color: '#667eea', marginBottom: '20px', textAlign: 'center' }}>
-                                📖 Geschichten
-                            </h2>
-
-                            <div className="story-tabs">
-                                <div
-                                    className={`story-tab ${activeStory === 'short' ? 'active' : ''}`}
-                                    onClick={() => setActiveStory('short')}
-                                >
-                                    ⚡ Kurze Geschichte<br />
-                                    <span style={{ fontSize: '1rem', opacity: 0.8 }}>Für Hastige (30 Sek.)</span>
-                                </div>
-                                <div
-                                    className={`story-tab ${activeStory === 'long' ? 'active' : ''}`}
-                                    onClick={() => setActiveStory('long')}
-                                >
-                                    📚 Lange Geschichte<br />
-                                    <span style={{ fontSize: '1rem', opacity: 0.8 }}>Für Genießer (5-7 Min.)</span>
-                                </div>
-                            </div>
-
-                            <div className="story-content">
-                                {activeStory === 'short' ? result.geschichte_kurz : result.geschichte_lang}
-                            </div>
-                        </div>
-
-                        {/* Quellen - v2.1: Responsive Footer */}
-                        <div style={{
-                            marginTop: '40px',
-                            padding: '20px',
-                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                            borderRadius: '15px',
-                            color: 'white'
-                        }}>
-                            <h3 style={{ margin: '0 0 15px 0', fontSize: '1.2rem' }}>📚 Quellen & Daten</h3>
-                            <div style={{
-                                fontSize: '0.9rem',
-                                lineHeight: '1.6',
-                                wordWrap: 'break-word',
-                                overflowWrap: 'break-word'
-                            }}>
-                                {result.wikipedia_url && (
-                                    <div style={{ marginBottom: '8px' }}>
-                                        🌐 <strong>Wikipedia:</strong>{' '}
-                                        <a
-                                            href={result.wikipedia_url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            style={{
-                                                color: 'white',
-                                                textDecoration: 'underline',
-                                                wordBreak: 'break-all'
-                                            }}
-                                        >
-                                            {result.wikipedia_url.replace('https://', '').substring(0, 50)}...
-                                        </a>
-                                    </div>
-                                )}
-                                <div style={{ marginBottom: '8px' }}>
-                                    🤖 <strong>KI-Analyse:</strong> Google Gemini 2.5 Flash
-                                </div>
-                                <div style={{ fontSize: '0.8rem', opacity: 0.9, marginTop: '12px' }}>
-                                    ⚠️ Alle Angaben ohne Gewähr. Bitte überprüfe wichtige Informationen in wissenschaftlichen Quellen.
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Basis-Infos */}
-                        <div className="info-grid">
-                            <div className="info-card">
-                                <h3>🌍 Lebensraum</h3>
-                                {result.basis_info.lebensraum?.map((h, i) => (
-                                    <div key={i} className="info-item">{h}</div>
-                                ))}
-                            </div>
-                            <div className="info-card">
-                                <h3>🍴 Ernährung & Verhalten</h3>
-                                <div className="info-item">🍽️ {result.basis_info.ernaehrung}</div>
-                                <div className="info-item">🕐 {result.basis_info.aktivitaet}</div>
-                                <div className="info-item">👥 {result.basis_info.sozialverhalten}</div>
-                                <div className="info-item">⚠️ Gefährdung: {result.basis_info.gefaehrdung}</div>
-                            </div>
+                        <div className="header-content">
+                            <h1>🦁 Tier-Wissen für Kids</h1>
+                            <p>Entdecke die coolsten Tiere der Welt!</p>
+                            <small>v2.3.1</small>
                         </div>
                     </div>
-                )
-                }
 
-                {/* Footer */}
-                <div style={{ textAlign: 'center', marginTop: '40px', paddingBottom: '20px' }}>
-                    <p style={{ color: 'white', fontSize: '1.3rem', textShadow: '2px 2px 0 rgba(0,0,0,0.2)' }}>
-                        🦁 Entwickelt mit ❤️ für neugierige Kids!
-                    </p>
+                    {mode === 'input' && (
+                        <div className="input-section">
+                            <h2 style={{ marginBottom: '30px', fontSize: '2.5rem', color: '#667eea', textAlign: 'center' }}>
+                                🔍 Welches Tier möchtest du kennenlernen?
+                            </h2>
+                            <div className="input-methods">
+                                <div className={`input-card ${inputMethod === 'text' ? 'active' : ''}`} onClick={() => setInputMethod('text')}>
+                                    <div className="input-card-icon">✍️</div>
+                                    <h3>Name eingeben</h3>
+                                    <p>Tippe den Namen ein</p>
+                                </div>
+                                <div className={`input-card ${inputMethod === 'photo' ? 'active' : ''}`} onClick={() => setInputMethod('photo')}>
+                                    <div className="input-card-icon">🖼️</div>
+                                    <h3>Foto hochladen</h3>
+                                    <p>Wähle ein Bild aus</p>
+                                </div>
+                                <div className={`input-card ${inputMethod === 'camera' ? 'active' : ''}`} onClick={() => setInputMethod('camera')}>
+                                    <div className="input-card-icon">📸</div>
+                                    <h3>Foto machen</h3>
+                                    <p>Knipse ein Tier!</p>
+                                </div>
+                            </div>
+                            {inputMethod === 'text' && (
+                                <div style={{ marginTop: '20px' }}>
+                                    <input type="text" value={tierName} onChange={(e) => setTierName(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && analyzeTier()} placeholder="z.B. Löwe, Delfin, Biene, T-Rex..." className="text-input" />
+                                    <div style={{ marginTop: '15px', fontSize: '1.2rem', color: '#667eea', textAlign: 'center' }}>💡 <strong>Tipp:</strong> Probiere z.B. "Löwe", "Delfin" oder "Eisbär"!</div>
+                                </div>
+                            )}
+                            {(inputMethod === 'photo' || inputMethod === 'camera') && (
+                                <>
+                                    <label htmlFor="photo-upload">
+                                        <div className="upload-area">
+                                            {image ? (
+                                                <div>
+                                                    <img src={image} alt="Hochgeladen" style={{ maxWidth: '300px', borderRadius: '15px', marginBottom: '15px', border: '4px solid #667eea' }} />
+                                                    <p style={{ fontSize: '1.3rem', color: '#667eea' }}>📸 Super! Jetzt auf "Los geht's!" klicken</p>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <div style={{ fontSize: '5rem', marginBottom: '15px' }}>{inputMethod === 'camera' ? '📸' : '🖼️'}</div>
+                                                    <h3 style={{ fontSize: '1.8rem', marginBottom: '10px', color: '#667eea' }}>{inputMethod === 'camera' ? 'Foto aufnehmen' : 'Foto hochladen'}</h3>
+                                                    <p style={{ fontSize: '1.2rem', color: '#764ba2' }}>Klicke hier!</p>
+                                                </>
+                                            )}
+                                        </div>
+                                    </label>
+                                    <input id="photo-upload" type="file" accept="image/*" capture={inputMethod === 'camera' ? 'environment' : undefined} onChange={handleImageUpload} style={{ display: 'none' }} />
+                                </>
+                            )}
+                            <div style={{ textAlign: 'center', marginTop: '40px' }}>
+                                <button onClick={() => analyzeTier()} className="btn btn-primary">🚀 Los geht's!</button>
+                            </div>
+                        </div>
+                    )}
+
+                    {mode === 'loading' && (
+                        <div className="result-section">
+                            <div className="loading">
+                                <div className="loading-spinner"></div>
+                                <div className="loading-text">
+                                    🔍 Ich sammle coole Infos über dein Tier...<br />
+                                    <span style={{ fontSize: '1.2rem', color: '#666' }}>(Gleich geht's los!)</span>
+                                    <div style={{ marginTop: '20px', padding: '15px', background: 'rgba(255, 193, 7, 0.1)', border: '2px solid rgba(255, 193, 7, 0.3)', borderRadius: '10px', fontSize: '0.9rem', lineHeight: '1.6', color: '#856404' }}>
+                                        ⚠️ <strong>Bitte aufpassen:</strong> Ich bin eine KI und ich mache leider immer noch Fehler. Ich versuche mein Bestes, aber nimm alle Daten nicht für bare Münze. Ein Vergleich mit Büchern und wissenschaftlichen Seiten ist immer angebracht!
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {mode === 'result' && result && (
+                        <div className="result-section">
+                            <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
+                                <button onClick={() => { setMode('input'); setTierName(''); setImage(null); setResult(null); }} className="btn btn-secondary">← Anderes Tier suchen</button>
+                                <button onClick={() => { analyzeTier(true); }} className="btn btn-secondary" style={{ background: 'linear-gradient(135deg, #FFD93D 0%, #FF6B6B 100%)', color: 'white', borderColor: 'white' }}>🔄 Daten aktualisieren</button>
+                            </div>
+                            <div className="tier-header">
+                                {result.bild ? (
+                                    <img src={result.bild} alt={result.name_deutsch} style={{ width: '100%', height: 'auto', objectFit: 'cover', borderRadius: '15px' }} />
+                                ) : (
+                                    <div style={{ width: '100%', height: '400px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', borderRadius: '15px', color: 'white' }}>
+                                        <div style={{ fontSize: '4rem', marginBottom: '15px' }}>🖼️</div>
+                                        <div style={{ fontSize: '1.2rem' }}>Kein Bild verfügbar</div>
+                                    </div>
+                                )}
+                                <div className="tier-title">
+                                    <h1>{result.name_deutsch}</h1>
+                                    <p className="scientific-name">{result.name_wissenschaftlich}</p>
+                                    <p className="english-name">🌍 {result.name_englisch}</p>
+                                    {result.taxonomie && (
+                                        <p className="subspecies-info" style={{ fontSize: '0.95rem', marginTop: '8px', color: 'rgba(255, 255, 255, 0.9)' }}>🧲 {result.taxonomie.arten_anzahl}</p>
+                                    )}
+                                    <div className="level-badges">
+                                        <div className="badge">⭐ {result.level_system.seltenheit}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="special-card">
+                                <h2>🎭 Charakter & Stimmung</h2>
+                                <div className="content">
+                                    <div className="info-grid" style={{ gap: '25px', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
+                                        {[
+                                            { key: 'freundlichkeit', emoji: '😊', label: 'Sanftmut' },
+                                            { key: 'lautstaerke', emoji: '🔊', label: 'Lautstärke' },
+                                            { key: 'gefaehrlichkeit', emoji: '🎯', label: 'Gefahr' },
+                                            { key: 'niedlichkeit', emoji: '😍', label: 'Süß-Faktor' },
+                                            { key: 'intelligenz', emoji: '🧠', label: 'Schlauheit' },
+                                            { key: 'coolness', emoji: '😎', label: 'Coolness' },
+                                            { key: 'geschwindigkeit', emoji: '🏃', label: 'Geschwindigkeit' }
+                                        ].map(stat => {
+                                            const value = result.emoji_stimmung[stat.key] || 3;
+                                            return (
+                                                <div key={stat.key} className="slider-container">
+                                                    <div className="slider-header">
+                                                        <span>{stat.emoji} {stat.label}</span>
+                                                        <span>{value}/5</span>
+                                                    </div>
+                                                    <div className="slider-track">
+                                                        <div className="slider-fill" style={{ width: `${value * 20}%` }}></div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="info-card">
+                                <h3>🎨 Aussehen & Merkmale</h3>
+                                <div className="info-item">🌈 <strong>Farben:</strong> {result.aussehen.farben?.join(', ')}</div>
+                                <div className="info-item">👁️ <strong>Augen:</strong> {result.aussehen.anzahl_augen}</div>
+                                <div className="info-item">🦵 <strong>Beine:</strong> {result.aussehen.anzahl_beine}</div>
+                                <div className="info-item">🦴 <strong>Skelett:</strong> {result.aussehen.skelett_typ}</div>
+                                {result.aussehen.biolumineszenz && <div className="info-item">✨ <strong>Leuchtet im Dunkeln:</strong> Ja! 🌟</div>}
+                                <div className="info-item">🦷 <strong>Zähne:</strong> {result.aussehen.anzahl_zaehne} ({result.aussehen.art_zaehne})</div>
+                                <div className="info-item">📏 <strong>Körperlänge:</strong> {result.aussehen.groesse_cm}</div>
+                                {result.aussehen.wichtige_masse && <div className="info-item">📏 <strong>Weitere Maße:</strong> {result.aussehen.wichtige_masse}</div>}
+                                <div className="info-item">⚖️ <strong>Gewicht:</strong> {result.aussehen.gewicht_g} g</div>
+                                {result.aussehen.besonderheiten?.map((b, i) => <div key={i} className="info-item">✨ {b}</div>)}
+                            </div>
+                            <div className="special-card">
+                                <h2>🏆 Rekorde & Superkräfte</h2>
+                                <div className="content">
+                                    <div className="fact-item">🏃 <strong>Höchstgeschwindigkeit:</strong> {result.rekorde.hoechstgeschwindigkeit_kmh || 'Keine Ahnung'} km/h</div>
+                                    {result.rekorde.schnellste_beschleunigung && <div className="fact-item">⚡ <strong>Beschleunigung:</strong> {result.rekorde.schnellste_beschleunigung}</div>}
+                                    <div className="fact-item">🦘 <strong>Weitester Sprung:</strong> {result.rekorde.weitester_sprung_m || 'Keine Ahnung'} Meter</div>
+                                    {result.rekorde.tauchrekord_m && <div className="fact-item">🏊 <strong>Tauchtiefe:</strong> {result.rekorde.tauchrekord_m} Meter</div>}
+                                    {result.rekorde.laengster_winterschlaf_monate && <div className="fact-item">🐻 <strong>Winterschlaf:</strong> {result.rekorde.laengster_winterschlaf_monate} Monate</div>}
+                                    <div className="fact-item">🔊 <strong>Lautstärke:</strong> {result.rekorde.lautstaerke_dezibel || 'Keine Ahnung'} Dezibel</div>
+                                    <div className="fact-item">💪 <strong>Stärke:</strong> {result.rekorde.staerke_verhaeltnis}</div>
+                                    <div className="fact-item">💓 <strong>Herzschlag:</strong> {result.rekorde.herzschlag_pro_minute} Schläge/Minute</div>
+                                    <div className="fact-item">⏰ <strong>Lebenserwartung:</strong> {result.rekorde.lebenserwartung_jahre} Jahre</div>
+                                    {result.rekorde.besondere_faehigkeiten?.map((f, i) => <div key={i} className="fact-item">🦸 {f}</div>)}
+                                </div>
+                            </div>
+                            <div className="special-card" style={{ background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)' }}>
+                                <h2>👶 Lebenszyklus</h2>
+                                <div className="content">
+                                    {renderLifecycle()}
+                                    {result.lebensweise.gesamtdauer && result.lebensweise.metamorphose_stufen && (
+                                        <div className="info-item" style={{ marginTop: '15px' }}>⏱️ <strong>Gesamtdauer:</strong> {result.lebensweise.gesamtdauer}</div>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="info-card">
+                                <h3>🍴 Nahrungskette</h3>
+                                <div className="emoji-chain">{result.nahrungskette.kette_emoji}</div>
+                                <div className="info-item">📍 <strong>Position:</strong> {result.nahrungskette.position}</div>
+                                <div className="info-item">🍽️ <strong>Frisst:</strong> {result.nahrungskette.frisst?.join(', ')}</div>
+                                <div className="info-item">⚠️ <strong>Wird gefressen von:</strong> {result.nahrungskette.wird_gefressen_von?.join(', ')}</div>
+                            </div>
+                            <div className="special-card" style={{ background: 'linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%)' }}>
+                                <h2>😱 Krasse Facts</h2>
+                                <div className="content">
+                                    {result.krasse_facts?.map((fact, i) => <div key={i} className="fact-item">{fact}</div>)}
+                                </div>
+                            </div>
+                            <div className="story-section">
+                                <div className="story-tabs">
+                                    <div className={`story-tab ${activeStory === 'short' ? 'active' : ''}`} onClick={() => setActiveStory('short')}>📖 Kurze Geschichte</div>
+                                    <div className={`story-tab ${activeStory === 'long' ? 'active' : ''}`} onClick={() => setActiveStory('long')}>📚 Lange Geschichte</div>
+                                </div>
+                                <div className="story-content">
+                                    {activeStory === 'short' ? result.geschichte_kurz : result.geschichte_lang}
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
-            </div >
-        );
+            );
         }
 
-        ReactDOM.render(<TierWissen />, document.getElementById('root'));
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<TierWissen />);
     </script>
 </body>
 
