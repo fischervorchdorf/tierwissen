@@ -610,6 +610,41 @@
             const [apiKey] = useState('AIzaSyBudkecvmZX9cRyXRaPw16Fct2MbGDBQog');
             const [activeStory, setActiveStory] = useState('short');
 
+            // Helper function to format weight intelligently
+            const formatWeight = (grams) => {
+                if (!grams || grams === 'Keine Ahnung' || grams === 'null') {
+                    return 'Zu diesem Detail habe ich leider nichts gefunden';
+                }
+                const numGrams = typeof grams === 'string' ? parseFloat(grams) : grams;
+                if (isNaN(numGrams)) return 'Zu diesem Detail habe ich leider nichts gefunden';
+
+                if (numGrams >= 1000000) {
+                    return `${(numGrams / 1000000).toFixed(1)} Tonnen`;
+                } else if (numGrams >= 1000) {
+                    return `${(numGrams / 1000).toFixed(1)} kg`;
+                } else {
+                    return `${numGrams} g`;
+                }
+            };
+
+            // Helper function to format values with units, avoiding duplicates
+            const formatValue = (value, unit) => {
+                // Check if value is missing or "Keine Ahnung"
+                if (!value || value === 'Keine Ahnung' || value === 'null' || value === null || value === undefined) {
+                    return 'Zu diesem Detail habe ich leider nichts gefunden';
+                }
+
+                // Convert to string for checking
+                const valueStr = String(value);
+
+                // Check if value already contains the unit
+                if (valueStr.toLowerCase().includes(unit.toLowerCase())) {
+                    return valueStr;
+                }
+
+                return `${valueStr} ${unit}`;
+            };
+
             const handleImageUpload = (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
@@ -815,11 +850,12 @@ ${wikiContext}
 🎯 OBERSTE PRIORITÄT: DATENQUALITÄT!
 ⚠️ KRITISCHE REGELN:
 1. **POPULATION**: NIEMALS "1" oder unrealistische Zahlen! 
-2. **KEINE NULLEN!**: Wenn du keine Info hast, schreibe "null" (JSON null, nicht String "0"!)
-3. **KINDERSPRACHE - KEINE ABKÜRZUNGEN!**
-4. **WILD vs. GEFANGENSCHAFT**: NUR bei seltenen/gefährdeten Arten wichtig!
-5. **ECHTE WISSENSCHAFT**: Keine erfundenen Zahlen!
-6. **LEBENSZYKLUS IST PFLICHT!**: NIEMALS "nicht bekannt" oder null!
+2. **KEINE NULLEN!**: Wenn du keine Info hast, schreibe null (JSON null, nicht String "0"!)
+3. **NUR ZAHLEN BEI NUMMERN!**: Bei allen Feldern wie gewicht_g, hoechstgeschwindigkeit_kmh usw. NUR die ZAHL angeben, KEINE Einheiten! Die Einheiten werden automatisch hinzugefügt!
+4. **KINDERSPRACHE - KEINE ABKÜRZUNGEN!**
+5. **WILD vs. GEFANGENSCHAFT**: NUR bei seltenen/gefährdeten Arten wichtig!
+6. **ECHTE WISSENSCHAFT**: Keine erfundenen Zahlen!
+7. **LEBENSZYKLUS IST PFLICHT!**: NIEMALS "nicht bekannt" oder null!
 
 Tier: "${detectedAnimal}"
 
@@ -1148,21 +1184,21 @@ JSON-STRUKTUR (NUR mit ECHTEN Daten füllen!):
                                 <div className="info-item">🦷 <strong>Zähne:</strong> {result.aussehen.anzahl_zaehne} ({result.aussehen.art_zaehne})</div>
                                 <div className="info-item">📏 <strong>Körperlänge:</strong> {result.aussehen.groesse_cm}</div>
                                 {result.aussehen.wichtige_masse && <div className="info-item">📏 <strong>Weitere Maße:</strong> {result.aussehen.wichtige_masse}</div>}
-                                <div className="info-item">⚖️ <strong>Gewicht:</strong> {result.aussehen.gewicht_g} g</div>
+                                <div className="info-item">⚖️ <strong>Gewicht:</strong> {formatWeight(result.aussehen.gewicht_g)}</div>
                                 {result.aussehen.besonderheiten?.map((b, i) => <div key={i} className="info-item">✨ {b}</div>)}
                             </div>
                             <div className="special-card">
                                 <h2>🏆 Rekorde & Superkräfte</h2>
                                 <div className="content">
-                                    <div className="fact-item">🏃 <strong>Höchstgeschwindigkeit:</strong> {result.rekorde.hoechstgeschwindigkeit_kmh || 'Keine Ahnung'} km/h</div>
+                                    <div className="fact-item">🏃 <strong>Höchstgeschwindigkeit:</strong> {formatValue(result.rekorde.hoechstgeschwindigkeit_kmh, 'km/h')}</div>
                                     {result.rekorde.schnellste_beschleunigung && <div className="fact-item">⚡ <strong>Beschleunigung:</strong> {result.rekorde.schnellste_beschleunigung}</div>}
-                                    <div className="fact-item">🦘 <strong>Weitester Sprung:</strong> {result.rekorde.weitester_sprung_m || 'Keine Ahnung'} Meter</div>
-                                    {result.rekorde.tauchrekord_m && <div className="fact-item">🏊 <strong>Tauchtiefe:</strong> {result.rekorde.tauchrekord_m} Meter</div>}
-                                    {result.rekorde.laengster_winterschlaf_monate && <div className="fact-item">🐻 <strong>Winterschlaf:</strong> {result.rekorde.laengster_winterschlaf_monate} Monate</div>}
-                                    <div className="fact-item">🔊 <strong>Lautstärke:</strong> {result.rekorde.lautstaerke_dezibel || 'Keine Ahnung'} Dezibel</div>
+                                    <div className="fact-item">🦘 <strong>Weitester Sprung:</strong> {formatValue(result.rekorde.weitester_sprung_m, 'Meter')}</div>
+                                    {result.rekorde.tauchrekord_m && result.rekorde.tauchrekord_m !== 'Keine Ahnung' && <div className="fact-item">🏊 <strong>Tauchtiefe:</strong> {formatValue(result.rekorde.tauchrekord_m, 'Meter')}</div>}
+                                    {result.rekorde.laengster_winterschlaf_monate && result.rekorde.laengster_winterschlaf_monate !== 'Keine Ahnung' && <div className="fact-item">🐻 <strong>Winterschlaf:</strong> {formatValue(result.rekorde.laengster_winterschlaf_monate, 'Monate')}</div>}
+                                    <div className="fact-item">🔊 <strong>Lautstärke:</strong> {formatValue(result.rekorde.lautstaerke_dezibel, 'Dezibel')}</div>
                                     <div className="fact-item">💪 <strong>Stärke:</strong> {result.rekorde.staerke_verhaeltnis}</div>
-                                    <div className="fact-item">💓 <strong>Herzschlag:</strong> {result.rekorde.herzschlag_pro_minute} Schläge/Minute</div>
-                                    <div className="fact-item">⏰ <strong>Lebenserwartung:</strong> {result.rekorde.lebenserwartung_jahre} Jahre</div>
+                                    <div className="fact-item">💓 <strong>Herzschlag:</strong> {formatValue(result.rekorde.herzschlag_pro_minute, 'Schläge/Minute')}</div>
+                                    <div className="fact-item">⏰ <strong>Lebenserwartung:</strong> {formatValue(result.rekorde.lebenserwartung_jahre, 'Jahre')}</div>
                                     {result.rekorde.besondere_faehigkeiten?.map((f, i) => <div key={i} className="fact-item">🦸 {f}</div>)}
                                 </div>
                             </div>
