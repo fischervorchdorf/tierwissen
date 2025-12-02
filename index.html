@@ -530,68 +530,98 @@
             }
         }
 
-        @media (max-width: 480px) {
-            .header h1 {
-                font-size: 1.5rem;
-            }
-
-            .header p {
-                font-size: 1rem;
-            }
-
-            .btn {
-                padding: 15px 30px;
-                font-size: 1.2rem;
-            }
-        }
-
         .rating {
             display: flex;
             gap: 5px;
-            font-size: 1.5rem;
-        }
 
-        .star-filled {
-            color: #FFD93D;
-        }
+            /* Print CSS for PDF Export */
+            @media print {
 
-        .star-empty {
-            color: #ddd;
-        }
+                .hero,
+                .input-container,
+                button,
+                .story-tabs {
+                    display: none !important;
+                }
 
-        .emoji-chain {
-            font-size: 2rem;
-            text-align: center;
-            padding: 20px;
-            background: white;
-            border-radius: 15px;
-            margin: 15px 0;
-        }
+                .result-section {
+                    margin: 0;
+                    padding: 0;
+                }
 
-        .lifecycle {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 20px;
-            padding: 20px;
-        }
+                .special-card,
+                .info-card {
+                    box-shadow: none;
+                    page-break-inside: avoid;
+                }
 
-        .lifecycle-stage {
-            text-align: center;
-            flex: 1;
-            min-width: 150px;
-        }
+                body {
+                    background: white !important;
+                }
+            }
 
-        .lifecycle-stage .emoji {
-            font-size: 3rem;
-            margin-bottom: 10px;
-        }
+            @media (max-width: 480px) {
+                .header h1 {
+                    font-size: 1.5rem;
+                }
 
-        .lifecycle-arrow {
-            font-size: 2rem;
-            color: #667eea;
-        }
+                .header p {
+                    font-size: 1rem;
+                }
+
+                .btn {
+                    padding: 15px 30px;
+                    font-size: 1.2rem;
+                }
+            }
+
+            .rating {
+                display: flex;
+                gap: 5px;
+                font-size: 1.5rem;
+            }
+
+            .star-filled {
+                color: #FFD93D;
+            }
+
+            .star-empty {
+                color: #ddd;
+            }
+
+            .emoji-chain {
+                font-size: 2rem;
+                text-align: center;
+                padding: 20px;
+                background: white;
+                border-radius: 15px;
+                margin: 15px 0;
+            }
+
+            .lifecycle {
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 20px;
+                padding: 20px;
+            }
+
+            .lifecycle-stage {
+                text-align: center;
+                flex: 1;
+                min-width: 150px;
+            }
+
+            .lifecycle-stage .emoji {
+                font-size: 3rem;
+                margin-bottom: 10px;
+            }
+
+            .lifecycle-arrow {
+                font-size: 2rem;
+                color: #667eea;
+            }
     </style>
 </head>
 
@@ -878,8 +908,22 @@ JSON-STRUKTUR (NUR mit ECHTEN Daten füllen!):
   "population_trend": { "aktuell": "📉 Abnehmend", "anzahl_weltweit": "20000", "vor_50_jahren": "Mehr", "heute": "Gefährdet", "prognose": "⚠️ Gefährdet" },
   "beruehmt": { "filme": ["Film 1"], "buecher": ["Buch 1"], "videospiele": ["Spiel 1"], "maskottchen": "Team XY" },
   "helfen": { "was_kann_ich_tun": ["🌻 Lebensraum schützen!"], "im_garten": "Wilde Ecken lassen", "apps": ["App 1"] },
-  "basis_info": { "lebensraum": ["Wälder"], "ernaehrung": "Fleischfresser", "gefaehrdung": "Gefährdet", "sozialverhalten": "Rudel", "aktivitaet": "Dämmerungsaktiv" }
-}`;
+  "basis_info": { "lebensraum": ["Wälder"], "ernaehrung": "Fleischfresser", "gefaehrdung": "Gefährdet", "sozialverhalten": "Rudel", "aktivitaet": "Dämmerungsaktiv" },
+  "erkennungsmerkmale": { "typische_spuren": ["Fußabdrücke", "Losung"], "lieblingsorte": ["Sonnige Steine", "Totholz"], "tageszeit": "Dämmerung", "jahreszeit_aktiv": "März-Oktober", "besondere_zeichen": "Zick-Zack-Muster" },
+  "sicherheit": { "bei_begegnung": "Ruhig bleiben, Abstand halten", "mindest_abstand": "3-5 Meter", "gefahr_level": "Niedrig", "warum_wichtig": "Wichtig für Ökosystem" },
+  "mythen_wahrheit": [{ "mythos": "Mythos Text", "wahrheit": "Wahrheit Text", "fakt_level": "❌ Mythos" }],
+  "helfen_oesterreich": { "ist_in_oesterreich": true, "im_garten": ["Steinhaufen lassen"], "allgemein": ["Lebensraum schützen"], "organisationen": ["Naturschutzbund"] },
+  "verwandte_tiere": [{ "name": "Tier", "emoji": "🦎", "beziehung": "Verwandt", "unterschied": "Unterschied" }]
+}
+
+⚠️ WICHTIG: 
+- Bei "helfen_oesterreich": Setze "ist_in_oesterreich" auf TRUE nur bei Tieren aus Österreich/Mitteleuropa!
+- Bei exotischen Tieren (Löwe, Elefant, etc.): "ist_in_oesterreich": FALSE
+- "erkennungsmerkmale" und "sicherheit" IMMER ausfüllen!
+- "mythen_wahrheit": 2-3 häufige Irrtümer mit Aufklärung
+- "verwandte_tiere": 2-3 ähnliche oder verwandte Arten
+
+ANTWORTE NUR MIT DEM JSON-OBJEKT! Keine Erklärungen!`;
 
                     const [infoData, shortStoryData, longStoryData] = await Promise.all([
                         fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
@@ -1123,6 +1167,7 @@ JSON-STRUKTUR (NUR mit ECHTEN Daten füllen!):
                             <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
                                 <button onClick={() => { setMode('input'); setTierName(''); setImage(null); setResult(null); }} className="btn btn-secondary">← Anderes Tier suchen</button>
                                 <button onClick={() => { analyzeTier(true); }} className="btn btn-secondary" style={{ background: 'linear-gradient(135deg, #FFD93D 0%, #FF6B6B 100%)', color: 'white', borderColor: 'white' }}>🔄 Daten aktualisieren</button>
+                                <button onClick={() => window.print()} className="btn btn-secondary" style={{ background: 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)', color: 'white', borderColor: 'white' }}>📝 Als PDF speichern</button>
                             </div>
                             <div className="tier-header">
                                 {result.bild ? (
@@ -1187,6 +1232,48 @@ JSON-STRUKTUR (NUR mit ECHTEN Daten füllen!):
                                 <div className="info-item">⚖️ <strong>Gewicht:</strong> {formatWeight(result.aussehen.gewicht_g)}</div>
                                 {result.aussehen.besonderheiten?.map((b, i) => <div key={i} className="info-item">✨ {b}</div>)}
                             </div>
+                            {result.erkennungsmerkmale && (
+                                <div className="info-card">
+                                    <h3>👀 So erkennst du sie in der Natur</h3>
+                                    {result.erkennungsmerkmale.besondere_zeichen && <div className="info-item">🔍 <strong>Besondere Zeichen:</strong> {result.erkennungsmerkmale.besondere_zeichen}</div>}
+                                    {result.erkennungsmerkmale.typische_spuren?.length > 0 && (
+                                        <div className="info-item">👣 <strong>Spuren:</strong> {result.erkennungsmerkmale.typische_spuren.join(', ')}</div>
+                                    )}
+                                    {result.erkennungsmerkmale.lieblingsorte?.length > 0 && (
+                                        <div className="info-item">📍 <strong>Lieblingsorte:</strong> {result.erkennungsmerkmale.lieblingsorte.join(', ')}</div>
+                                    )}
+                                    {result.erkennungsmerkmale.tageszeit && <div className="info-item">🕐 <strong>Aktiv:</strong> {result.erkennungsmerkmale.tageszeit}</div>}
+                                    {result.erkennungsmerkmale.jahreszeit_aktiv && <div className="info-item">📅 <strong>Saison:</strong> {result.erkennungsmerkmale.jahreszeit_aktiv}</div>}
+                                </div>
+                            )}
+                            {result.sicherheit && (
+                                <div className="special-card" style={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' }}>
+                                    <h2>⚠️ Sicherheit & Respekt</h2>
+                                    <div className="content">
+                                        {result.sicherheit.bei_begegnung && <div className="info-item">🤝 <strong>Bei Begegnung:</strong> {result.sicherheit.bei_begegnung}</div>}
+                                        {result.sicherheit.mindest_abstand && <div className="info-item">📏 <strong>Mindestabstand:</strong> {result.sicherheit.mindest_abstand}</div>}
+                                        {result.sicherheit.gefahr_level && <div className="info-item">⚡ <strong>Gefahr:</strong> {result.sicherheit.gefahr_level}</div>}
+                                        {result.sicherheit.warum_wichtig && <div className="info-item">🌍 <strong>Warum wichtig:</strong> {result.sicherheit.warum_wichtig}</div>}
+                                    </div>
+                                </div>
+                            )}
+                            {result.mythen_wahrheit?.length > 0 && (
+                                <div className="info-card">
+                                    <h3>🎭 Mythen vs. Wahrheit</h3>
+                                    {result.mythen_wahrheit.map((item, i) => (
+                                        <div key={i} className="myth-item" style={{
+                                            padding: '12px',
+                                            marginBottom: '10px',
+                                            background: item.fakt_level.includes('❌') ? '#ffe8e8' : (item.fakt_level.includes('⚠️') ? '#fff8e1' : '#e8f5e9'),
+                                            borderRadius: '8px'
+                                        }}>
+                                            <div style={{ fontSize: '20px', marginBottom: '5px' }}>{item.fakt_level}</div>
+                                            <div><strong>Mythos:</strong> {item.mythos}</div>
+                                            <div style={{ marginTop: '5px' }}><strong>✅ Wahrheit:</strong> {item.wahrheit}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                             <div className="special-card">
                                 <h2>🏆 Rekorde & Superkräfte</h2>
                                 <div className="content">
@@ -1224,6 +1311,57 @@ JSON-STRUKTUR (NUR mit ECHTEN Daten füllen!):
                                     {result.krasse_facts?.map((fact, i) => <div key={i} className="fact-item">{fact}</div>)}
                                 </div>
                             </div>
+                            {result.helfen_oesterreich?.ist_in_oesterreich && (
+                                <div className="special-card" style={{ background: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)' }}>
+                                    <h2>🌱 Helfen kannst du so</h2>
+                                    <div className="content">
+                                        {result.helfen_oesterreich.im_garten?.length > 0 && (
+                                            <>
+                                                <div className="info-item"><strong>🏡 Im Garten:</strong></div>
+                                                {result.helfen_oesterreich.im_garten.map((tip, i) => (
+                                                    <div key={i} className="info-item">• {tip}</div>
+                                                ))}
+                                            </>
+                                        )}
+                                        {result.helfen_oesterreich.allgemein?.length > 0 && (
+                                            <>
+                                                <div className="info-item" style={{ marginTop: '10px' }}><strong>🌍 Allgemein:</strong></div>
+                                                {result.helfen_oesterreich.allgemein.map((tip, i) => (
+                                                    <div key={i} className="info-item">• {tip}</div>
+                                                ))}
+                                            </>
+                                        )}
+                                        {result.helfen_oesterreich.organisationen?.length > 0 && (
+                                            <div className="info-item" style={{ marginTop: '10px' }}>
+                                                <strong>🤝 Organisationen:</strong> {result.helfen_oesterreich.organisationen.join(', ')}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                            {result.verwandte_tiere?.length > 0 && (
+                                <div className="info-card">
+                                    <h3>🔗 Das könnte dich auch interessieren</h3>
+                                    <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', marginTop: '15px' }}>
+                                        {result.verwandte_tiere.map((tier, i) => (
+                                            <div key={i} style={{
+                                                flex: '1 1 200px',
+                                                padding: '15px',
+                                                background: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+                                                borderRadius: '12px',
+                                                textAlign: 'center'
+                                            }}>
+                                                <div style={{ fontSize: '40px' }}>{tier.emoji}</div>
+                                                <div style={{ fontWeight: 'bold', marginTop: '8px' }}>{tier.name}</div>
+                                                <div style={{ fontSize: '14px', marginTop: '5px' }}>{tier.beziehung}</div>
+                                                <div style={{ fontSize: '12px', marginTop: '5px', color: '#666' }}>
+                                                    ✨ {tier.unterschied}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                             <div className="story-section">
                                 <div className="story-tabs">
                                     <div className={`story-tab ${activeStory === 'short' ? 'active' : ''}`} onClick={() => setActiveStory('short')}>📖 Kurze Geschichte</div>
