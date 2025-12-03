@@ -1121,7 +1121,7 @@ ANTWORTE NUR MIT DEM JSON-OBJEKT! Keine Erklärungen!`;
                         <div className="header-content">
                             <h1>🦁 Tier-Wissen für Kids</h1>
                             <p>Entdecke die coolsten Tiere der Welt!</p>
-                            <small>v2.6.1</small>
+                            <small>v2.7.0</small>
                         </div>
                     </div>
 
@@ -1336,11 +1336,34 @@ ANTWORTE NUR MIT DEM JSON-OBJEKT! Keine Erklärungen!`;
                                     {result.erkennungsmerkmale.typische_spuren?.length > 0 && (
                                         <div className="info-item">👣 <strong>Spuren:</strong> {result.erkennungsmerkmale.typische_spuren.join(', ')}</div>
                                     )}
-                                    {result.erkennungsmerkmale.lieblingsorte?.length > 0 && (
-                                        <div className="info-item">📍 <strong>Lieblingsorte:</strong> {result.erkennungsmerkmale.lieblingsorte.join(', ')}</div>
-                                    )}
-                                    {result.erkennungsmerkmale.tageszeit && <div className="info-item">🕐 <strong>Aktiv:</strong> {result.erkennungsmerkmale.tageszeit}</div>}
-                                    {result.erkennungsmerkmale.jahreszeit_aktiv && <div className="info-item">📅 <strong>Saison:</strong> {result.erkennungsmerkmale.jahreszeit_aktiv}</div>}
+                                </div>
+                            )}
+
+                            {(result.verbreitung_karte || result.erkennungsmerkmale) && (
+                                <div className="special-card" style={{ background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' }}>
+                                    <h2>🌍 Wo kann ich es sehen?</h2>
+                                    <div className="content">
+                                        {result.verbreitung_karte && (
+                                            <div style={{ marginBottom: '20px' }}>
+                                                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '10px' }}>
+                                                    {result.verbreitung_karte.kontinente?.map((k, i) => (
+                                                        <span key={i} style={{ background: 'white', padding: '5px 15px', borderRadius: '20px', fontSize: '1.1rem', fontWeight: 'bold', color: '#007bff' }}>{k}</span>
+                                                    ))}
+                                                </div>
+                                                {result.verbreitung_karte.klima && <div className="info-item">🌡️ <strong>Klima:</strong> {result.verbreitung_karte.klima}</div>}
+                                                {result.basis_info.lebensraum && <div className="info-item">🏡 <strong>Lebensraum:</strong> {result.basis_info.lebensraum.join(', ')}</div>}
+                                            </div>
+                                        )}
+
+                                        <div style={{ background: 'rgba(255,255,255,0.9)', padding: '15px', borderRadius: '10px', marginTop: '15px' }}>
+                                            <h4 style={{ margin: '0 0 10px 0', color: '#333' }}>🗓️ Beste Zeit für Entdecker</h4>
+                                            {result.erkennungsmerkmale.jahreszeit_aktiv && <div className="info-item">📅 <strong>Saison:</strong> {result.erkennungsmerkmale.jahreszeit_aktiv}</div>}
+                                            {result.erkennungsmerkmale.tageszeit && <div className="info-item">🕐 <strong>Uhrzeit:</strong> {result.erkennungsmerkmale.tageszeit}</div>}
+                                            {result.erkennungsmerkmale.lieblingsorte?.length > 0 && (
+                                                <div className="info-item">📍 <strong>Wo suchen?</strong> {result.erkennungsmerkmale.lieblingsorte.join(', ')}</div>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                             {result.sicherheit && (
@@ -1386,6 +1409,44 @@ ANTWORTE NUR MIT DEM JSON-OBJEKT! Keine Erklärungen!`;
                                     {result.rekorde.besondere_faehigkeiten?.map((f, i) => <div key={i} className="fact-item">🦸 {f}</div>)}
                                 </div>
                             </div>
+
+                            {result.fun_vergleiche && (
+                                <div className="special-card" style={{ background: 'linear-gradient(135deg, #FF9966 0%, #FF5E62 100%)' }}>
+                                    <h2>😲 Fun Vergleiche</h2>
+                                    <div className="content">
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
+                                            {result.fun_vergleiche.groesse_wie && (
+                                                <div style={{ background: 'rgba(255,255,255,0.9)', padding: '15px', borderRadius: '10px', textAlign: 'center' }}>
+                                                    <div style={{ fontSize: '2.5rem', marginBottom: '10px' }}>📏</div>
+                                                    <div style={{ fontWeight: 'bold', color: '#333' }}>Größe</div>
+                                                    <div>{result.fun_vergleiche.groesse_wie}</div>
+                                                </div>
+                                            )}
+                                            {result.fun_vergleiche.gewicht_wie && (
+                                                <div style={{ background: 'rgba(255,255,255,0.9)', padding: '15px', borderRadius: '10px', textAlign: 'center' }}>
+                                                    <div style={{ fontSize: '2.5rem', marginBottom: '10px' }}>⚖️</div>
+                                                    <div style={{ fontWeight: 'bold', color: '#333' }}>Gewicht</div>
+                                                    <div>{result.fun_vergleiche.gewicht_wie}</div>
+                                                </div>
+                                            )}
+                                            {result.fun_vergleiche.geschwindigkeit_wie && (
+                                                <div style={{ background: 'rgba(255,255,255,0.9)', padding: '15px', borderRadius: '10px', textAlign: 'center' }}>
+                                                    <div style={{ fontSize: '2.5rem', marginBottom: '10px' }}>🏎️</div>
+                                                    <div style={{ fontWeight: 'bold', color: '#333' }}>Speed</div>
+                                                    <div>{result.fun_vergleiche.geschwindigkeit_wie}</div>
+                                                </div>
+                                            )}
+                                            {result.fun_vergleiche.staerke_wie && (
+                                                <div style={{ background: 'rgba(255,255,255,0.9)', padding: '15px', borderRadius: '10px', textAlign: 'center' }}>
+                                                    <div style={{ fontSize: '2.5rem', marginBottom: '10px' }}>💪</div>
+                                                    <div style={{ fontWeight: 'bold', color: '#333' }}>Stärke</div>
+                                                    <div>{result.fun_vergleiche.staerke_wie}</div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                             <div className="special-card" style={{ background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)' }}>
                                 <h2>👶 Lebenszyklus</h2>
                                 <div className="content">
