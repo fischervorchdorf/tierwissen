@@ -1042,74 +1042,41 @@ ANTWORTE NUR MIT DEM JSON-OBJEKT! Keine Erklärungen!`;
                         return; // STOP HERE! Don't fetch stories.
                     }
 
-                    // 2. FETCH STORIES (ONLY IF VALID)
-                    const [shortStoryData, longStoryData] = await Promise.all([
-                        fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ contents: [{ parts: [{ text: `Schreibe eine KURZE, spannende Geschichte über "${detectedAnimal}" für Kinder (8-12 Jahre). Länge: Max 500 Wörter. Coolen Namen. Happy End. Keine Moral!` }] }] })
-                        }).then(r => r.json()),
-                        fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ contents: [{ parts: [{ text: `Schreibe eine LANGE, fesselnde Geschichte über "${detectedAnimal}" für Kinder (8-12 Jahre). Länge: 1500-2000 Wörter. Anderen Namen. Episches Abenteuer. Happy End.` }] }] })
-                        }).then(r => r.json())
-                    ]);
-
-                    if (!shortStoryData.candidates || !shortStoryData.candidates[0]) {
-                        console.error('Short Story API Error:', shortStoryData);
-                        throw new Error(`API-Fehler: ${shortStoryData.error?.message || 'Keine Daten erhalten'}`);
-                    }
-                    if (!longStoryData.candidates || !longStoryData.candidates[0]) {
-                        console.error('Long Story API Error:', longStoryData);
-                        throw new Error(`API-Fehler: ${longStoryData.error?.message || 'Keine Daten erhalten'}`);
-                    }
-
-                    // Handle legacy structure (if API ignores new structure) or new structure
-                    const tierInfo = parsedResponse.tier_data || parsedResponse;
-
-                    const shortStory = shortStoryData.candidates[0].content.parts[0].text.trim();
-                    const longStory = longStoryData.candidates[0].content.parts[0].text.trim();
-
+                    // 2. RENDER FACTS IMMEDIATELY (Progressive Rendering)
                     let tierBild = image || (wikiData ? wikiData.bild : null);
 
                     // FALLBACK IMAGE SEARCH (If no image found yet)
-                    if (!tierBild && tierInfo) {
-                        console.log("No image found yet. Trying fallback search...");
-                        const searchTerms = [];
-                        if (tierInfo.name_wissenschaftlich) searchTerms.push(tierInfo.name_wissenschaftlich);
-                        if (tierInfo.taxonomie && tierInfo.taxonomie.gattung) searchTerms.push(tierInfo.taxonomie.gattung);
+                    if (!tierBild && wikiData) { // Use wikiData here as tierInfo isn't fully formed yet, but we have the raw data
+                        // Actually, let's construct a temporary object for the fallback search logic if needed, 
+                        // or just use the parsedResponse data which is cleaner.
+                        const tempInfo = parsedResponse.tier_data;
+                        if (tempInfo) {
+                            console.log("No image found yet. Trying fallback search...");
+                            const searchTerms = [];
+                            if (tempInfo.name_wissenschaftlich) searchTerms.push(tempInfo.name_wissenschaftlich);
+                            if (tempInfo.taxonomie && tempInfo.taxonomie.gattung) searchTerms.push(tempInfo.taxonomie.gattung);
 
-                        for (const term of searchTerms) {
-                            console.log(`Trying fallback image search for: ${term}`);
-                            const fallbackData = await fetchWikipediaData(term);
-                            if (fallbackData && fallbackData.bild) {
-                                tierBild = fallbackData.bild;
-                                console.log("Fallback image found!");
-                                break;
+                            for (const term of searchTerms) {
+                                console.log(`Trying fallback image search for: ${term}`);
+                                const fallbackData = await fetchWikipediaData(term);
+                                if (fallbackData && fallbackData.bild) {
+                                    tierBild = fallbackData.bild;
+                                    console.log("Fallback image found!");
+                                    break;
+                                }
                             }
                         }
                     }
-
                     if (!tierBild) tierBild = null;
 
-                    const finalResult = {
-                        ...tierInfo,
-                        geschichte_kurz: shortStory,
-                        geschichte_lang: longStory,
+                    const initialResult = {
+                        ...(parsedResponse.tier_data || parsedResponse), // Handle legacy structure
                         bild: tierBild,
+                        geschichte_kurz: "✍️ Die Geschichte wird gerade geschrieben...",
+                        geschichte_lang: "✍️ Die Geschichte wird gerade geschrieben...",
                         wikipedia_url: wikiData ? wikiData.wikipedia_url : null
                     };
 
-                    if (detectedAnimal) {
-                        const cacheKey = `tier_${detectedAnimal.toLowerCase().trim()}`;
-                        try {
-                            localStorage.setItem(cacheKey, JSON.stringify(finalResult));
-                        } catch (e) { }
-                    }
-
-                    setResult(finalResult);
-                    setMode('result');
 
                 } catch (error) {
                     console.error('Fehler:', error);
@@ -1211,7 +1178,7 @@ ANTWORTE NUR MIT DEM JSON-OBJEKT! Keine Erklärungen!`;
                         <div className="header-content">
                             <h1>🦁 Tier-Wissen für Kids</h1>
                             <p>Entdecke die coolsten Tiere der Welt!</p>
-                            <small>v2.8.0</small>
+                            <small>v2.9.0</small>
                         </div>
                     </div>
 
