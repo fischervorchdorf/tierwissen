@@ -689,6 +689,75 @@
                 reader.readAsDataURL(file);
             };
 
+            const fetchWikipediaData = async (tierName) => {
+                const fetchPageData = async (title, lang = 'de') => {
+                    try {
+                        const url = `https://${lang}.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=pageimages|extracts|revisions&rvprop=content&exintro&explaintext&format=json&pithumbsize=1200&origin=*`;
+                        const response = await fetch(url);
+                        const data = await response.json();
+                        const pages = data.query.pages;
+                        const pageId = Object.keys(pages)[0];
+
+                        if (pageId !== "-1") {
+                            const page = pages[pageId];
+                            let content = "";
+                            if (page.revisions && page.revisions[0]) {
+                                content = page.revisions[0]['*'];
+                            }
+
+                            // Extract Infobox
+                            const infoboxMatch = content.match(/{{Infobox[^}]*}}/i) || content.match(/{{Taxobox[^}]*}}/i);
+                            const infobox = infoboxMatch ? infoboxMatch[0] : null;
+
+                            const extractField = (regex) => {
+                                if (!infobox) return null;
+                                const match = infobox.match(regex);
+                                return match ? match[1].trim() : null;
+                            };
+
+                            // Simple extraction attempts (regex based for raw text)
+                            const scientificName = extractField(/\| *Wissenschaftlicher Name *= *([^\n|]+)/) || extractField(/\| *Taxon *= *([^\n|]+)/);
+                            const conservationStatus = extractField(/\| *Status *= *([^\n|]+)/);
+
+                            return {
+                                name_wissenschaftlich: scientificName,
+                                iucn_status: conservationStatus,
+                                bild: page.thumbnail ? page.thumbnail.source : null,
+                                quelle: `Wikipedia (${lang.toUpperCase()})`,
+                                wikipedia_url: `https://${lang}.wikipedia.org/wiki/${encodeURIComponent(title)}`,
+                                search_variant_used: title
+                            };
+                        }
+                    } catch (e) {
+                        console.error(`Wiki Fetch Error (${lang}):`, e);
+                    }
+                    return null;
+                };
+
+                // 1. Try Direct Search (DE)
+                let result = await fetchPageData(tierName, 'de');
+                if (result) return result;
+
+                // 2. Try Fuzzy Search (DE) to find correct title
+                try {
+                    const searchUrl = `https://de.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(tierName)}&format=json&origin=*`;
+                    const searchResp = await fetch(searchUrl);
+                    const searchData = await searchResp.json();
+                    if (searchData.query.search && searchData.query.search.length > 0) {
+                        const bestMatch = searchData.query.search[0].title;
+                        console.log(`Fuzzy search found: ${bestMatch}`);
+                        result = await fetchPageData(bestMatch, 'de');
+                        if (result) return result;
+                    }
+                } catch (e) { }
+
+                // 3. Try Direct Search (EN)
+                result = await fetchPageData(tierName, 'en');
+                if (result) return result;
+
+                return null;
+            }
+
             const RatingStars = ({ rating, max = 10 }) => {
                 const stars = [];
                 const fullStars = Math.round(rating);
@@ -702,7 +771,7 @@
                 return <div className="rating">{stars}</div>;
             };
 
-            async function fetchWikipediaData(tierName) {
+            async function fetchWikipediaData_OLD(tierName) {
                 const generateVariants = (name) => {
                     const variants = [name];
                     if (!name.includes('-')) {
@@ -882,7 +951,7 @@ FAKTEN-CHECK (Nutze diese Daten wenn verfügbar!):
 ${wikiContext}
 🎯 OBERSTE PRIORITÄT: VALIDIERUNG & DATENQUALITÄT!
 
-Zuerst: Prüfe ob "${detectedAnimal}" ein echtes, wildlebendes Tier ist.
+Zuerst: Prüfe ob "${detectedAnimal}" ein echtes Tier ist (auch ausgestorbene wie Dinos, Mammuts, Dodos!).
 - Wenn es ein Pilz, Pflanze, Gegenstand oder Fantasiewesen ist -> Setze valid: false, reason: 'no_animal'.
 - Wenn es ein Tippfehler ist (z.B. 'Lööwe') -> Setze valid: false, reason: 'typo', suggestion: 'Löwe'.
 - Wenn es ein Haustier ist (z.B. 'Hund') -> Erlaubt, aber Hinweis geben.
@@ -896,6 +965,7 @@ Zuerst: Prüfe ob "${detectedAnimal}" ein echtes, wildlebendes Tier ist.
 5. **WILD vs. GEFANGENSCHAFT**: NUR bei seltenen/gefährdeten Arten wichtig!
 6. **ECHTE WISSENSCHAFT**: Keine erfundenen Zahlen!
 7. **LEBENSZYKLUS IST PFLICHT!**: NIEMALS "nicht bekannt" oder null!
+8. **AUSGESTORBEN**: Wenn das Tier ausgestorben ist, setze "is_extinct": true und schreibe alles in der VERGANGENHEIT (wo es lebte, etc.)!
 
 Tier: "${detectedAnimal}"
 
@@ -911,7 +981,8 @@ JSON-STRUKTUR (NUR mit ECHTEN Daten füllen!):
     "name_deutsch": "${detectedAnimal}",
     "name_wissenschaftlich": "Lateinischer Name",
     "name_englisch": "Englischer Name",
-    "taxonomie": { "arten_anzahl": "Anzahl Arten", "beispiel_arten": ["Art 1", "Art 2"] },
+    "is_extinct": boolean,
+    "taxonomie": { "arten_anzahl": "Anzahl Arten", "beispiel_arten": ["Art 1", "Art 2"], "gattung": "Gattung (z.B. Panthera)" },
     "level_system": { "seltenheit": "Häufig/Selten/Legendär" },
     "aussehen": { "farben": ["Farbe 1"], "besonderheiten": ["Merkmal 1"], "anzahl_augen": 2, "anzahl_beine": 4, "skelett_typ": "Wirbeltier", "biolumineszenz": false, "anzahl_zaehne": 30, "art_zaehne": "Reißzähne", "groesse_cm": "100-200 cm", "gewicht_g": 15000, "wichtige_masse": "Schulterhöhe: 80 cm" },
     "rekorde": { "hoechstgeschwindigkeit_kmh": 50, "schnellste_beschleunigung": "Sehr schnell", "weitester_sprung_m": 5, "tauchrekord_m": null, "laengster_winterschlaf_monate": null, "lautstaerke_dezibel": 90, "staerke_verhaeltnis": "Kann 2x Körpergewicht tragen", "besondere_faehigkeiten": ["Nachtsicht"], "herzschlag_pro_minute": 80, "lebenserwartung_jahre": "10-15" },
@@ -1001,6 +1072,25 @@ ANTWORTE NUR MIT DEM JSON-OBJEKT! Keine Erklärungen!`;
                     const longStory = longStoryData.candidates[0].content.parts[0].text.trim();
 
                     let tierBild = image || (wikiData ? wikiData.bild : null);
+
+                    // FALLBACK IMAGE SEARCH (If no image found yet)
+                    if (!tierBild && tierInfo) {
+                        console.log("No image found yet. Trying fallback search...");
+                        const searchTerms = [];
+                        if (tierInfo.name_wissenschaftlich) searchTerms.push(tierInfo.name_wissenschaftlich);
+                        if (tierInfo.taxonomie && tierInfo.taxonomie.gattung) searchTerms.push(tierInfo.taxonomie.gattung);
+
+                        for (const term of searchTerms) {
+                            console.log(`Trying fallback image search for: ${term}`);
+                            const fallbackData = await fetchWikipediaData(term);
+                            if (fallbackData && fallbackData.bild) {
+                                tierBild = fallbackData.bild;
+                                console.log("Fallback image found!");
+                                break;
+                            }
+                        }
+                    }
+
                     if (!tierBild) tierBild = null;
 
                     const finalResult = {
@@ -1121,7 +1211,7 @@ ANTWORTE NUR MIT DEM JSON-OBJEKT! Keine Erklärungen!`;
                         <div className="header-content">
                             <h1>🦁 Tier-Wissen für Kids</h1>
                             <p>Entdecke die coolsten Tiere der Welt!</p>
-                            <small>v2.7.0</small>
+                            <small>v2.8.0</small>
                         </div>
                     </div>
 
@@ -1341,7 +1431,7 @@ ANTWORTE NUR MIT DEM JSON-OBJEKT! Keine Erklärungen!`;
 
                             {(result.verbreitung_karte || result.erkennungsmerkmale) && (
                                 <div className="special-card" style={{ background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' }}>
-                                    <h2>🌍 Wo kann ich es sehen?</h2>
+                                    <h2>🌍 {result.is_extinct ? 'Wo lebte es früher?' : 'Wo kann ich es sehen?'}</h2>
                                     <div className="content">
                                         {result.verbreitung_karte && (
                                             <div style={{ marginBottom: '20px' }}>
@@ -1368,7 +1458,7 @@ ANTWORTE NUR MIT DEM JSON-OBJEKT! Keine Erklärungen!`;
                             )}
                             {result.sicherheit && (
                                 <div className="special-card" style={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' }}>
-                                    <h2>⚠️ Sicherheit & Respekt</h2>
+                                    <h2>⚠️ {result.is_extinct ? 'Wäre es gefährlich?' : 'Sicherheit & Respekt'}</h2>
                                     <div className="content">
                                         {result.sicherheit.bei_begegnung && <div className="info-item">🤝 <strong>Bei Begegnung:</strong> {result.sicherheit.bei_begegnung}</div>}
                                         {result.sicherheit.mindest_abstand && <div className="info-item">📏 <strong>Mindestabstand:</strong> {result.sicherheit.mindest_abstand}</div>}
