@@ -1733,6 +1733,60 @@ ANTWORTE NUR MIT DEM JSON-OBJEKT! Keine Erklärungen!`;
                                     {activeStory === 'short' ? result.geschichte_kurz : result.geschichte_lang}
                                 </div>
                             </div>
+
+                            <div className="external-links">
+                                <h3>📚 Mehr erfahren</h3>
+                                <div className="link-grid">
+                                    {result.wikipedia_url && (
+                                        <a href={result.wikipedia_url} target="_blank" rel="noopener noreferrer" className="link-card">
+                                            <span className="emoji">📖</span>
+                                            <div className="text">
+                                                <div className="title">Wikipedia</div>
+                                                <div className="desc">Detaillierte Infos & Fakten</div>
+                                            </div>
+                                        </a>
+                                    )}
+                                    <a href={`https://www.wwf.de/search?searchtext=${encodeURIComponent(result.name_deutsch || tierName)}`} target="_blank" rel="noopener noreferrer" className="link-card">
+                                        <span className="emoji">🐼</span>
+                                        <div className="text">
+                                            <div className="title">WWF</div>
+                                            <div className="desc">Naturschutz & Artenschutz</div>
+                                        </div>
+                                    </a>
+                                    <a href={`https://www.nationalgeographic.de/search?q=${encodeURIComponent(result.name_deutsch || tierName)}`} target="_blank" rel="noopener noreferrer" className="link-card">
+                                        <span className="emoji">🌍</span>
+                                        <div className="text">
+                                            <div className="title">National Geographic</div>
+                                            <div className="desc">Dokumentationen & Fotos</div>
+                                        </div>
+                                    </a>
+                                    {result.name_wissenschaftlich && (
+                                        <a href={`https://www.iucnredlist.org/search?query=${encodeURIComponent(result.name_wissenschaftlich)}`} target="_blank" rel="noopener noreferrer" className="link-card">
+                                            <span className="emoji">📋</span>
+                                            <div className="text">
+                                                <div className="title">IUCN Red List</div>
+                                                <div className="desc">Gefährdungsstatus</div>
+                                            </div>
+                                        </a>
+                                    )}
+                                    {result.name_wissenschaftlich && (
+                                        <a href={`https://animaldiversity.org/search/?q=${encodeURIComponent(result.name_wissenschaftlich)}`} target="_blank" rel="noopener noreferrer" className="link-card">
+                                            <span className="emoji">🔬</span>
+                                            <div className="text">
+                                                <div className="title">Animal Diversity Web</div>
+                                                <div className="desc">Wissenschaftliche Daten</div>
+                                            </div>
+                                        </a>
+                                    )}
+                                    <a href={`https://www.youtube.com/results?search_query=${encodeURIComponent(result.name_deutsch || tierName)}+Dokumentation`} target="_blank" rel="noopener noreferrer" className="link-card">
+                                        <span className="emoji">🎥</span>
+                                        <div className="text">
+                                            <div className="title">YouTube Videos</div>
+                                            <div className="desc">Dokumentationen & Clips</div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     )}
                 </div>
