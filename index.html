@@ -633,6 +633,7 @@
 
         function TierWissen() {
             const [mode, setMode] = useState('input'); // input, loading, result, validation_error
+            const [inputMethod, setInputMethod] = useState('text');
             const [tierName, setTierName] = useState('');
             const [result, setResult] = useState(null);
             const [image, setImage] = useState(null);
@@ -1114,7 +1115,7 @@ ANTWORTE NUR MIT DEM JSON-OBJEKT! Keine Erklärungen!`;
                         <div className="header-content">
                             <h1>🦁 Tier-Wissen für Kids</h1>
                             <p>Entdecke die coolsten Tiere der Welt!</p>
-                            <small>v2.5.0</small>
+                            <small>v2.5.1</small>
                         </div>
                     </div>
 
