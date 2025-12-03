@@ -930,25 +930,8 @@
                         }
                     }
 
-                    let wikiData = null;
-                    let wikiContext = "";
-                    try {
-                        wikiData = await fetchWikipediaData(detectedAnimal);
-                        if (wikiData) {
-                            wikiContext = `
-FAKTEN-CHECK (Nutze diese Daten wenn verfügbar!):
-- Wissenschaftlicher Name: ${wikiData.name_wissenschaftlich || 'Unbekannt'}
-- IUCN Status: ${wikiData.iucn_status || 'Unbekannt'}
-- Population: ${wikiData.population_raw || 'Unbekannt'}
-- Größe: ${wikiData.groesse_raw || 'Unbekannt'}
-- Gewicht: ${wikiData.gewicht_raw || 'Unbekannt'}
-- Lebensraum: ${wikiData.lebensraum_raw || 'Unbekannt'}
-                            `;
-                        }
-                    } catch (e) { }
-
+                    // 1. VALIDATE FIRST (No Wikipedia yet for fast typo detection)
                     const infoPrompt = `Du bist ein Biologe, der Kindern (8-12 Jahre) die Tierwelt erklärt!
-${wikiContext}
 🎯 OBERSTE PRIORITÄT: VALIDIERUNG & DATENQUALITÄT!
 
 Zuerst: Prüfe ob "${detectedAnimal}" ein echtes Tier ist (auch ausgestorbene wie Dinos, Mammuts, Dodos!).
@@ -1042,13 +1025,19 @@ ANTWORTE NUR MIT DEM JSON-OBJEKT! Keine Erklärungen!`;
                         return; // STOP HERE! Don't fetch stories.
                     }
 
-                    // 2. RENDER FACTS IMMEDIATELY (Progressive Rendering)
+                    // 2. FETCH WIKIPEDIA (Now that we know it's valid)
+                    let wikiData = null;
+                    try {
+                        wikiData = await fetchWikipediaData(detectedAnimal);
+                    } catch (e) {
+                        console.error("Wikipedia fetch error:", e);
+                    }
+
+                    // 3. RENDER FACTS IMMEDIATELY (Progressive Rendering)
                     let tierBild = image || (wikiData ? wikiData.bild : null);
 
                     // FALLBACK IMAGE SEARCH (If no image found yet)
-                    if (!tierBild && wikiData) { // Use wikiData here as tierInfo isn't fully formed yet, but we have the raw data
-                        // Actually, let's construct a temporary object for the fallback search logic if needed, 
-                        // or just use the parsedResponse data which is cleaner.
+                    if (!tierBild) {
                         const tempInfo = parsedResponse.tier_data;
                         if (tempInfo) {
                             console.log("No image found yet. Trying fallback search...");
@@ -1067,15 +1056,65 @@ ANTWORTE NUR MIT DEM JSON-OBJEKT! Keine Erklärungen!`;
                             }
                         }
                     }
-                    if (!tierBild) tierBild = null;
 
                     const initialResult = {
-                        ...(parsedResponse.tier_data || parsedResponse), // Handle legacy structure
+                        ...(parsedResponse.tier_data || parsedResponse),
                         bild: tierBild,
                         geschichte_kurz: "✍️ Die Geschichte wird gerade geschrieben...",
                         geschichte_lang: "✍️ Die Geschichte wird gerade geschrieben...",
                         wikipedia_url: wikiData ? wikiData.wikipedia_url : null
                     };
+
+                    setResult(initialResult);
+                    setMode('result'); // SHOW UI NOW!
+
+                    // 4. FETCH STORIES (BACKGROUND)
+                    try {
+                        const [shortStoryData, longStoryData] = await Promise.all([
+                            fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ contents: [{ parts: [{ text: `Schreibe eine KURZE, spannende Geschichte über "${detectedAnimal}" für Kinder (8-12 Jahre). Länge: Max 500 Wörter. Coolen Namen. Happy End. Keine Moral!` }] }] })
+                            }).then(r => r.json()),
+                            fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ contents: [{ parts: [{ text: `Schreibe eine LANGE, fesselnde Geschichte über "${detectedAnimal}" für Kinder (8-12 Jahre). Länge: 1500-2000 Wörter. Anderen Namen. Episches Abenteuer. Happy End.` }] }] })
+                            }).then(r => r.json())
+                        ]);
+
+                        const shortStory = shortStoryData.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "Geschichte konnte nicht geladen werden.";
+                        const longStory = longStoryData.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "Geschichte konnte nicht geladen werden.";
+
+                        // UPDATE STATE WITH STORIES
+                        setResult(prev => ({
+                            ...prev,
+                            geschichte_kurz: shortStory,
+                            geschichte_lang: longStory
+                        }));
+
+                        // Cache the complete result
+                        if (detectedAnimal) {
+                            const cacheKey = `tier_${detectedAnimal.toLowerCase().trim()}`;
+                            try {
+                                localStorage.setItem(cacheKey, JSON.stringify({
+                                    ...initialResult,
+                                    geschichte_kurz: shortStory,
+                                    geschichte_lang: longStory
+                                }));
+                            } catch (e) {
+                                console.error("Cache error:", e);
+                            }
+                        }
+
+                    } catch (storyError) {
+                        console.error("Story Generation Error:", storyError);
+                        setResult(prev => ({
+                            ...prev,
+                            geschichte_kurz: "❌ Entschuldigung, die Geschichte konnte nicht geladen werden.",
+                            geschichte_lang: "❌ Entschuldigung, die Geschichte konnte nicht geladen werden."
+                        }));
+                    }
 
 
                 } catch (error) {
@@ -1178,7 +1217,7 @@ ANTWORTE NUR MIT DEM JSON-OBJEKT! Keine Erklärungen!`;
                         <div className="header-content">
                             <h1>🦁 Tier-Wissen für Kids</h1>
                             <p>Entdecke die coolsten Tiere der Welt!</p>
-                            <small>v2.9.0</small>
+                            <small>v2.9.1</small>
                         </div>
                     </div>
 
