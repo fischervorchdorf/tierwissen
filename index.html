@@ -600,6 +600,36 @@
             display: block;
         }
 
+        .scroll-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 2rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .scroll-to-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        .scroll-to-top.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
         .lifecycle {
             display: flex;
             justify-content: space-around;
@@ -631,9 +661,9 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState } = React;
+        const { useState, useEffect } = React;
 
-        function TierWissen() {
+        const TierWissen = () => {
             const [mode, setMode] = useState('input'); // input, loading, result, validation_error
             const [inputMethod, setInputMethod] = useState('text');
             const [tierName, setTierName] = useState('');
@@ -642,6 +672,20 @@
             const [validationError, setValidationError] = useState(null);
             const [apiKey] = useState('AIzaSyBudkecvmZX9cRyXRaPw16Fct2MbGDBQog');
             const [activeStory, setActiveStory] = useState('short');
+            const [showScrollTop, setShowScrollTop] = useState(false);
+
+            // Scroll to top handler
+            useEffect(() => {
+                const handleScroll = () => {
+                    setShowScrollTop(window.scrollY > 400);
+                };
+                window.addEventListener('scroll', handleScroll);
+                return () => window.removeEventListener('scroll', handleScroll);
+            }, []);
+
+            const scrollToTop = () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
 
             // Helper function to format weight intelligently
             const formatWeight = (grams) => {
@@ -1219,6 +1263,13 @@ ANTWORTE NUR MIT DEM JSON-OBJEKT! Keine Erklärungen!`;
                             <p>Entdecke die coolsten Tiere der Welt!</p>
                             <small>v2.9.1</small>
                         </div>
+                        <button
+                            className={`scroll-to-top ${showScrollTop ? '' : 'hidden'}`}
+                            onClick={scrollToTop}
+                            title="Nach oben scrollen"
+                        >
+                            ↑
+                        </button>
                     </div>
 
                     {mode === 'input' && (
