@@ -533,95 +533,97 @@
         .rating {
             display: flex;
             gap: 5px;
+        }
 
-            /* Print CSS for PDF Export */
-            @media print {
+        /* Print CSS for PDF Export */
+        @media print {
 
-                .hero,
-                .input-container,
-                button,
-                .story-tabs {
-                    display: none !important;
-                }
-
-                .result-section {
-                    margin: 0;
-                    padding: 0;
-                }
-
-                .special-card,
-                .info-card {
-                    box-shadow: none;
-                    page-break-inside: avoid;
-                }
-
-                body {
-                    background: white !important;
-                }
+            .hero,
+            .input-container,
+            button,
+            .story-tabs {
+                display: none !important;
             }
 
-            @media (max-width: 480px) {
-                .header h1 {
-                    font-size: 1.5rem;
-                }
-
-                .header p {
-                    font-size: 1rem;
-                }
-
-                .btn {
-                    padding: 15px 30px;
-                    font-size: 1.2rem;
-                }
+            .result-section {
+                margin: 0;
+                padding: 0;
             }
 
-            .rating {
-                display: flex;
-                gap: 5px;
+            .special-card,
+            .info-card {
+                box-shadow: none;
+                page-break-inside: avoid;
+            }
+
+            body {
+                background: white !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
                 font-size: 1.5rem;
             }
 
-            .star-filled {
-                color: #FFD93D;
+            .header p {
+                font-size: 1rem;
             }
 
-            .star-empty {
-                color: #ddd;
+            .btn {
+                padding: 15px 30px;
+                font-size: 1.2rem;
             }
+        }
 
-            .emoji-chain {
-                font-size: 4rem;
-                text-align: center;
-                padding: 20px;
-                background: white;
-                border-radius: 15px;
-                margin: 15px 0;
-            }
+        .rating {
+            display: flex;
+            gap: 5px;
+            font-size: 1.5rem;
+        }
 
-            .lifecycle {
-                display: flex;
-                justify-content: space-around;
-                align-items: center;
-                flex-wrap: wrap;
-                gap: 20px;
-                padding: 20px;
-            }
+        .star-filled {
+            color: #FFD93D;
+        }
 
-            .lifecycle-stage {
-                text-align: center;
-                flex: 1;
-                min-width: 150px;
-            }
+        .star-empty {
+            color: #ddd;
+        }
 
-            .lifecycle-stage .emoji {
-                font-size: 3rem;
-                margin-bottom: 10px;
-            }
+        .emoji-chain {
+            font-size: 6rem;
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            margin: 15px 0;
+            display: block;
+        }
 
-            .lifecycle-arrow {
-                font-size: 2rem;
-                color: #667eea;
-            }
+        .lifecycle {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .lifecycle-stage {
+            text-align: center;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .lifecycle-stage .emoji {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .lifecycle-arrow {
+            font-size: 2rem;
+            color: #667eea;
+        }
     </style>
 </head>
 
@@ -1119,7 +1121,7 @@ ANTWORTE NUR MIT DEM JSON-OBJEKT! Keine Erklärungen!`;
                         <div className="header-content">
                             <h1>🦁 Tier-Wissen für Kids</h1>
                             <p>Entdecke die coolsten Tiere der Welt!</p>
-                            <small>v2.6.0</small>
+                            <small>v2.6.1</small>
                         </div>
                     </div>
 
