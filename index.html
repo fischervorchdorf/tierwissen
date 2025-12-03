@@ -632,11 +632,11 @@
         const { useState } = React;
 
         function TierWissen() {
-            const [mode, setMode] = useState('input');
-            const [inputMethod, setInputMethod] = useState('text');
+            const [mode, setMode] = useState('input'); // input, loading, result, validation_error
             const [tierName, setTierName] = useState('');
-            const [image, setImage] = useState(null);
             const [result, setResult] = useState(null);
+            const [image, setImage] = useState(null);
+            const [validationError, setValidationError] = useState(null);
             const [apiKey] = useState('AIzaSyBudkecvmZX9cRyXRaPw16Fct2MbGDBQog');
             const [activeStory, setActiveStory] = useState('short');
 
@@ -877,8 +877,15 @@ FAKTEN-CHECK (Nutze diese Daten wenn verfügbar!):
 
                     const infoPrompt = `Du bist ein Biologe, der Kindern (8-12 Jahre) die Tierwelt erklärt!
 ${wikiContext}
-🎯 OBERSTE PRIORITÄT: DATENQUALITÄT!
-⚠️ KRITISCHE REGELN:
+🎯 OBERSTE PRIORITÄT: VALIDIERUNG & DATENQUALITÄT!
+
+Zuerst: Prüfe ob "${detectedAnimal}" ein echtes, wildlebendes Tier ist.
+- Wenn es ein Pilz, Pflanze, Gegenstand oder Fantasiewesen ist -> Setze valid: false, reason: 'no_animal'.
+- Wenn es ein Tippfehler ist (z.B. 'Lööwe') -> Setze valid: false, reason: 'typo', suggestion: 'Löwe'.
+- Wenn es ein Haustier ist (z.B. 'Hund') -> Erlaubt, aber Hinweis geben.
+- Wenn alles passt -> Setze valid: true.
+
+⚠️ KRITISCHE REGELN FÜR DATEN:
 1. **POPULATION**: NIEMALS "1" oder unrealistische Zahlen! 
 2. **KEINE NULLEN!**: Wenn du keine Info hast, schreibe null (JSON null, nicht String "0"!)
 3. **NUR ZAHLEN BEI NUMMERN!**: Bei allen Feldern wie gewicht_g, hoechstgeschwindigkeit_kmh usw. NUR die ZAHL angeben, KEINE Einheiten! Die Einheiten werden automatisch hinzugefügt!
@@ -891,29 +898,37 @@ Tier: "${detectedAnimal}"
 
 JSON-STRUKTUR (NUR mit ECHTEN Daten füllen!):
 {
-  "name_deutsch": "${detectedAnimal}",
-  "name_wissenschaftlich": "Lateinischer Name",
-  "name_englisch": "Englischer Name",
-  "taxonomie": { "arten_anzahl": "Anzahl Arten", "beispiel_arten": ["Art 1", "Art 2"] },
-  "level_system": { "seltenheit": "Häufig/Selten/Legendär" },
-  "aussehen": { "farben": ["Farbe 1"], "besonderheiten": ["Merkmal 1"], "anzahl_augen": 2, "anzahl_beine": 4, "skelett_typ": "Wirbeltier", "biolumineszenz": false, "anzahl_zaehne": 30, "art_zaehne": "Reißzähne", "groesse_cm": "100-200 cm", "gewicht_g": 15000, "wichtige_masse": "Schulterhöhe: 80 cm" },
-  "rekorde": { "hoechstgeschwindigkeit_kmh": 50, "schnellste_beschleunigung": "Sehr schnell", "weitester_sprung_m": 5, "tauchrekord_m": null, "laengster_winterschlaf_monate": null, "lautstaerke_dezibel": 90, "staerke_verhaeltnis": "Kann 2x Körpergewicht tragen", "besondere_faehigkeiten": ["Nachtsicht"], "herzschlag_pro_minute": 80, "lebenserwartung_jahre": "10-15" },
-  "krasse_facts": ["🤯 Unglaublicher ECHTER Fakt!"],
-  "fun_vergleiche": { "groesse_wie": "So groß wie...", "gewicht_wie": "So schwer wie...", "geschwindigkeit_wie": "Schneller als...", "staerke_wie": "Stark wie...", "anzahl_vergleich": "So viele wie..." },
-  "wusstest_du": ["💡 Interessanter Fakt 1!"],
-  "emoji_stimmung": { "sanftmut": 3, "lautstaerke": 4, "gefaehrlichkeit": 2, "niedlichkeit": 5 },
-  "lebensweise": { "winterschlaf": false, "winterschlaf_dauer": null, "metamorphose": false, "metamorphose_stufen": null, "gesamtdauer": "PFLICHT! Geburt, Meilensteine, Geschlechtsreife." },
-  "nahrungskette": { "position": "Fleischfresser", "frisst": ["🦌 Hirsche"], "wird_gefressen_von": ["🐻 Bären"], "kette_emoji": "🌱 → 🦌 → 🐺" },
-  "verbreitung_karte": { "kontinente": ["🌍 Europa"], "klima": "🌡️ Gemäßigt", "hoehe": "0-2000m" },
-  "population_trend": { "aktuell": "📉 Abnehmend", "anzahl_weltweit": "20000", "vor_50_jahren": "Mehr", "heute": "Gefährdet", "prognose": "⚠️ Gefährdet" },
-  "beruehmt": { "filme": ["Film 1"], "buecher": ["Buch 1"], "videospiele": ["Spiel 1"], "maskottchen": "Team XY" },
-  "helfen": { "was_kann_ich_tun": ["🌻 Lebensraum schützen!"], "im_garten": "Wilde Ecken lassen", "apps": ["App 1"] },
-  "basis_info": { "lebensraum": ["Wälder"], "ernaehrung": "Fleischfresser", "gefaehrdung": "Gefährdet", "sozialverhalten": "Rudel", "aktivitaet": "Dämmerungsaktiv" },
-  "erkennungsmerkmale": { "typische_spuren": ["Fußabdrücke", "Losung"], "lieblingsorte": ["Sonnige Steine", "Totholz"], "tageszeit": "Dämmerung", "jahreszeit_aktiv": "März-Oktober", "besondere_zeichen": "Zick-Zack-Muster" },
-  "sicherheit": { "bei_begegnung": "Ruhig bleiben, Abstand halten", "mindest_abstand": "3-5 Meter", "gefahr_level": "Niedrig", "warum_wichtig": "Wichtig für Ökosystem" },
-  "mythen_wahrheit": [{ "mythos": "Mythos Text", "wahrheit": "Wahrheit Text", "fakt_level": "❌ Mythos" }],
-  "helfen_oesterreich": { "ist_in_oesterreich": true, "im_garten": ["Steinhaufen lassen"], "allgemein": ["Lebensraum schützen"], "organisationen": ["Naturschutzbund"] },
-  "verwandte_tiere": [{ "name": "Tier", "emoji": "🦎", "beziehung": "Verwandt", "unterschied": "Unterschied" }]
+  "validation": {
+    "is_valid": boolean,
+    "error_type": "not_an_animal" | "typo" | null,
+    "message": "Das ist leider kein Tier, sondern ein Pilz!",
+    "suggestion": "Löwe" 
+  },
+  "tier_data": {
+    "name_deutsch": "${detectedAnimal}",
+    "name_wissenschaftlich": "Lateinischer Name",
+    "name_englisch": "Englischer Name",
+    "taxonomie": { "arten_anzahl": "Anzahl Arten", "beispiel_arten": ["Art 1", "Art 2"] },
+    "level_system": { "seltenheit": "Häufig/Selten/Legendär" },
+    "aussehen": { "farben": ["Farbe 1"], "besonderheiten": ["Merkmal 1"], "anzahl_augen": 2, "anzahl_beine": 4, "skelett_typ": "Wirbeltier", "biolumineszenz": false, "anzahl_zaehne": 30, "art_zaehne": "Reißzähne", "groesse_cm": "100-200 cm", "gewicht_g": 15000, "wichtige_masse": "Schulterhöhe: 80 cm" },
+    "rekorde": { "hoechstgeschwindigkeit_kmh": 50, "schnellste_beschleunigung": "Sehr schnell", "weitester_sprung_m": 5, "tauchrekord_m": null, "laengster_winterschlaf_monate": null, "lautstaerke_dezibel": 90, "staerke_verhaeltnis": "Kann 2x Körpergewicht tragen", "besondere_faehigkeiten": ["Nachtsicht"], "herzschlag_pro_minute": 80, "lebenserwartung_jahre": "10-15" },
+    "krasse_facts": ["🤯 Unglaublicher ECHTER Fakt!"],
+    "fun_vergleiche": { "groesse_wie": "So groß wie...", "gewicht_wie": "So schwer wie...", "geschwindigkeit_wie": "Schneller als...", "staerke_wie": "Stark wie...", "anzahl_vergleich": "So viele wie..." },
+    "wusstest_du": ["💡 Interessanter Fakt 1!"],
+    "emoji_stimmung": { "sanftmut": 3, "lautstaerke": 4, "gefaehrlichkeit": 2, "niedlichkeit": 5 },
+    "lebensweise": { "winterschlaf": false, "winterschlaf_dauer": null, "metamorphose": false, "metamorphose_stufen": null, "gesamtdauer": "PFLICHT! Geburt, Meilensteine, Geschlechtsreife." },
+    "nahrungskette": { "position": "Fleischfresser", "frisst": ["🦌 Hirsche"], "wird_gefressen_von": ["🐻 Bären"], "kette_emoji": "🌱 → 🦌 → 🐺" },
+    "verbreitung_karte": { "kontinente": ["🌍 Europa"], "klima": "🌡️ Gemäßigt", "hoehe": "0-2000m" },
+    "population_trend": { "aktuell": "📉 Abnehmend", "anzahl_weltweit": "20000", "vor_50_jahren": "Mehr", "heute": "Gefährdet", "prognose": "⚠️ Gefährdet" },
+    "beruehmt": { "filme": ["Film 1"], "buecher": ["Buch 1"], "videospiele": ["Spiel 1"], "maskottchen": "Team XY" },
+    "helfen": { "was_kann_ich_tun": ["🌻 Lebensraum schützen!"], "im_garten": "Wilde Ecken lassen", "apps": ["App 1"] },
+    "basis_info": { "lebensraum": ["Wälder"], "ernaehrung": "Fleischfresser", "gefaehrdung": "Gefährdet", "sozialverhalten": "Rudel", "aktivitaet": "Dämmerungsaktiv" },
+    "erkennungsmerkmale": { "typische_spuren": ["Fußabdrücke", "Losung"], "lieblingsorte": ["Sonnige Steine", "Totholz"], "tageszeit": "Dämmerung", "jahreszeit_aktiv": "März-Oktober", "besondere_zeichen": "Zick-Zack-Muster" },
+    "sicherheit": { "bei_begegnung": "Ruhig bleiben, Abstand halten", "mindest_abstand": "3-5 Meter", "gefahr_level": "Niedrig", "warum_wichtig": "Wichtig für Ökosystem" },
+    "mythen_wahrheit": [{ "mythos": "Mythos Text", "wahrheit": "Wahrheit Text", "fakt_level": "❌ Mythos" }],
+    "helfen_oesterreich": { "ist_in_oesterreich": true, "im_garten": ["Steinhaufen lassen"], "allgemein": ["Lebensraum schützen"], "organisationen": ["Naturschutzbund"] },
+    "verwandte_tiere": [{ "name": "Tier", "emoji": "🦎", "beziehung": "Verwandt", "unterschied": "Unterschied" }]
+  }
 }
 
 ⚠️ WICHTIG: 
@@ -963,7 +978,18 @@ ANTWORTE NUR MIT DEM JSON-OBJEKT! Keine Erklärungen!`;
                     if (startIndex !== -1 && endIndex !== -1) {
                         infoText = infoText.substring(startIndex, endIndex + 1);
                     }
-                    const tierInfo = JSON.parse(infoText);
+                    const parsedResponse = JSON.parse(infoText);
+
+                    // VALIDATION CHECK
+                    if (parsedResponse.validation && parsedResponse.validation.is_valid === false) {
+                        setValidationError(parsedResponse.validation);
+                        setMode('validation_error');
+                        return;
+                    }
+
+                    // Handle legacy structure (if API ignores new structure) or new structure
+                    const tierInfo = parsedResponse.tier_data || parsedResponse;
+
                     const shortStory = shortStoryData.candidates[0].content.parts[0].text.trim();
                     const longStory = longStoryData.candidates[0].content.parts[0].text.trim();
 
@@ -1088,7 +1114,7 @@ ANTWORTE NUR MIT DEM JSON-OBJEKT! Keine Erklärungen!`;
                         <div className="header-content">
                             <h1>🦁 Tier-Wissen für Kids</h1>
                             <p>Entdecke die coolsten Tiere der Welt!</p>
-                            <small>v2.3.1</small>
+                            <small>v2.5.0</small>
                         </div>
                     </div>
 
@@ -1158,6 +1184,70 @@ ANTWORTE NUR MIT DEM JSON-OBJEKT! Keine Erklärungen!`;
                                         ⚠️ <strong>Bitte aufpassen:</strong> Ich bin eine KI und ich mache leider immer noch Fehler. Ich versuche mein Bestes, aber nimm alle Daten nicht für bare Münze. Ein Vergleich mit Büchern und wissenschaftlichen Seiten ist immer angebracht!
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {mode === 'validation_error' && validationError && (
+                        <div className="container" style={{ textAlign: 'center', marginTop: '50px' }}>
+                            <div className="info-card" style={{ background: '#fff0f0', border: '3px solid #ffcdd2' }}>
+                                <div style={{ fontSize: '5rem', marginBottom: '20px' }}>
+                                    {validationError.error_type === 'typo' ? '🦁❓' : '🍄'}
+                                </div>
+                                <h2 style={{ fontSize: '2.5rem', color: '#d32f2f', marginBottom: '20px' }}>
+                                    {validationError.error_type === 'typo' ? 'Hoppla, vertippt?' : 'Das ist kein Tier!'}
+                                </h2>
+                                <p style={{ fontSize: '1.5rem', marginBottom: '30px' }}>
+                                    {validationError.message}
+                                </p>
+
+                                {validationError.suggestion && (
+                                    <div style={{ marginBottom: '30px' }}>
+                                        <p style={{ fontSize: '1.2rem', marginBottom: '10px' }}>Meintest du vielleicht:</p>
+                                        <button
+                                            onClick={() => {
+                                                setTierName(validationError.suggestion);
+                                                setValidationError(null);
+                                                // Trigger search immediately
+                                                setTimeout(() => {
+                                                    const btn = document.querySelector('button');
+                                                    // This is a bit hacky, better to just call analyzeTier but we need to update state first
+                                                    // Let's just reset to input mode with the new name
+                                                    setMode('input');
+                                                }, 100);
+                                            }}
+                                            style={{
+                                                padding: '15px 30px',
+                                                fontSize: '1.5rem',
+                                                background: '#4CAF50',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '50px',
+                                                cursor: 'pointer',
+                                                boxShadow: '0 5px 15px rgba(0,0,0,0.2)'
+                                            }}
+                                        >
+                                            👉 {validationError.suggestion}
+                                        </button>
+                                    </div>
+                                )}
+
+                                <button
+                                    onClick={() => {
+                                        setMode('input');
+                                        setValidationError(null);
+                                    }}
+                                    style={{
+                                        padding: '10px 20px',
+                                        fontSize: '1.2rem',
+                                        background: '#f5f5f5',
+                                        border: '2px solid #ddd',
+                                        borderRadius: '30px',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    🔙 Zurück zur Suche
+                                </button>
                             </div>
                         </div>
                     )}
