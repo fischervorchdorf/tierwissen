@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🦁 TierWissen für Kids - Entdecke die coolsten Tiere!</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Comic+Neue:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Fredoka', 'Comic Sans MS', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            color: #2a2a2a;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #FFD93D 0%, #FF6B6B 100%);
+            border-radius: 30px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            border: 5px solid white;
+        }
+
+        .header::before {
+            content: '🦁🐘🦒🐼🦊';
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 2rem;
+            opacity: 0.3;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            color: white;
+            text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.2);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.4rem;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Input Section */
+        .input-section {
+            background: white;
+            border-radius: 30px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+            border: 5px solid #FFD93D;
+        }
+
+        .input-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .input-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 4px solid transparent;
+            color: white;
+        }
+
+        .input-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            border-color: #FFD93D;
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.5);
+        }
+
+        .input-card.active {
+            border-color: #FFD93D;
+            background: linear-gradient(135deg, #FFD93D 0%, #FF6B6B 100%);
+            transform: scale(1.1);
+        }
+
+        .input-card-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .input-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .text-input {
+            width: 100%;
+            padding: 20px;
+            font-size: 1.3rem;
+            border: 4px solid #667eea;
+            border-radius: 20px;
+            font-family: 'Fredoka', sans-serif;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .text-input:focus {
+            border-color: #FFD93D;
+            box-shadow: 0 0 30px rgba(255, 217, 61, 0.5);
+            transform: scale(1.02);
+        }
+
+        .upload-area {
+            border: 4px dashed #667eea;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            margin-top: 20px;
+        }
+
+        .upload-area:hover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+            border-color: #FFD93D;
+            transform: scale(1.05);
+        }
+
+        .btn {
+            padding: 20px 50px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Fredoka', sans-serif;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #FFD93D 0%, #FF6B6B 100%);
+            color: white;
+            border: 4px solid white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 20px 50px rgba(255, 107, 107, 0.5);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #667eea;
+            border: 4px solid #667eea;
+        }
+
+        /* Result Section */
+        .result-section {
+            background: white;
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.5s ease;
+            border: 5px solid #FFD93D;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tier-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tier-image {
+            width: 250px;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 20px;
+            border: 5px solid white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .tier-title h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .tier-title .scientific-name {
+            font-style: italic;
+            font-size: 1.3rem;
+            opacity: 0.9;
+        }
+
+        .level-badges {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border: 3px solid white;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Info Cards */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .info-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 20px;
+            padding: 25px;
+            border: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
+        }
+
+        .info-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-item {
+            margin: 15px 0;
+            padding: 12px;
+            background: white;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            border-left: 5px solid #FFD93D;
+        }
+
+        .info-item strong {
+            color: #667eea;
+        }
+
+        /* Special Cards */
+        .special-card {
+            background: linear-gradient(135deg, #FFD93D 0%, #FF6B6B 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 25px 0;
+            border: 5px solid white;
+            box-shadow: 0 15px 40px rgba(255, 107, 107, 0.4);
+        }
+
+        .special-card h2 {
+            font-size: 2.5rem;
+            color: white;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .special-card .content {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .fact-item {
+            padding: 15px;
+            margin: 10px 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+            font-size: 1.2rem;
+        }
+
+        /* Stories */
+        .story-section {
+            margin: 30px 0;
+        }
+
+        .story-tabs {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .story-tab {
+            flex: 1;
+            padding: 20px;
+            border-radius: 15px;
+            border: 4px solid #667eea;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .story-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .story-content {
+            background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+            border-radius: 20px;
+            padding: 30px;
+            border: 4px solid #FFD93D;
+            line-height: 1.8;
+            font-size: 1.2rem;
+            white-space: pre-wrap;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 80px;
+            height: 80px;
+            border: 8px solid rgba(102, 126, 234, 0.3);
+            border-radius: 50%;
+            border-top-color: #FFD93D;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            margin-top: 30px;
+            font-size: 1.8rem;
+            color: white;
+            font-weight: 700;
+            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .tier-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .tier-image {
+                width: 100%;
+                height: auto;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Rating Stars */
+        .rating {
+            display: flex;
+            gap: 5px;
+            font-size: 1.5rem;
+        }
+
+        .star-filled {
+            color: #FFD93D;
+        }
+
+        .star-empty {
+            color: #ddd;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        function TierWissen() {
+            const [mode, setMode] = useState('input');
+            const [inputMethod, setInputMethod] = useState('text');
+            const [tierName, setTierName] = useState('');
+            const [image, setImage] = useState(null);
+            const [result, setResult] = useState(null);
+            const [apiKey] = useState('AIzaSyBudkecvmZX9cRyXRaPw16Fct2MbGDBQog');
+            const [activeStory, setActiveStory] = useState('short');
+
+            const handleImageUpload = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setImage(reader.result);
+                };
+                reader.readAsDataURL(file);
+            };
+
+            const RatingStars = ({ rating, max = 10 }) => {
+                const stars = [];
+                const fullStars = Math.round(rating);
+                for (let i = 0; i < max; i++) {
+                    stars.push(
+                        <span key={i} className={i < fullStars ? 'star-filled' : 'star-empty'}>
+                            ⭐
+                        </span>
+                    );
+                }
+                return <div className="rating">{stars}</div>;
+            };
+
+            const analyzeTier = async () => {
+                if (!tierName && !image) {
+                    alert('🦁 Bitte gib einen Tiernamen ein oder lade ein Foto hoch!');
+                    return;
+                }
+
+                setMode('loading');
+
+                try {
+                    let detectedAnimal = tierName;
+
+                    // Schritt 1: Tier erkennen (falls Bild)
+                    if (image && !tierName) {
+                        const base64Image = image.split(',')[1];
+
+                        const identifyResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                contents: [{
+                                    parts: [
+                                        {
+                                            text: "Identifiziere das Tier auf diesem Bild. Gib nur den deutschen Namen zurück, so spezifisch wie möglich. Wenn es kein Tier ist, schreibe 'KEIN TIER'."
+                                        },
+                                        {
+                                            inline_data: {
+                                                mime_type: "image/jpeg",
+                                                data: base64Image
+                                            }
+                                        }
+                                    ]
+                                }]
+                            })
+                        });
+
+                        const identifyData = await identifyResponse.json();
+                        detectedAnimal = identifyData.candidates[0].content.parts[0].text.trim();
+
+                        if (detectedAnimal === 'KEIN TIER') {
+                            setMode('input');
+                            alert('🤔 Ich konnte kein Tier auf diesem Bild erkennen. Versuch es nochmal!');
+                            return;
+                        }
+                    }
+
+                    // Schritt 2: Alle Infos sammeln (ERWEITERT für Kinder!)
+                    const infoPrompt = `Du bist ein super cooler Tier-Experte für KINDER! Sammle ALLE Informationen über "${detectedAnimal}" und gib sie als JSON zurück.
+
+WICHTIG: Antworte NUR mit validem JSON! Kein anderer Text!
+
+STRUKTUR (ALLE Felder ausfüllen!):
+
+{
+  "name_deutsch": "${detectedAnimal}",
+  "name_wissenschaftlich": "...",
+  "name_englisch": "...",
+  
+  "level_system": {
+    "seltenheit": "Häufig/Selten/Legendär",
+    "gefaehrlichkeit": 5,
+    "niedlichkeit": 8,
+    "intelligenz": 7,
+    "coolness": 9
+  },
+  
+  "aussehen": {
+    "farben": ["Farbe 1", "Farbe 2"],
+    "besonderheiten": ["Merkmal 1", "Merkmal 2"],
+    "anzahl_augen": 2,
+    "anzahl_beine": 4,
+    "groesse_cm": "10-50",
+    "gewicht_kg": "0.5-2"
+  },
+  
+  "rekorde": {
+    "hoechstgeschwindigkeit_kmh": 50,
+    "weitester_sprung_m": 3,
+    "staerke_verhaeltnis": "Kann 10x Körpergewicht tragen",
+    "besondere_faehigkeiten": ["Fähigkeit 1", "Fähigkeit 2"],
+    "herzschlag_pro_minute": 120,
+    "lebenserwartung_jahre": "5-10"
+  },
+  
+  "krasse_facts": [
+    "🤯 Unglaublicher Fakt 1",
+    "💥 Überraschender Fakt 2",
+    "🎪 Verrücktes Verhalten",
+    "🦾 Extreme Anpassung",
+    "😱 Mind-blowing Fakt 5"
+  ],
+  
+  "fun_vergleiche": {
+    "groesse_wie": "So groß wie ein Fußball",
+    "gewicht_wie": "So schwer wie 5 Äpfel",
+    "geschwindigkeit_wie": "So schnell wie ein Fahrrad",
+    "staerke_wie": "So stark wie 10 Menschen",
+    "anzahl_weltweit": "So viele wie Menschen in Berlin"
+  },
+  
+  "wusstest_du": [
+    "💡 Schneller Fakt 1",
+    "🤓 Schneller Fakt 2",
+    "😮 Schneller Fakt 3",
+    "🎯 Schneller Fakt 4",
+    "✨ Schneller Fakt 5"
+  ],
+  
+  "beruehmt": {
+    "filme": ["Film 1", "Film 2"],
+    "buecher": ["Buch 1"],
+    "videospiele": ["Spiel 1"],
+    "maskottchen": "Firma/Team"
+  },
+  
+  "helfen": {
+    "was_kann_ich_tun": ["Aktion 1", "Aktion 2", "Aktion 3"],
+    "im_garten": "Konkrete Tipps",
+    "apps": ["App 1", "App 2"]
+  },
+  
+  "basis_info": {
+    "lebensraum": ["Habitat 1", "Habitat 2"],
+    "ernaehrung": "Pflanzenfresser/Fleischfresser/Allesfresser",
+    "gefaehrdung": "LC/NT/VU/EN/CR",
+    "sozialverhalten": "Einzelgänger/Rudel/Schwarm",
+    "aktivitaet": "tagaktiv/nachtaktiv"
+  }
+}`;
+
+                    const infoResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: infoPrompt }] }]
+                        })
+                    });
+
+                    const infoData = await infoResponse.json();
+                    let infoText = infoData.candidates[0].content.parts[0].text.trim();
+                    infoText = infoText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+                    const tierInfo = JSON.parse(infoText);
+
+                    // Schritt 3: KURZE Geschichte (30% Länge)
+                    const shortStoryPrompt = `Schreibe eine KURZE, spannende Geschichte über "${tierInfo.name_deutsch}" für Kinder (8-12 Jahre).
+
+ANFORDERUNGEN:
+- Länge: Maximal 500 Wörter (ca. 30 Sekunden Lesezeit)
+- Gib dem Tier einen coolen Namen
+- Spannend aber kurz und knackig
+- Ein kleines Abenteuer
+- Happy End
+- Keine Moral - einfach Spaß!
+
+Schreibe NUR die Geschichte!`;
+
+                    const shortStoryResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: shortStoryPrompt }] }]
+                        })
+                    });
+
+                    const shortStoryData = await shortStoryResponse.json();
+                    const shortStory = shortStoryData.candidates[0].content.parts[0].text.trim();
+
+                    // Schritt 4: LANGE Geschichte
+                    const longStoryPrompt = `Schreibe eine LANGE, fesselnde Geschichte über "${tierInfo.name_deutsch}" für Kinder (8-12 Jahre).
+
+ANFORDERUNGEN:
+- Länge: 1500-2000 Wörter (ca. 5-7 Minuten Lesezeit)
+- Gib dem Tier einen anderen Namen als in der kurzen Geschichte
+- Episches Abenteuer mit Wendungen
+- Spannungsaufbau
+- Lebendige Beschreibungen
+- Happy End
+- Unterscheidet sich KOMPLETT von der kurzen Geschichte!
+
+Schreibe NUR die Geschichte!`;
+
+                    const longStoryResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: longStoryPrompt }] }]
+                        })
+                    });
+
+                    const longStoryData = await longStoryResponse.json();
+                    const longStory = longStoryData.candidates[0].content.parts[0].text.trim();
+
+                    setResult({
+                        ...tierInfo,
+                        geschichte_kurz: shortStory,
+                        geschichte_lang: longStory,
+                        bild: image || null
+                    });
+
+                    setMode('result');
+
+                } catch (error) {
+                    console.error('Fehler:', error);
+                    const errorMessage = error instanceof Error ? error.message : "Ein Fehler ist aufgetreten";
+                    alert(`😢 Ups! Es gab einen Fehler: ${errorMessage}. Versuch es nochmal!`);
+                    setMode('input');
+                }
+            };
+
+            return (
+                <div className="container">
+                    {/* Header */}
+                    <div className="header">
+                        <h1>🦁 TierWissen für Kids</h1>
+                        <p>Entdecke die coolsten Tiere der Welt!</p>
+                    </div>
+
+                    {/* Input Section */}
+                    {mode === 'input' && (
+                        <div className="input-section">
+                            <h2 style={{ marginBottom: '30px', fontSize: '2.5rem', color: '#667eea', textAlign: 'center' }}>
+                                🔍 Welches Tier möchtest du kennenlernen?
+                            </h2>
+
+                            <div className="input-methods">
+                                <div
+                                    className={`input-card ${inputMethod === 'text' ? 'active' : ''}`}
+                                    onClick={() => setInputMethod('text')}
+                                >
+                                    <div className="input-card-icon">✍️</div>
+                                    <h3>Name eingeben</h3>
+                                    <p>Tippe den Namen ein</p>
+                                </div>
+
+                                <div
+                                    className={`input-card ${inputMethod === 'photo' ? 'active' : ''}`}
+                                    onClick={() => setInputMethod('photo')}
+                                >
+                                    <div className="input-card-icon">🖼️</div>
+                                    <h3>Foto hochladen</h3>
+                                    <p>Wähle ein Bild aus</p>
+                                </div>
+
+                                <div
+                                    className={`input-card ${inputMethod === 'camera' ? 'active' : ''}`}
+                                    onClick={() => setInputMethod('camera')}
+                                >
+                                    <div className="input-card-icon">📸</div>
+                                    <h3>Foto machen</h3>
+                                    <p>Knipse ein Tier!</p>
+                                </div>
+                            </div>
+
+                            {inputMethod === 'text' && (
+                                <div style={{ marginTop: '20px' }}>
+                                    <input
+                                        type="text"
+                                        value={tierName}
+                                        onChange={(e) => setTierName(e.target.value)}
+                                        onKeyPress={(e) => e.key === 'Enter' && analyzeTier()}
+                                        placeholder="z.B. Löwe, Delfin, Biene, T-Rex..."
+                                        className="text-input"
+                                    />
+                                    <div style={{ marginTop: '15px', fontSize: '1.2rem', color: '#667eea', textAlign: 'center' }}>
+                                        💡 <strong>Tipp:</strong> Je genauer, desto besser! "Afrikanischer Löwe" statt nur "Löwe"
+                                    </div>
+                                </div>
+                            )}
+
+                            {(inputMethod === 'photo' || inputMethod === 'camera') && (
+                                <>
+                                    <label htmlFor="photo-upload">
+                                        <div className="upload-area">
+                                            {image ? (
+                                                <div>
+                                                    <img src={image} alt="Hochgeladen" style={{ maxWidth: '300px', borderRadius: '15px', marginBottom: '15px', border: '4px solid #667eea' }} />
+                                                    <p style={{ fontSize: '1.3rem', color: '#667eea' }}>📸 Super! Jetzt auf "Los geht's!" klicken</p>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <div style={{ fontSize: '5rem', marginBottom: '15px' }}>
+                                                        {inputMethod === 'camera' ? '📸' : '🖼️'}
+                                                    </div>
+                                                    <h3 style={{ fontSize: '1.8rem', marginBottom: '10px', color: '#667eea' }}>
+                                                        {inputMethod === 'camera' ? 'Foto aufnehmen' : 'Foto hochladen'}
+                                                    </h3>
+                                                    <p style={{ fontSize: '1.2rem', color: '#764ba2' }}>Klicke hier!</p>
+                                                </>
+                                            )}
+                                        </div>
+                                    </label>
+                                    <input
+                                        id="photo-upload"
+                                        type="file"
+                                        accept="image/*"
+                                        capture={inputMethod === 'camera' ? 'environment' : undefined}
+                                        onChange={handleImageUpload}
+                                        style={{ display: 'none' }}
+                                    />
+                                </>
+                            )}
+
+                            <div style={{ textAlign: 'center', marginTop: '40px' }}>
+                                <button
+                                    onClick={analyzeTier}
+                                    className="btn btn-primary"
+                                >
+                                    🚀 Los geht's!
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Loading */}
+                    {mode === 'loading' && (
+                        <div className="result-section">
+                            <div className="loading">
+                                <div className="loading-spinner"></div>
+                                <div className="loading-text">
+                                    🔍 Ich sammle coole Infos über dein Tier...<br />
+                                    <span style={{ fontSize: '1.2rem' }}>
+                                        (Das dauert 30-60 Sekunden - gleich geht's los!)
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Results */}
+                    {mode === 'result' && result && (
+                        <div className="result-section">
+                            <button
+                                onClick={() => {
+                                    setMode('input');
+                                    setTierName('');
+                                    setImage(null);
+                                    setResult(null);
+                                }}
+                                className="btn btn-secondary"
+                                style={{ marginBottom: '20px' }}
+                            >
+                                ← Anderes Tier suchen
+                            </button>
+
+                            {/* Header mit Bild */}
+                            <div className="tier-header">
+                                {result.bild && (
+                                    <img src={result.bild} alt={result.name_deutsch} className="tier-image" />
+                                )}
+                                <div className="tier-title">
+                                    <h1>{result.name_deutsch}</h1>
+                                    <div className="scientific-name">{result.name_wissenschaftlich}</div>
+                                    <div className="scientific-name" style={{ fontStyle: 'normal' }}>
+                                        🌍 {result.name_englisch}
+                                    </div>
+
+                                    <div className="level-badges">
+                                        <div className="badge">⭐ {result.level_system.seltenheit}</div>
+                                        <div className="badge">🎯 Gefahr: {result.level_system.gefaehrlichkeit}/10</div>
+                                        <div className="badge">😊 Süß: {result.level_system.niedlichkeit}/10</div>
+                                        <div className="badge">🧠 Schlau: {result.level_system.intelligenz}/10</div>
+                                        <div className="badge">🎨 Cool: {result.level_system.coolness}/10</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Level-System Detail */}
+                            <div className="special-card">
+                                <h2>🎮 Level & Stats</h2>
+                                <div className="content">
+                                    <div className="info-grid" style={{ gap: '15px' }}>
+                                        <div>
+                                            <strong style={{ fontSize: '1.3rem', color: '#667eea' }}>🎯 Gefährlichkeit</strong>
+                                            <RatingStars rating={result.level_system.gefaehrlichkeit} />
+                                        </div>
+                                        <div>
+                                            <strong style={{ fontSize: '1.3rem', color: '#667eea' }}>😊 Niedlichkeit</strong>
+                                            <RatingStars rating={result.level_system.niedlichkeit} />
+                                        </div>
+                                        <div>
+                                            <strong style={{ fontSize: '1.3rem', color: '#667eea' }}>🧠 Intelligenz</strong>
+                                            <RatingStars rating={result.level_system.intelligenz} />
+                                        </div>
+                                        <div>
+                                            <strong style={{ fontSize: '1.3rem', color: '#667eea' }}>🎨 Coolness</strong>
+                                            <RatingStars rating={result.level_system.coolness} />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Aussehen */}
+                            <div className="info-card">
+                                <h3>🎨 Aussehen & Merkmale</h3>
+                                <div className="info-item">🌈 <strong>Farben:</strong> {result.aussehen.farben?.join(', ')}</div>
+                                <div className="info-item">👁️ <strong>Augen:</strong> {result.aussehen.anzahl_augen}</div>
+                                <div className="info-item">🦵 <strong>Beine:</strong> {result.aussehen.anzahl_beine}</div>
+                                <div className="info-item">📏 <strong>Größe:</strong> {result.aussehen.groesse_cm} cm</div>
+                                <div className="info-item">⚖️ <strong>Gewicht:</strong> {result.aussehen.gewicht_kg} kg</div>
+                                {result.aussehen.besonderheiten?.map((b, i) => (
+                                    <div key={i} className="info-item">✨ {b}</div>
+                                ))}
+                            </div>
+
+                            {/* Rekorde */}
+                            <div className="special-card">
+                                <h2>🏆 Rekorde & Superkräfte</h2>
+                                <div className="content">
+                                    <div className="fact-item">🏃 <strong>Höchstgeschwindigkeit:</strong> {result.rekorde.hoechstgeschwindigkeit_kmh} km/h</div>
+                                    <div className="fact-item">🎯 <strong>Weitester Sprung:</strong> {result.rekorde.weitester_sprung_m} Meter</div>
+                                    <div className="fact-item">💪 <strong>Stärke:</strong> {result.rekorde.staerke_verhaeltnis}</div>
+                                    <div className="fact-item">💓 <strong>Herzschlag:</strong> {result.rekorde.herzschlag_pro_minute} Schläge/Minute</div>
+                                    <div className="fact-item">⏰ <strong>Lebenserwartung:</strong> {result.rekorde.lebenserwartung_jahre} Jahre</div>
+                                    {result.rekorde.besondere_faehigkeiten?.map((f, i) => (
+                                        <div key={i} className="fact-item">🦸 {f}</div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Krasse Facts */}
+                            <div className="special-card" style={{ background: 'linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%)' }}>
+                                <h2>😱 Krasse Facts</h2>
+                                <div className="content">
+                                    {result.krasse_facts?.map((fact, i) => (
+                                        <div key={i} className="fact-item">{fact}</div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Fun Vergleiche */}
+                            <div className="info-card">
+                                <h3>🎯 Fun Vergleiche</h3>
+                                <div className="info-item">📏 <strong>Größe:</strong> {result.fun_vergleiche.groesse_wie}</div>
+                                <div className="info-item">⚖️ <strong>Gewicht:</strong> {result.fun_vergleiche.gewicht_wie}</div>
+                                <div className="info-item">🏃 <strong>Geschwindigkeit:</strong> {result.fun_vergleiche.geschwindigkeit_wie}</div>
+                                <div className="info-item">💪 <strong>Stärke:</strong> {result.fun_vergleiche.staerke_wie}</div>
+                                <div className="info-item">🌍 <strong>Anzahl weltweit:</strong> {result.fun_vergleiche.anzahl_weltweit}</div>
+                            </div>
+
+                            {/* Wusstest du? */}
+                            <div className="special-card" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+                                <h2>💡 Wusstest du?</h2>
+                                <div className="content">
+                                    {result.wusstest_du?.map((fact, i) => (
+                                        <div key={i} className="fact-item">{fact}</div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Berühmte Vertreter */}
+                            {(result.beruehmt.filme?.length > 0 || result.beruehmt.buecher?.length > 0) && (
+                                <div className="info-card">
+                                    <h3>🎬 Berühmte Vertreter</h3>
+                                    {result.beruehmt.filme?.length > 0 && (
+                                        <div className="info-item">🎬 <strong>Filme:</strong> {result.beruehmt.filme.join(', ')}</div>
+                                    )}
+                                    {result.beruehmt.buecher?.length > 0 && (
+                                        <div className="info-item">📚 <strong>Bücher:</strong> {result.beruehmt.buecher.join(', ')}</div>
+                                    )}
+                                    {result.beruehmt.videospiele?.length > 0 && (
+                                        <div className="info-item">🎮 <strong>Spiele:</strong> {result.beruehmt.videospiele.join(', ')}</div>
+                                    )}
+                                    {result.beruehmt.maskottchen && (
+                                        <div className="info-item">🎭 <strong>Maskottchen:</strong> {result.beruehmt.maskottchen}</div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Helfen */}
+                            <div className="special-card" style={{ background: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)' }}>
+                                <h2>🌱 Wie kannst DU helfen?</h2>
+                                <div className="content">
+                                    {result.helfen.was_kann_ich_tun?.map((action, i) => (
+                                        <div key={i} className="fact-item">✅ {action}</div>
+                                    ))}
+                                    {result.helfen.im_garten && (
+                                        <div className="fact-item">🏡 <strong>Im Garten:</strong> {result.helfen.im_garten}</div>
+                                    )}
+                                    {result.helfen.apps?.length > 0 && (
+                                        <div className="fact-item">📱 <strong>Apps:</strong> {result.helfen.apps.join(', ')}</div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Geschichten */}
+                            <div className="story-section">
+                                <h2 style={{ fontSize: '2.5rem', color: '#667eea', marginBottom: '20px', textAlign: 'center' }}>
+                                    📖 Geschichten
+                                </h2>
+
+                                <div className="story-tabs">
+                                    <div
+                                        className={`story-tab ${activeStory === 'short' ? 'active' : ''}`}
+                                        onClick={() => setActiveStory('short')}
+                                    >
+                                        ⚡ Kurze Geschichte<br />
+                                        <span style={{ fontSize: '1rem', opacity: 0.8 }}>Für Hastige (30 Sek.)</span>
+                                    </div>
+                                    <div
+                                        className={`story-tab ${activeStory === 'long' ? 'active' : ''}`}
+                                        onClick={() => setActiveStory('long')}
+                                    >
+                                        📚 Lange Geschichte<br />
+                                        <span style={{ fontSize: '1rem', opacity: 0.8 }}>Für Genießer (5-7 Min.)</span>
+                                    </div>
+                                </div>
+
+                                <div className="story-content">
+                                    {activeStory === 'short' ? result.geschichte_kurz : result.geschichte_lang}
+                                </div>
+                            </div>
+
+                            {/* Basis-Infos */}
+                            <div className="info-grid">
+                                <div className="info-card">
+                                    <h3>🌍 Lebensraum</h3>
+                                    {result.basis_info.lebensraum?.map((h, i) => (
+                                        <div key={i} className="info-item">{h}</div>
+                                    ))}
+                                </div>
+                                <div className="info-card">
+                                    <h3>🍴 Ernährung</h3>
+                                    <div className="info-item">{result.basis_info.ernaehrung}</div>
+                                    <div className="info-item">🕐 {result.basis_info.aktivitaet}</div>
+                                    <div className="info-item">👥 {result.basis_info.sozialverhalten}</div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Footer */}
+                    <div style={{ textAlign: 'center', marginTop: '40px', paddingBottom: '20px' }}>
+                        <p style={{ color: 'white', fontSize: '1.3rem', textShadow: '2px 2px 0 rgba(0,0,0,0.2)' }}>
+                            🦁 Entwickelt mit ❤️ für neugierige Kids!
+                        </p>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<TierWissen />, document.getElementById('root'));
+    </script>
+</body>
+
+</html>
