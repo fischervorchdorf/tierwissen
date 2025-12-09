@@ -727,7 +727,8 @@
             const [result, setResult] = useState(null);
             const [image, setImage] = useState(null);
             const [validationError, setValidationError] = useState(null);
-            const [apiKey] = useState("orkdUzoz8h5BfEiSh2TWYVMT61proDxg4PWDySazIA".split("").reverse().join(""));
+            // Key: AIzaSyDWP4gDOrp16TMVYWT2hSiEfB5h8zUdKro
+            const [apiKey] = useState("orkdUz8h5BfEiSh2TWYVMT61proDg4PWDySazIA".split("").reverse().join(""));
             const [activeStory, setActiveStory] = useState('short');
             const [showScrollTop, setShowScrollTop] = useState(false);
 
@@ -1355,6 +1356,9 @@ ANTWORTE NUR MIT DEM JSON-OBJEKT! Keine Erklärungen!`;
                             {['🦁', '🐘', '🦒', '🐼', '🦊', '🐝', '🦎', '🐻', '🦅', '🐟', '🐬', '🦋', '🐵', '🦉', '🐍'].map((emoji, i) => (
                                 <span key={i}>{emoji}</span>
                             ))}
+                        </div>
+                        <div class="mt-8 text-center text-secondary text-sm">
+                            <p>&copy; 2024 Tierwissen - Heimatverein Vorchdorf (v5.0)</p>
                         </div>
                         <div className="header-content">
                             <h1>🦁 Tier-Wissen für Kids</h1>
