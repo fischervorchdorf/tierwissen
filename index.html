@@ -727,8 +727,8 @@
             const [result, setResult] = useState(null);
             const [image, setImage] = useState(null);
             const [validationError, setValidationError] = useState(null);
-            // Key: AIzaSyDWP4gDOrp16TMVYWT2hSiEfB5h8zUdKro
-            const [apiKey] = useState("orKdUz8h5BfEiSh2TWYVMT61prODg4PWDySazIA".split("").reverse().join(""));
+            // Cloudflare Worker Proxy URL - kein API-Key mehr nötig!
+            const WORKER_URL = "https://gemini-proxy.fischervorchdorf.workers.dev/";
             const [activeStory, setActiveStory] = useState('short');
             const [showScrollTop, setShowScrollTop] = useState(false);
 
@@ -1052,7 +1052,7 @@
 
                     if (image && !tierName) {
                         const base64Image = image.split(',')[1];
-                        const identifyResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                        const identifyResponse = await fetch(WORKER_URL, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
@@ -1141,7 +1141,7 @@ JSON-STRUKTUR (NUR mit ECHTEN Daten füllen!):
 ANTWORTE NUR MIT DEM JSON-OBJEKT! Keine Erklärungen!`;
 
                     // 1. FETCH INFO & VALIDATE (FAST)
-                    const infoResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                    const infoResponse = await fetch(WORKER_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ contents: [{ parts: [{ text: infoPrompt }] }] })
@@ -1214,12 +1214,12 @@ ANTWORTE NUR MIT DEM JSON-OBJEKT! Keine Erklärungen!`;
                     // 4. FETCH STORIES (BACKGROUND)
                     try {
                         const [shortStoryData, longStoryData] = await Promise.all([
-                            fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                            fetch(WORKER_URL, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ contents: [{ parts: [{ text: `Schreibe eine KURZE, spannende Geschichte über "${detectedAnimal}" für Kinder (8-12 Jahre). Länge: Max 500 Wörter. Coolen Namen. Happy End. Keine Moral!` }] }] })
                             }).then(r => r.json()),
-                            fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                            fetch(WORKER_URL, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ contents: [{ parts: [{ text: `Schreibe eine LANGE, fesselnde Geschichte über "${detectedAnimal}" für Kinder (8-12 Jahre). Länge: 1500-2000 Wörter. Anderen Namen. Episches Abenteuer. Happy End.` }] }] })
